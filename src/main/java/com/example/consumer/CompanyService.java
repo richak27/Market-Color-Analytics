@@ -22,13 +22,12 @@ public class CompanyService {
 	@Autowired
 	private CompanyRepository companyRepository;
 	
-	public Company getByTicker(String ticker) {
-		
-	Company company = this.companyRepository.findByTicker(ticker);
-    Stock[] stocks = restTemplate.getForObject(url1+ticker+url2+token, Stock[].class);
-    company.setStocks(Arrays.asList(stocks));
-    this.companyRepository.save(company);
-    return company;
+	public Company getByTicker(String ticker) {		
+		Company company = this.companyRepository.findByTicker(ticker);
+		Stock[] stocks = restTemplate.getForObject(url1+ticker+url2+token, Stock[].class);
+		company.setStocks(Arrays.asList(stocks));
+		this.companyRepository.save(company);
+		return company;
 	}
 	
 
