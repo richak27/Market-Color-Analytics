@@ -21,14 +21,46 @@ public class CompanyController {
 	@Autowired
 	private CompanyService companyService;
 	
-
+	private List<String> list;
+	private List<Company> obj;
+	
+	
 	@GetMapping("/{ticker}")
-    public Company getByTicker(@PathVariable("ticker") String ticker){
-		
-       
-       return companyService.getByTicker(ticker);
-        
+    public Company getByTicker(@PathVariable("ticker") String ticker){ 
+       return companyService.getByTicker(ticker);      
     }
 	
 	
-}
+	@GetMapping("/ticker")
+	public List<String> getAllTicker(){	
+		 list = companyService.getAllTickers();
+			return companyService.getAllTickers();
+		}
+
+	
+	@GetMapping("/ticker/stock")
+	public List<Company> getCompanyFromTicker(List<String>list){
+		
+		return this.companyService.getCompanyFromTicker(list = companyService.getAllTickers());		
+		
+		}
+	
+	@GetMapping("/sector")
+	public List<String> getAllSector(){	
+		 list = companyService.getAllSectors();
+			return companyService.getAllSectors();
+		}
+		
+}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
