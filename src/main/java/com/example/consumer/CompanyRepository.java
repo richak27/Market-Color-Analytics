@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface CompanyRepository extends MongoRepository<Company, String>{
 	Company findByTicker(String ticker);
 	
-	@Query("db.Companies.distinct('ticker')")
-	List<String> getAllTickers();
+	
 
 }
