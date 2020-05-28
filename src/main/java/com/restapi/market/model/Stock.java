@@ -1,4 +1,4 @@
-package com.example.consumer;
+package com.restapi.market.model;
 
 public class Stock {
 	private String date;

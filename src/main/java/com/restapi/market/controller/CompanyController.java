@@ -1,5 +1,6 @@
-package com.example.consumer;
+package com.restapi.market.controller;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.restapi.market.model.Company;
+import com.restapi.market.service.CompanyService;
 
 
 @RestController
@@ -21,13 +25,18 @@ public class CompanyController {
     }	
 	
 	@GetMapping("/tickers")
-    public Set<String> getTickerList() {       
+    public List<String> getTickerList() {       
 		return companyService.getAllTickers();        
     }
 	
 	@GetMapping("/seed")
     public String populateDb() {		
 		return companyService.seedDb();
+    }
+	
+	@GetMapping("/update/{ticker}")
+    public String updateByTicker(@PathVariable("ticker") String ticker) {		
+		return companyService.updateByTicker(ticker);
     }
 	
 	

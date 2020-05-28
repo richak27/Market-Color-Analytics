@@ -1,4 +1,4 @@
-package com.example.consumer;
+package com.restapi.market.service;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,8 +8,15 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.restapi.market.model.Company;
+import com.restapi.market.model.Stock;
+import com.restapi.market.repository.CompanyRepository;
 
 @Service
 public class CompanyService {
@@ -27,9 +34,35 @@ public class CompanyService {
 	private CompanyRepository companyRepository;
 	
 	@Autowired
-	private MongoTemplate mongoTemplate;	
+	private MongoTemplate mongoTemplate;
+	
+	public void dailyUpdateAll() {
+		List<String> tickers = mongoTemplate.query(Company.class)  
+ 				 .distinct("ticker")       
+ 				 .as(String.class)           
+ 				 .all();
+		for(String ticker : tickers) {
+			try {
+				Stock[] stocks = restTemplate.getForObject(url1+ticker+url2_new+token, Stock[].class);	
+				mongoTemplate.updateFirst(
+						new Query(Criteria.where("ticker").is(ticker)),
+						new Update().addToSet("stocks", stocks[0]), 
+						Company.class);
+			} catch(Exception exception) {
+				System.out.println(exception);
+		}		
+		}		
+	}
 	
 	
+	public String updateByTicker(String ticker) {
+		Stock[] stocks = restTemplate.getForObject(url1+ticker+url2_new+token, Stock[].class);	
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("ticker").is(ticker)),
+				new Update().addToSet("stocks", stocks[0]), 
+				Company.class);
+		return "Stocks data updated successfully!";
+	}
 	
 	public Company getByTicker(String ticker) {
 		return this.companyRepository.findByTicker(ticker);
@@ -43,21 +76,18 @@ public class CompanyService {
 		return ticker + "information added to DB";
 	}	
 	
-	public Set<String> getAllTickers() {		
+	public List<String> getAllTickers() {		
 		return mongoTemplate.query(Company.class)  
 				  .distinct("ticker")       
 				  .as(String.class)           
-				  .all()
-				  .stream().collect(Collectors.toSet());
+				  .all();
 	}	
 	
-	public String seedDb() {
-		
-		Set<String> tickers = mongoTemplate.query(Company.class)  
+	public String seedDb() {		
+		List<String> tickers = mongoTemplate.query(Company.class)  
 				  				 .distinct("ticker")       
 				  				 .as(String.class)           
-				  				 .all()
-				  				 .stream().collect(Collectors.toSet());
+				  				 .all();				  				 
 		for(String ticker : tickers) {
 			try {
 			Company company = this.companyRepository.findByTicker(ticker);

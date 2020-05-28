@@ -1,4 +1,4 @@
-package com.example.consumer;
+package com.restapi.market.model;
 
 import java.util.ArrayList;
 import java.util.List;
