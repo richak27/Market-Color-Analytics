@@ -17,9 +17,9 @@ public class CompanyService {
 	@Value("${token}")
     private String token;
 
-	private static String url1 = "https://sandbox.iexapis.com/stable/stock/";
-	private static String url2 = "/chart/ytd?token=";
-	
+	private static String url1 = "https://cloud.iexapis.com/stable/stock/";
+	private static String url2_initial = "/chart/ytd?chartCloseOnly=true&token=";
+	private static String url2_new = "/chart/ytd?chartLast=1&chartCloseOnly=true&token=";
 	@Autowired
 	private RestTemplate restTemplate;
 	
@@ -37,7 +37,7 @@ public class CompanyService {
 	
 	public String addStocksByTicker(String ticker) {		
 		Company company = this.companyRepository.findByTicker(ticker);
-		Stock[] stocks = restTemplate.getForObject(url1+ticker+url2+token, Stock[].class);
+		Stock[] stocks = restTemplate.getForObject(url1+ticker+url2_initial+token, Stock[].class);
 		company.setStocks(Arrays.asList(stocks));
 		this.companyRepository.save(company);
 		return ticker + "information added to DB";
@@ -61,7 +61,7 @@ public class CompanyService {
 		for(String ticker : tickers) {
 			try {
 			Company company = this.companyRepository.findByTicker(ticker);
-			Stock[] stocks = restTemplate.getForObject(url1+ticker+url2+token, Stock[].class);
+			Stock[] stocks = restTemplate.getForObject(url1+ticker+url2_initial+token, Stock[].class);
 			company.setStocks(Arrays.asList(stocks));
 			this.companyRepository.save(company);
 			} catch(Exception exception) {
