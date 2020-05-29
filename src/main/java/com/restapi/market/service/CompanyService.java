@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.restapi.market.model.Company;
+import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.Stock;
+import com.restapi.market.model.VolumeAverage;
 import com.restapi.market.repository.CompanyRepository;
 
 @Service
@@ -23,10 +25,11 @@ public class CompanyService {
 
 	@Value("${token}")
 	private String token;
+
 	@Value("${boundary.date}")
 	private String boundaryDate;
 
-	private static String url1 = "https://cloud.iexapis.com/stable/stock/";
+	private static String url1 = "https://sandbox.iexapis.com/stable/stock/";
 	private static String url2_initial = "/chart/ytd?chartCloseOnly=true&token=";
 	private static String url2_new = "/chart/ytd?chartLast=1&chartCloseOnly=true&token=";
 	@Autowired
@@ -62,8 +65,8 @@ public class CompanyService {
 			}
 		}
 	}
-	
-	
+
+
 	public String updateByTicker(String ticker) throws ParseException {
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_new + token, Stock[].class);
 		for (Stock stock : stocks) {
@@ -80,12 +83,11 @@ public class CompanyService {
 				new Update().addToSet("stocks", stocks[0]), Company.class);
 		return "Stocks data updated successfully!";
 	}
-	
+
 
 	public Company getByTicker(String ticker) {
 		return this.companyRepository.findByTicker(ticker);
 	}
-	
 
 	public String addStocksByTicker(String ticker) throws ParseException {
 		Company company = this.companyRepository.findByTicker(ticker);
@@ -104,12 +106,12 @@ public class CompanyService {
 		this.companyRepository.save(company);
 		return ticker + "information added to DB";
 	}
-	
+
 
 	public List<String> getAllTickers() {
 		return mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 	}
-	
+
 
 	public String seedDb() {
 		List<String> tickers = mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
@@ -124,7 +126,7 @@ public class CompanyService {
 					if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 						stock.setPeriod("pre");
 					} else {
-						stock.setPeriod("post");
+						stock.setPeriod("pre");
 					}
 				}
 				company.setStocks(Arrays.asList(stocks));
@@ -135,5 +137,57 @@ public class CompanyService {
 		}
 		return "Seeding Successful!";
 	}
+
+
+	public VolumeAverage calAverageVolume(Company company)
+	{
+		VolumeAverage volumeAverage = new VolumeAverage();
+		double sum_volume_pre = 0;
+		double sum_volume_post = 0;
+		int sizeofpre = 0;
+		List<Stock> stocks = company.getStocks();
+		for (Stock stock: stocks) {
+			if(stock.getPeriod().contentEquals("pre")) {
+				sizeofpre = sizeofpre+1;
+				sum_volume_pre += stock.getVolume();	
+			}
+			else {
+				sum_volume_post += stock.getVolume();
+			}
+		}
+
+		volumeAverage.setPreCovidVolume((sum_volume_pre)/(sizeofpre));
+
+		volumeAverage.setPostCovidVolume((sum_volume_post) /(stocks.size()-sizeofpre));
+
+		return volumeAverage;
+
+	}
+
+	public PriceAverage calAverageStock(Company company)
+	{
+		PriceAverage priceAverage = new PriceAverage();
+		double sum_close_pre = 0;
+		double sum_close_post = 0;
+		int  sizeofpre = 0;
+		List<Stock> stocks = company.getStocks();
+		for (Stock stock: stocks) {
+		
+			if(stock.getPeriod().contentEquals("pre")) {
+				
+				sum_close_pre += stock.getClose();
+				sizeofpre = sizeofpre+1;}
+
+			else {
+				sum_close_post +=stock.getClose();			}
+		}
+
+		priceAverage.setPreCovidPrice((sum_close_pre)/(sizeofpre));
+		priceAverage.setPostCovidPrice((sum_close_post) /(stocks.size()-sizeofpre));
+
+		return priceAverage;
+
+	}
+
 
 }
