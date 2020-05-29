@@ -86,15 +86,43 @@ public class CompanyService {
 		return "Seeding Successful!";
 	}
 	
-	public List<Stock >getAvg(String ticker)
+	public String GetAvg(Company company)
 	{
-		Company company = this.companyRepository.findByTicker(ticker);
+		float AvgVol=getAvgVolume(company);
+		float AvgStock=getAvgStock(company);
+		return ("Average Volume:"+AvgVol+"\n"+"Average Stock:"+AvgStock);
+
+	}
 	
-		return company.getStocks();
+	public float getAvgVolume(Company company)
+	{
+		float sum_vol = 0;
+		List<Stock> stocks = company.getStocks();
+		for (Stock stock: stocks) {
+			sum_vol = sum_vol + stock.getVolume();	
+		}
+		return (sum_vol/stocks.size());
+	}
+	
+	
+	public float getAvgStock(Company company)
+	{
+		float sum_close = 0;
+		List<Stock> stocks = company.getStocks();
+		for (Stock stock: stocks) 
+		{
+			
+				sum_close = sum_close + stock.getClose();	
+		}
+		
+	float avg=sum_close/stocks.size();
+						
+		
+		return (avg);
+	}
 	
 
-		
-	}
+
 
 }
 
