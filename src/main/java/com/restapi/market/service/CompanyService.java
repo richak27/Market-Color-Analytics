@@ -104,20 +104,18 @@ public class CompanyService {
 		return (sum_vol/stocks.size());
 	}
 	
-	
+
 	public float getAvgStock(Company company)
 	{
-		float sum_close = 0;
+		float sum_stock = 0;
 		List<Stock> stocks = company.getStocks();
 		for (Stock stock: stocks) 
 		{
 			
-				sum_close = sum_close + stock.getClose();	
+				sum_stock = sum_stock + stock.getClose();	
 		}
 		
-	float avg=sum_close/stocks.size();
-						
-		
+	    float avg=sum_stock/stocks.size();
 		return (avg);
 	}
 	
