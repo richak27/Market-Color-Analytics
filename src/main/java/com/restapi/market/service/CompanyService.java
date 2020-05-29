@@ -1,5 +1,8 @@
 package com.restapi.market.service;
 
+import com.restapi.market.model.*;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,7 @@ public class CompanyService {
 	private static String url2_new = "/chart/ytd?chartLast=1&chartCloseOnly=true&token=";
 	@Autowired
 	private RestTemplate restTemplate;
+
 
 	
 	@Autowired
@@ -57,6 +61,11 @@ public class CompanyService {
 	public Company getByTicker(String ticker) {
 		return this.companyRepository.findByTicker(ticker);
 	}
+	
+	public List<Company> getBySector(String sector)
+	{
+		return this.companyRepository.findBySector(sector);
+	}
 
 	public String addStocksByTicker(String ticker) {
 		Company company = this.companyRepository.findByTicker(ticker);
@@ -86,40 +95,99 @@ public class CompanyService {
 		return "Seeding Successful!";
 	}
 	
-	public String GetAvg(Company company)
-	{
-		float AvgVol=getAvgVolume(company);
-		float AvgStock=getAvgStock(company);
-		return ("Average Volume:"+AvgVol+"\n"+"Average Stock:"+AvgStock);
 
-	}
 	
-	public float getAvgVolume(Company company)
+	public Average getAvgVolumeByCompany(Company company)
 	{
-		float sum_vol = 0;
-		List<Stock> stocks = company.getStocks();
-		for (Stock stock: stocks) {
-			sum_vol = sum_vol + stock.getVolume();	
-		}
-		return (sum_vol/stocks.size());
-	}
-	
+	    Average avg_object;
+		float pre_sum_vol = 0,post_sum_vol=0,pre_size=0,post_size=0;
 
-	public float getAvgStock(Company company)
-	{
-		float sum_stock = 0;
 		List<Stock> stocks = company.getStocks();
 		for (Stock stock: stocks) 
 		{
-			
-				sum_stock = sum_stock + stock.getClose();	
+			   if(stock.getperiod().equals("pre"))
+			    {
+				   		pre_sum_vol = pre_sum_vol + stock.getVolume();
+				   		pre_size++;
+			    }
+			   else
+			   {
+				   pre_sum_vol = pre_sum_vol + stock.getClose();
+				   pre_size++;
+			   }
+			   	   
 		}
 		
-	    float avg=sum_stock/stocks.size();
-		return (avg);
+	    avg_object.setPre_covid(pre_sum_vol/pre_size);
+	    avg_object.setPost_covid(post_sum_vol/post_size);
+		
+		return avg_object;
+		
+
 	}
 	
 
+	public Average getAvgStockByCompany(Company company)
+	{
+	   
+		Average avg_object;
+
+		float pre_sum_stock = 0,post_sum_stock=0,pre_size=0,post_size=0;
+		List<Stock> stocks = company.getStocks();
+		for (Stock stock: stocks) 
+		{
+			   if(stock.getperiod().equals("pre"))
+				  {
+				   pre_sum_stock = pre_sum_stock + stock.getClose();
+				   pre_size++;
+				  }
+			   
+			   else 
+			   {
+				   post_sum_stock = post_sum_stock + stock.getClose();	
+				   post_size++;
+			   }
+
+		}
+		
+
+	    avg_object.setPre_covid(pre_sum_stock/pre_size);
+	    avg_object.setPost_covid(post_sum_stock/post_size);
+	    
+	    return avg_object;
+
+}
+	
+
+	public float getAvgStockBySector(List<Company> company)
+	{
+		float pre_sum_stock = 0,post_sum_stock=0;
+		
+		for(Company comp:company)
+		{
+			pre_sum_stock= pre_sum_stock + getAvgStockByCompany(comp);
+				
+		}
+		
+		return (sum_stock/company.size());
+			
+	}
+	
+	public float getAvgVolumekBySector(List<Company> company)
+	{
+		float sum_volume = 0;
+		
+		for(Company comp:company)
+		{
+			if(sum_volume= sum_volume + getAvgStockByCompany(comp);
+				
+		}
+		
+		return (sum_volume/company.size());
+			
+	}
+	
+	
 
 
 }
