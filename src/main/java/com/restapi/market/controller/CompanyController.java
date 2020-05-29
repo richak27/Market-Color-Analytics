@@ -42,10 +42,17 @@ public class CompanyController {
 		companyService.dailyUpdateAll();
 	}
 	
-	@GetMapping("/getAvg/{ticker}")
-	public List<Stock> getAvg(@PathVariable("ticker") String ticker)
+	@GetMapping("/getvolume{ticker}")
+	public float GetAvgVolume(@PathVariable("ticker") String ticker)
 	{
-		return companyService.getAvg(ticker);
+		Company company = companyService.getByTicker(ticker);
+		return companyService.getAvgVolume(company);
 	} 
 
+	@GetMapping("/getstock/{ticker}")
+	public float getvalue(@PathVariable("ticker") String ticker)
+	{
+		Company company = companyService.getByTicker(ticker);
+		return companyService.getAvgStock(company);
+	}
 }
