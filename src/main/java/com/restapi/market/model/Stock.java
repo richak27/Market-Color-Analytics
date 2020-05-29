@@ -1,55 +1,55 @@
 package com.restapi.market.model;
 
 public class Stock {
-	
 	private String date;
-	private float close;
-	private float volume;
 	private String period;
+	private double close;
+	private double volume;
 	
 	public Stock() {
 		super();
 	}
 
-	public Stock(String date, float close, float volume, String period) {
+	public Stock(String date, String period, double close, double volume) {
 		super();
 		this.date = date;
+		this.period = period;
 		this.close = close;
 		this.volume = volume;
-		this.period = period;
 	}
 
 	public String getDate() {
 		return date;
 	}
 
-	public void setDate(String date) {
-		this.date = date;
+	public String getPeriod() {
+		return period;
 	}
 
-	public float getClose() {
+	public double getClose() {
 		return close;
 	}
 
-	public void setClose(float close) {
-		this.close = close;
-	}
-
-	public float getVolume() {
+	public double getVolume() {
 		return volume;
 	}
 
-	public void setVolume(float volume) {
-		this.volume = volume;
-	}
-
-	public String getPeriod() {
-		return period;
+	public void setDate(String date) {
+		this.date = date;
 	}
 
 	public void setPeriod(String period) {
 		this.period = period;
 	}
-		
+
+	public void setClose(double close) {
+		this.close = close;
+	}
+
+	public void setVolume(double volume) {
+		this.volume = volume;
+	}
+
+	
 
 }
