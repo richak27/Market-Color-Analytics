@@ -27,6 +27,7 @@ public class CompanyService {
 	@Autowired
 	private RestTemplate restTemplate;
 
+	
 	@Autowired
 	private CompanyRepository companyRepository;
 
@@ -69,6 +70,7 @@ public class CompanyService {
 		return mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 	}
 
+	
 	public String seedDb() {
 		List<String> tickers = mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 		for (String ticker : tickers) {
@@ -83,5 +85,17 @@ public class CompanyService {
 		}
 		return "Seeding Successful!";
 	}
+	
+	public List<Stock >getAvg(String ticker)
+	{
+		Company company = this.companyRepository.findByTicker(ticker);
+	
+		return company.getStocks();
+	
+
+		
+	}
 
 }
+
+
