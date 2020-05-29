@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.restapi.market.model.Company;
+import com.restapi.market.model.Stock;
 import com.restapi.market.service.CompanyService;
 
 @RestController
@@ -40,5 +41,11 @@ public class CompanyController {
 	public void forceUpdate() {
 		companyService.dailyUpdateAll();
 	}
+	
+	@GetMapping("/getAvg/{ticker}")
+	public List<Stock> getAvg(@PathVariable("ticker") String ticker)
+	{
+		return companyService.getAvg(ticker);
+	} 
 
 }
