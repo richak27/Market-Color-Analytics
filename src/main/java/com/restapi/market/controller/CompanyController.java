@@ -1,5 +1,6 @@
 package com.restapi.market.controller;
 
+import java.text.ParseException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,13 +33,18 @@ public class CompanyController {
 	}
 
 	@GetMapping("/update/{ticker}")
-	public String updateByTicker(@PathVariable("ticker") String ticker) {
+	public String updateByTicker(@PathVariable("ticker") String ticker) throws ParseException {
 		return companyService.updateByTicker(ticker);
 	}
 
 	@GetMapping("/force-update")
 	public void forceUpdate() {
 		companyService.dailyUpdateAll();
+	}
+	
+	@GetMapping("/add/{ticker}")
+	public String addStocksByTicker(@PathVariable("ticker") String ticker) throws ParseException {
+		return companyService.addStocksByTicker(ticker);
 	}
 
 }
