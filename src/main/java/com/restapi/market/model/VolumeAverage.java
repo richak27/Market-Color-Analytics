@@ -1,34 +1,49 @@
 package com.restapi.market.model;
 
 public class VolumeAverage {
-	float preCovidVolume;
-	float postCovidVolume;
+	double preCovidVolume;
+	double postCovidVolume;
+	double deviationVolume;
 	
 	public VolumeAverage() {
 		super();
 	}
+
 	
-	public VolumeAverage(float preCovidVolume, float postCovidVolume) {
+	public VolumeAverage(double preCovidVolume, double postCovidVolume, double deviationVolume) {
 		super();
 		this.preCovidVolume = preCovidVolume;
 		this.postCovidVolume = postCovidVolume;
+		this.deviationVolume = deviationVolume;
 	}
 
-	public float getPreCovidVolume() {
+
+	public double getPreCovidVolume() {
 		return preCovidVolume;
 	}
 
-	public void setPreCovidVolume(float preCovidVolume) {
-		this.preCovidVolume = preCovidVolume;
-	}
-
-	public float getPostCovidVolume() {
+	public double getPostCovidVolume() {
 		return postCovidVolume;
 	}
 
-	public void setPostCovidVolume(float postCovidVolume) {
+	public void setPreCovidVolume(double preCovidVolume) {
+		this.preCovidVolume = preCovidVolume;
+	}
+
+	public void setPostCovidVolume(double postCovidVolume) {
 		this.postCovidVolume = postCovidVolume;
 	}
+
+
+	public double getDeviationVolume() {
+		return deviationVolume;
+	}
+
+
+	public void setDeviationVolume(double deviationVolume) {
+		this.deviationVolume = deviationVolume;
+	}
+	
 	
 	
 
