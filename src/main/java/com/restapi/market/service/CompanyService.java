@@ -26,7 +26,7 @@ public class CompanyService {
 	@Value("${boundary.date}")
 	private String boundaryDate;
 
-	private static String url1 = "https://cloud.iexapis.com/stable/stock/";
+	private static String url1 = "https://sandbox.iexapis.com//stable/stock/";
 	private static String url2_initial = "/chart/ytd?chartCloseOnly=true&token=";
 	private static String url2_new = "/chart/ytd?chartLast=1&chartCloseOnly=true&token=";
 	@Autowired
