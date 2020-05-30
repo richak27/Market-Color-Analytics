@@ -126,7 +126,7 @@ public class CompanyService {
 					if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 						stock.setPeriod("pre");
 					} else {
-						stock.setPeriod("pre");
+						stock.setPeriod("post");
 					}
 				}
 				company.setStocks(Arrays.asList(stocks));
@@ -157,8 +157,8 @@ public class CompanyService {
 		}
 
 		volumeAverage.setPreCovidVolume((sum_volume_pre)/(sizeofpre));
-
 		volumeAverage.setPostCovidVolume((sum_volume_post) /(stocks.size()-sizeofpre));
+		volumeAverage.setDeviationVolume(volumeAverage.getPostCovidVolume()-volumeAverage.getPreCovidVolume());
 
 		return volumeAverage;
 
@@ -170,7 +170,9 @@ public class CompanyService {
 		double sum_close_pre = 0;
 		double sum_close_post = 0;
 		int  sizeofpre = 0;
+		
 		List<Stock> stocks = company.getStocks();
+		
 		for (Stock stock: stocks) {
 		
 			if(stock.getPeriod().contentEquals("pre")) {
@@ -181,9 +183,10 @@ public class CompanyService {
 			else {
 				sum_close_post +=stock.getClose();			}
 		}
-
+		
 		priceAverage.setPreCovidPrice((sum_close_pre)/(sizeofpre));
 		priceAverage.setPostCovidPrice((sum_close_post) /(stocks.size()-sizeofpre));
+		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice()-priceAverage.getPreCovidPrice());
 
 		return priceAverage;
 
