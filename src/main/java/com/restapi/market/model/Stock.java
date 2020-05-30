@@ -5,7 +5,7 @@ public class Stock {
 	private String period;
 	private double close;
 	private double volume;
-	
+
 	public Stock() {
 		super();
 	}
@@ -49,7 +49,5 @@ public class Stock {
 	public void setVolume(double volume) {
 		this.volume = volume;
 	}
-
-	
 
 }

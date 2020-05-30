@@ -43,6 +43,7 @@ public class CompanyService {
 
 	SimpleDateFormat converter = new SimpleDateFormat("yyyy-MM-dd");
 
+	// daily update of stocks data for all companies
 	public void dailyUpdateAll() {
 		List<String> tickers = mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 		for (String ticker : tickers) {
@@ -66,7 +67,7 @@ public class CompanyService {
 		}
 	}
 
-
+	// daily update of stocks data of company whose ticker is passed
 	public String updateByTicker(String ticker) throws ParseException {
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_new + token, Stock[].class);
 		for (Stock stock : stocks) {
@@ -84,11 +85,11 @@ public class CompanyService {
 		return "Stocks data updated successfully!";
 	}
 
-
 	public Company getByTicker(String ticker) {
 		return this.companyRepository.findByTicker(ticker);
 	}
 
+	// seed database on company basis
 	public String addStocksByTicker(String ticker) throws ParseException {
 		Company company = this.companyRepository.findByTicker(ticker);
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_initial + token, Stock[].class);
@@ -107,12 +108,12 @@ public class CompanyService {
 		return ticker + "information added to DB";
 	}
 
-
+	// get list of all tickers in database
 	public List<String> getAllTickers() {
 		return mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 	}
 
-
+	// seed database with data of all companies
 	public String seedDb() {
 		List<String> tickers = mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 		for (String ticker : tickers) {
@@ -138,60 +139,58 @@ public class CompanyService {
 		return "Seeding Successful!";
 	}
 
-
-	public VolumeAverage calAverageVolume(Company company)
-	{
+	// pre and post covid average volume per company
+	public VolumeAverage calAverageVolume(Company company) {
 		VolumeAverage volumeAverage = new VolumeAverage();
 		double sum_volume_pre = 0;
 		double sum_volume_post = 0;
 		int sizeofpre = 0;
 		List<Stock> stocks = company.getStocks();
-		for (Stock stock: stocks) {
-			if(stock.getPeriod().contentEquals("pre")) {
-				sizeofpre = sizeofpre+1;
-				sum_volume_pre += stock.getVolume();	
-			}
-			else {
+		for (Stock stock : stocks) {
+			if (stock.getPeriod().contentEquals("pre")) {
+				sizeofpre = sizeofpre + 1;
+				sum_volume_pre += stock.getVolume();
+			} else {
 				sum_volume_post += stock.getVolume();
 			}
 		}
 
-		volumeAverage.setPreCovidVolume((sum_volume_pre)/(sizeofpre));
-		volumeAverage.setPostCovidVolume((sum_volume_post) /(stocks.size()-sizeofpre));
-		volumeAverage.setDeviationVolume(volumeAverage.getPostCovidVolume()-volumeAverage.getPreCovidVolume());
+		volumeAverage.setPreCovidVolume((sum_volume_pre) / (sizeofpre));
+		volumeAverage.setPostCovidVolume((sum_volume_post) / (stocks.size() - sizeofpre));
+		volumeAverage.setDeviationVolume(volumeAverage.getPostCovidVolume() - volumeAverage.getPreCovidVolume());
 
 		return volumeAverage;
 
 	}
 
-	public PriceAverage calAverageStock(Company company)
-	{
+	// pre and post covid average stock price per company
+	public PriceAverage calAverageStock(Company company) {
 		PriceAverage priceAverage = new PriceAverage();
 		double sum_close_pre = 0;
 		double sum_close_post = 0;
-		int  sizeofpre = 0; // Size of pre covid stocks
-		
+		int sizeofpre = 0; // Size of pre covid stocks
+
 		List<Stock> stocks = company.getStocks();
-		
-		for (Stock stock: stocks) {
-		
-			if(stock.getPeriod().contentEquals("pre")) {
-				
+
+		for (Stock stock : stocks) {
+
+			if (stock.getPeriod().contentEquals("pre")) {
+
 				sum_close_pre += stock.getClose();
-				sizeofpre = sizeofpre+1;}
+				sizeofpre = sizeofpre + 1;
+			}
 
 			else {
-				sum_close_post +=stock.getClose();			}
+				sum_close_post += stock.getClose();
+			}
 		}
-		
-		priceAverage.setPreCovidPrice((sum_close_pre)/(sizeofpre));
-		priceAverage.setPostCovidPrice((sum_close_post) /(stocks.size()-sizeofpre));
-		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice()-priceAverage.getPreCovidPrice());
-		
+
+		priceAverage.setPreCovidPrice((sum_close_pre) / (sizeofpre));
+		priceAverage.setPostCovidPrice((sum_close_post) / (stocks.size() - sizeofpre));
+		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice() - priceAverage.getPreCovidPrice());
 
 		return priceAverage;
 
 	}
-
 
 }
