@@ -58,16 +58,29 @@ public class CompanyController {
 		return companyService.addStocksByTicker(ticker);
 	}
 
-	@GetMapping("/average-volume/{ticker}")
+
+	@GetMapping("/average-volume-company/{ticker}")
 	public VolumeAverage calAverageVolume(@PathVariable("ticker") String ticker) {
 		Company company = companyService.getByTicker(ticker);
-		return companyService.calAverageVolume(company);
+		return companyService.calAvgVolByCompany(company);
 	}
-
-	@GetMapping("/average-stock/{ticker}")
-	public PriceAverage calAverageStock(@PathVariable("ticker") String ticker) {
+	
+	@GetMapping("/average-stock-company/{ticker}")
+	public PriceAverage calAvgStockByCompany(@PathVariable("ticker") String ticker) {
 		Company company = companyService.getByTicker(ticker);
-		return companyService.calAverageStock(company);
+		return companyService.calAvgStockByCompany(company);
 	}
-
+	
+	@GetMapping("/average-stock-sector/{sector}")
+	public PriceAverage calAvgStockBySector(@PathVariable("sector") String sector) {
+		List<Company> company = companyService.getBySector(sector);
+		return companyService.calAvgStockBySector(company);
+	}
+	
+	@GetMapping("/average-volume-sector/{sector}")
+	public VolumeAverage calAvgVolumekBySector(@PathVariable("sector") String sector) {
+		List<Company> company = companyService.getBySector(sector);
+		return companyService.getAvgVolumekBySector(company);
+	}
+	
 }
