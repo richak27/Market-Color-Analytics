@@ -169,7 +169,7 @@ public class CompanyService {
 		PriceAverage priceAverage = new PriceAverage();
 		double sum_close_pre = 0;
 		double sum_close_post = 0;
-		int  sizeofpre = 0;
+		int  sizeofpre = 0; // Size of pre covid stocks
 		
 		List<Stock> stocks = company.getStocks();
 		
@@ -187,6 +187,7 @@ public class CompanyService {
 		priceAverage.setPreCovidPrice((sum_close_pre)/(sizeofpre));
 		priceAverage.setPostCovidPrice((sum_close_post) /(stocks.size()-sizeofpre));
 		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice()-priceAverage.getPreCovidPrice());
+		
 
 		return priceAverage;
 
