@@ -19,18 +19,17 @@ import com.restapi.market.service.CompanyService;
 @RestController
 @RequestMapping("/company")
 public class CompanyController {
-	
+
 	@Bean
 	public RestTemplate getRestTemplate() {
 		return new RestTemplate();
-	}	
-	
-	
+	}
+
 	@Autowired
 	private CompanyService companyService;
 
 	@GetMapping("/{ticker}")
-	public Company getCompany(@PathVariable("ticker") String ticker) throws ParseException{
+	public Company getCompany(@PathVariable("ticker") String ticker) throws ParseException {
 		return companyService.getByTicker(ticker);
 	}
 
@@ -45,7 +44,7 @@ public class CompanyController {
 	}
 
 	@GetMapping("/update/{ticker}")
-	public String updateByTicker(@PathVariable("ticker") String ticker)throws ParseException  {
+	public String updateByTicker(@PathVariable("ticker") String ticker) throws ParseException {
 		return companyService.updateByTicker(ticker);
 	}
 
@@ -53,23 +52,22 @@ public class CompanyController {
 	public void forceUpdate() {
 		companyService.dailyUpdateAll();
 	}
-	
+
 	@GetMapping("/add/{ticker}")
 	public String addStocksByTicker(@PathVariable("ticker") String ticker) throws ParseException {
 		return companyService.addStocksByTicker(ticker);
 	}
 
-	
 	@GetMapping("/average-volume/{ticker}")
 	public VolumeAverage calAverageVolume(@PathVariable("ticker") String ticker) {
 		Company company = companyService.getByTicker(ticker);
 		return companyService.calAverageVolume(company);
 	}
-	
+
 	@GetMapping("/average-stock/{ticker}")
 	public PriceAverage calAverageStock(@PathVariable("ticker") String ticker) {
 		Company company = companyService.getByTicker(ticker);
 		return companyService.calAverageStock(company);
 	}
-	
+
 }
