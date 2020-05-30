@@ -1,7 +1,10 @@
 package com.restapi.market.controller;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +40,11 @@ public class CompanyController {
 		return companyService.getAllTickers();
 	}
 
+	@GetMapping("sectors")
+	public List<String> getSectorList() {
+		return companyService.getAllSectors();
+	}
+
 	@GetMapping("/seed")
 	public String populateDb() {
 		return companyService.seedDb();
@@ -57,29 +65,47 @@ public class CompanyController {
 		return companyService.addStocksByTicker(ticker);
 	}
 
-
 	@GetMapping("/average-volume-company/{ticker}")
 	public VolumeAverage calAverageVolume(@PathVariable("ticker") String ticker) {
 		Company company = companyService.getByTicker(ticker);
 		return companyService.calAvgVolByCompany(company);
 	}
-	
+
 	@GetMapping("/average-stock-company/{ticker}")
 	public PriceAverage calAvgStockByCompany(@PathVariable("ticker") String ticker) {
 		Company company = companyService.getByTicker(ticker);
 		return companyService.calAvgStockByCompany(company);
 	}
-	
+
 	@GetMapping("/average-stock-sector/{sector}")
 	public PriceAverage calAvgStockBySector(@PathVariable("sector") String sector) {
 		List<Company> company = companyService.getBySector(sector);
 		return companyService.calAvgStockBySector(company);
 	}
-	
+
 	@GetMapping("/average-volume-sector/{sector}")
 	public VolumeAverage calAvgVolumekBySector(@PathVariable("sector") String sector) {
 		List<Company> company = companyService.getBySector(sector);
-		return companyService.getAvgVolumekBySector(company);
+		return companyService.calAvgVolumeBySector(company);
 	}
-	
+
+	@GetMapping("/volume-deviation-sector")
+	public Map<String, Double> getSectorVolumeDeviation() {
+		return companyService.getSectorVolumeDeviation();
+	}
+
+	@GetMapping("/price-deviation-sector")
+	public Map<String, Double> getSectorPriceDeviation() {
+		return companyService.getSectorPriceDeviation();
+	}
+
+	@GetMapping("/volume-deviation-company")
+	public Map<String, Double> getCompanyVolumeDeviation() {
+		return companyService.getCompanyVolumeDeviation();
+	}
+
+	@GetMapping("/price-deviation-company")
+	public Map<String, Double> getCompanyPriceDeviation() {
+		return companyService.getCompanyPriceDeviation();
+	}
 }
