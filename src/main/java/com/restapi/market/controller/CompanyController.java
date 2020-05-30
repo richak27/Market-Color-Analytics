@@ -12,7 +12,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.restapi.market.model.Company;
 import com.restapi.market.model.PriceAverage;
-import com.restapi.market.model.Stock;
 import com.restapi.market.model.VolumeAverage;
 import com.restapi.market.service.CompanyService;
 

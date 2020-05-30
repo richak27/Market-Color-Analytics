@@ -88,7 +88,7 @@ public class CompanyService {
 	public Company getByTicker(String ticker) {
 		return this.companyRepository.findByTicker(ticker);
 	}
-	
+
 	public List<Company> getBySector(String sector) {
 		return this.companyRepository.findBySector(sector);
 	}
@@ -142,111 +142,97 @@ public class CompanyService {
 		}
 		return "Seeding Successful!";
 	}
-	
-	public VolumeAverage calAvgVolByCompany(Company company)
-	{
+
+	public VolumeAverage calAvgVolByCompany(Company company) {
 		VolumeAverage volumeAverage = new VolumeAverage();
 		double sum_volume_pre = 0;
 		double sum_volume_post = 0;
 		int sizeofpre = 0;
 		List<Stock> stocks = company.getStocks();
-		for (Stock stock: stocks) {
-			if(stock.getPeriod().contentEquals("pre")) {
-				sizeofpre = sizeofpre+1;
-				sum_volume_pre += stock.getVolume();	
-			}
-			else {
+		for (Stock stock : stocks) {
+			if (stock.getPeriod().contentEquals("pre")) {
+				sizeofpre = sizeofpre + 1;
+				sum_volume_pre += stock.getVolume();
+			} else {
 				sum_volume_post += stock.getVolume();
 			}
 		}
 
-		volumeAverage.setPreCovidVolume((sum_volume_pre)/(sizeofpre));
-		volumeAverage.setPostCovidVolume((sum_volume_post) /(stocks.size()-sizeofpre));
-		volumeAverage.setDeviationVolume(volumeAverage.getPostCovidVolume()-volumeAverage.getPreCovidVolume());
+		volumeAverage.setPreCovidVolume((sum_volume_pre) / (sizeofpre));
+		volumeAverage.setPostCovidVolume((sum_volume_post) / (stocks.size() - sizeofpre));
+		volumeAverage.setDeviationVolume(volumeAverage.getPostCovidVolume() - volumeAverage.getPreCovidVolume());
 
 		return volumeAverage;
 
 	}
 
-	public PriceAverage calAvgStockByCompany(Company company)
-	{
+	public PriceAverage calAvgStockByCompany(Company company) {
 		PriceAverage priceAverage = new PriceAverage();
 		double sum_close_pre = 0;
 		double sum_close_post = 0;
-		int  sizeofpre = 0; // Size of pre covid stocks
-		
+		int sizeofpre = 0; // Size of pre covid stocks
+
 		List<Stock> stocks = company.getStocks();
-		
-		for (Stock stock: stocks) {
-		
-			if(stock.getPeriod().contentEquals("pre")) {
-				
+
+		for (Stock stock : stocks) {
+
+			if (stock.getPeriod().contentEquals("pre")) {
+
 				sum_close_pre += stock.getClose();
-				sizeofpre = sizeofpre+1;}
+				sizeofpre = sizeofpre + 1;
+			}
 
 			else {
-				sum_close_post +=stock.getClose();			}
+				sum_close_post += stock.getClose();
+			}
 		}
-		
-		priceAverage.setPreCovidPrice((sum_close_pre)/(sizeofpre));
-		priceAverage.setPostCovidPrice((sum_close_post) /(stocks.size()-sizeofpre));
-		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice()-priceAverage.getPreCovidPrice());
-		
+
+		priceAverage.setPreCovidPrice((sum_close_pre) / (sizeofpre));
+		priceAverage.setPostCovidPrice((sum_close_post) / (stocks.size() - sizeofpre));
+		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice() - priceAverage.getPreCovidPrice());
 
 		return priceAverage;
 
 	}
-	
 
-	public PriceAverage calAvgStockBySector(List<Company> company)
-	{
+	public PriceAverage calAvgStockBySector(List<Company> company) {
 		PriceAverage priceAverage = new PriceAverage();
-		float pre_sum_stock = 0,post_sum_stock=0;
-		
-		for(Company comp:company)
-		{
-			//List<Stock> stocks = comp.getStocks();
-            
-			pre_sum_stock=(float) (pre_sum_stock+ calAvgStockByCompany(comp).getPreCovidPrice());
-			
-			post_sum_stock= (float) (post_sum_stock +calAvgStockByCompany(comp).getPostCovidPrice());
-			
-				
-		}
-		
+		double pre_sum_stock = 0, post_sum_stock = 0;
 
-		priceAverage.setPreCovidPrice((pre_sum_stock)/(company.size()));
-		priceAverage.setPreCovidPrice((post_sum_stock)/(company.size()));
-		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice()-priceAverage.getPreCovidPrice());
-		
+		for (Company comp : company) {
+			// List<Stock> stocks = comp.getStocks();
+
+			pre_sum_stock = pre_sum_stock + calAvgStockByCompany(comp).getPreCovidPrice();
+
+			post_sum_stock = post_sum_stock + calAvgStockByCompany(comp).getPostCovidPrice();
+
+		}
+
+		priceAverage.setPreCovidPrice((pre_sum_stock) / (company.size()));
+		priceAverage.setPostCovidPrice((post_sum_stock) / (company.size()));
+		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice() - priceAverage.getPreCovidPrice());
+
 		return priceAverage;
-			
-			
-	}
-	
-	public VolumeAverage getAvgVolumekBySector(List<Company> company)
-	{
-	    VolumeAverage volumeAverage = new VolumeAverage();
-		float pre_sum_volume = 0,post_sum_volume=0;
-		
-		for(Company comp:company)
-		{            
-			pre_sum_volume= (float) (pre_sum_volume + calAvgVolByCompany(comp).getPreCovidVolume());
-			
-			post_sum_volume= (float) (post_sum_volume +calAvgStockByCompany(comp).getPostCovidPrice());	
-				
-		}
-		
 
-		volumeAverage.setPreCovidVolume((pre_sum_volume)/(company.size()));
-		volumeAverage.setPreCovidVolume((pre_sum_volume)/(company.size()));
-		volumeAverage.setDeviationVolume(volumeAverage.getPostCovidVolume()-volumeAverage.getPreCovidVolume());
-		
-		return volumeAverage;
-		
-		
-			
 	}
-		
+
+	public VolumeAverage getAvgVolumekBySector(List<Company> company) {
+		VolumeAverage volumeAverage = new VolumeAverage();
+		double pre_sum_volume = 0, post_sum_volume = 0;
+
+		for (Company comp : company) {
+			pre_sum_volume = pre_sum_volume + calAvgVolByCompany(comp).getPreCovidVolume();
+
+			post_sum_volume = post_sum_volume + calAvgStockByCompany(comp).getPostCovidPrice();
+
+		}
+
+		volumeAverage.setPreCovidVolume((pre_sum_volume) / (company.size()));
+		volumeAverage.setPostCovidVolume((post_sum_volume) / (company.size()));
+		volumeAverage.setDeviationVolume(volumeAverage.getPostCovidVolume() - volumeAverage.getPreCovidVolume());
+
+		return volumeAverage;
+
+	}
 
 }
