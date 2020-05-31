@@ -9,7 +9,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -92,28 +95,18 @@ public class CompanyController {
 		List<Company> company = companyService.getBySector(sector);
 		return companyService.calAvgVolumeBySector(company);
 	}
-
-	@GetMapping("/sort/deviation/sector/rank = volume")
+	
+	@GetMapping("sort/company")
+	@ResponseBody
 	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getSectorVolumeDeviation() {
-		return companyService.getSectorVolumeDeviation();
+	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank) {
+		return companyService.getDeviationCompany(rank);
 	}
-
-	@GetMapping("/sort/deviation/sector/rank = stock")
+	
+	@GetMapping("sort/sector")
+	@ResponseBody
 	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getSectorPriceDeviation() {
-		return companyService.getSectorPriceDeviation();
-	}
-
-	@GetMapping("/sort/deviation/company/rank = volume")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getCompanyVolumeDeviation() {
-		return companyService.getCompanyVolumeDeviation();
-	}
-
-	@GetMapping("/sort/deviation/company/rank = stock")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getCompanyPriceDeviation() {
-		return companyService.getCompanyPriceDeviation();
+	public Map<String, Double> getDeviationSector(@RequestParam("rank") String rank) {
+		return companyService.getDeviationSector(rank);
 	}
 }
