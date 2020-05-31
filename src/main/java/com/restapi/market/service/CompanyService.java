@@ -315,5 +315,33 @@ public class CompanyService {
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 
 		return SortedValues;
+	}	
+	
+	public Map<String, Double> getDeviationCompany(String rank) {
+		
+		if(rank.contentEquals("volume"))
+		{
+			return getCompanyVolumeDeviation();
+		}
+		
+		else
+		{
+			return getCompanyPriceDeviation();
+		}
+			
 	}
+
+	public Map<String, Double> getDeviationSector(String rank) {
+		if(rank.contentEquals("volume"))
+		{
+			return getSectorVolumeDeviation();
+		}
+		
+		else
+		{
+			return getSectorPriceDeviation();
+		}
+		
+	}
+	
 }
