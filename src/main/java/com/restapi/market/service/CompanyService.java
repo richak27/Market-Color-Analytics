@@ -2,18 +2,14 @@ package com.restapi.market.service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
-import java.util.Comparator;
 import static java.util.stream.Collectors.*;
 import static java.util.Map.Entry.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -22,7 +18,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import com.restapi.market.model.Company;
 import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.Stock;
@@ -157,7 +152,8 @@ public class CompanyService {
 		return "Seeding Successful!";
 	}
 
-	public VolumeAverage calAvgVolByCompany(Company company) {
+	public VolumeAverage calAvgVolByCompany(String ticker) {
+		Company company = getByTicker(ticker);
 		VolumeAverage volumeAverage = new VolumeAverage();
 		double sum_volume_pre = 0;
 		double sum_volume_post = 0;
@@ -180,7 +176,8 @@ public class CompanyService {
 
 	}
 
-	public PriceAverage calAvgPriceByCompany(Company company) {
+	public PriceAverage calAvgPriceByCompany(String ticker) {
+		Company company = getByTicker(ticker);
 		PriceAverage priceAverage = new PriceAverage();
 		double sum_close_pre = 0;
 		double sum_close_post = 0;
@@ -209,14 +206,16 @@ public class CompanyService {
 
 	}
 
-	public PriceAverage calAvgPriceBySector(List<Company> company) {
+	public PriceAverage calAvgPriceBySector(String sector) {
+		List<Company> company = getBySector(sector);
 		PriceAverage priceAverage = new PriceAverage();
 		double pre_sum_price = 0, post_sum_price = 0;
 
 		for (Company comp : company) {
 
-			pre_sum_price = pre_sum_price + calAvgPriceByCompany(comp).getPreCovidPrice();
-			post_sum_price = post_sum_price + calAvgPriceByCompany(comp).getPostCovidPrice();
+			pre_sum_price = pre_sum_price + calAvgPriceByCompany(comp.getTicker()).getPreCovidPrice();
+
+			post_sum_price = post_sum_price + calAvgPriceByCompany(comp.getTicker()).getPostCovidPrice();
 
 		}
 
@@ -228,14 +227,16 @@ public class CompanyService {
 
 	}
 
-	public VolumeAverage calAvgVolumeBySector(List<Company> company) {
+	public VolumeAverage calAvgVolumeBySector(String sector) {
+		List<Company> company = getBySector(sector);
+
 		VolumeAverage volumeAverage = new VolumeAverage();
 		double pre_sum_volume = 0, post_sum_volume = 0;
 
 		for (Company comp : company) {
+			pre_sum_volume = pre_sum_volume + calAvgVolByCompany(comp.getTicker()).getPreCovidVolume();
 
-			pre_sum_volume = pre_sum_volume + calAvgVolByCompany(comp).getPreCovidVolume();
-			post_sum_volume = post_sum_volume + calAvgVolByCompany(comp).getPostCovidVolume();
+			post_sum_volume = post_sum_volume + calAvgPriceByCompany(comp.getTicker()).getPostCovidPrice();
 
 		}
 
@@ -248,20 +249,16 @@ public class CompanyService {
 	}
 
 	// Sort Functions for Sector-wise Deviation:
-
 	// Sort Average Volume Deviation of Sectors
 	public Map<String, Double> getSectorVolumeDeviation() {
 		List<String> SectorList = getAllSectors();
 		Map<String, Double> Values = new HashMap<String, Double>();
-
 		for (String i : SectorList) {
-			List<Company> company = getBySector(i);
-			VolumeAverage volumeAverage = calAvgVolumeBySector(company);
+			VolumeAverage volumeAverage = calAvgVolumeBySector(i);
 			Values.put(i, volumeAverage.getDeviationVolume());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
-
 		return SortedValues;
 	}
 
@@ -269,34 +266,27 @@ public class CompanyService {
 	public Map<String, Double> getSectorPriceDeviation() {
 		List<String> SectorList = getAllSectors();
 		Map<String, Double> Values = new HashMap<String, Double>();
-
 		for (String i : SectorList) {
 
-			List<Company> company = getBySector(i);
-			PriceAverage priceAverage = calAvgPriceBySector(company);
+			PriceAverage priceAverage = calAvgPriceBySector(i);
 			Values.put(i, priceAverage.getDeviationPrice());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
-
 		return SortedValues;
 	}
 
 	// Sort Functions for Company-wise Deviation:
-
 	// Sort Average Volume Deviation of Company
 	public Map<String, Double> getCompanyVolumeDeviation() {
 		List<String> TickerList = getAllTickers();
 		Map<String, Double> Values = new HashMap<String, Double>();
-
 		for (String i : TickerList) {
-			Company company = getByTicker(i);
-			VolumeAverage volumeAverage = calAvgVolByCompany(company);
+			VolumeAverage volumeAverage = calAvgVolByCompany(i);
 			Values.put(i, volumeAverage.getDeviationVolume());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
-
 		return SortedValues;
 	}
 
@@ -306,14 +296,13 @@ public class CompanyService {
 		Map<String, Double> Values = new HashMap<String, Double>();
 
 		for (String i : TickerList) {
-			Company company = getByTicker(i);
-			PriceAverage priceAverage = calAvgPriceByCompany(company);
+			PriceAverage priceAverage = calAvgPriceByCompany(i);
 			Values.put(i, priceAverage.getDeviationPrice());
 		}
 
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
-
 		return SortedValues;
 	}
+
 }
