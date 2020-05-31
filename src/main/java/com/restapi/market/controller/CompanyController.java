@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,7 +21,7 @@ import com.restapi.market.service.CompanyService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
-@RequestMapping("/company")
+@RequestMapping("/data")
 public class CompanyController {
 
 	@Bean
@@ -40,6 +42,11 @@ public class CompanyController {
 	@CrossOrigin(origins = "http://localhost:51535")
 	public List<String> getTickerList() {
 		return companyService.getAllTickers();
+	}
+	
+	@GetMapping("sectors")
+	public List<String> getSectorList() {
+		return companyService.getAllSectors();
 	}
 
 	@GetMapping("/seed")
@@ -91,28 +98,18 @@ public class CompanyController {
 	}
 	
 
-	@GetMapping("/volume-deviation-sector")
+	@GetMapping("sort/company")
+	@ResponseBody
 	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getSectorVolumeDeviation() {
-		return companyService.getSectorVolumeDeviation();
+	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank) {
+		return companyService.getDeviationCompany(rank);
 	}
-
-	@GetMapping("/price-deviation-sector")
+	
+	@GetMapping("sort/sector")
+	@ResponseBody
 	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getSectorPriceDeviation() {
-		return companyService.getSectorPriceDeviation();
-	}
-
-	@GetMapping("/volume-deviation-company")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getCompanyVolumeDeviation() {
-		return companyService.getCompanyVolumeDeviation();
-	}
-
-	@GetMapping("/price-deviation-company")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getCompanyPriceDeviation() {
-		return companyService.getCompanyPriceDeviation();
+	public Map<String, Double> getDeviationSector(@RequestParam("rank") String rank) {
+		return companyService.getDeviationSector(rank);
 	}
 	
 }
