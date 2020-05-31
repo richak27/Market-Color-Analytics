@@ -121,7 +121,7 @@ public class CompanyService {
 		return mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 	}
 
-	// get list of all tickers in database
+	// get list of all sectors in database
 	public List<String> getAllSectors() {
 		return mongoTemplate.query(Company.class).distinct("sector").as(String.class).all();
 	}
@@ -152,6 +152,7 @@ public class CompanyService {
 		return "Seeding Successful!";
 	}
 
+	//calculate average volume for a company by ticker
 	public VolumeAverage calAvgVolByCompany(String ticker) {
 		Company company = getByTicker(ticker);
 		VolumeAverage volumeAverage = new VolumeAverage();
@@ -176,12 +177,13 @@ public class CompanyService {
 
 	}
 
+	//calculate average stock-price for a company by ticker
 	public PriceAverage calAvgPriceByCompany(String ticker) {
 		Company company = getByTicker(ticker);
 		PriceAverage priceAverage = new PriceAverage();
 		double sum_close_pre = 0;
 		double sum_close_post = 0;
-		int sizeofpre = 0; // Size of pre covid stocks
+		int sizeofpre = 0; 	
 
 		List<Stock> stocks = company.getStocks();
 
@@ -206,6 +208,7 @@ public class CompanyService {
 
 	}
 
+	//calculate average stock-price for a company by ticker
 	public PriceAverage calAvgPriceBySector(String sector) {
 		List<Company> company = getBySector(sector);
 		PriceAverage priceAverage = new PriceAverage();
@@ -227,6 +230,7 @@ public class CompanyService {
 
 	}
 
+	//calculate average volume for a sector
 	public VolumeAverage calAvgVolumeBySector(String sector) {
 		List<Company> company = getBySector(sector);
 
@@ -249,6 +253,7 @@ public class CompanyService {
 	}
 
 	// Sort Functions for Sector-wise Deviation:
+	
 	// Sort Average Volume Deviation of Sectors
 	public Map<String, Double> getSectorVolumeDeviation() {
 		List<String> SectorList = getAllSectors();
@@ -262,7 +267,7 @@ public class CompanyService {
 		return SortedValues;
 	}
 
-	// Sort Average Price Deviation of Sectors
+	// Sort Average stock-price Deviation of Sectors
 	public Map<String, Double> getSectorPriceDeviation() {
 		List<String> SectorList = getAllSectors();
 		Map<String, Double> Values = new HashMap<String, Double>();
@@ -277,6 +282,7 @@ public class CompanyService {
 	}
 
 	// Sort Functions for Company-wise Deviation:
+	
 	// Sort Average Volume Deviation of Company
 	public Map<String, Double> getCompanyVolumeDeviation() {
 		List<String> TickerList = getAllTickers();
@@ -290,7 +296,7 @@ public class CompanyService {
 		return SortedValues;
 	}
 
-	// Sort Average Price Deviation of Company
+	// Sort Average stock-price Deviation of Company
 	public Map<String, Double> getCompanyPriceDeviation() {
 		List<String> TickerList = getAllTickers();
 		Map<String, Double> Values = new HashMap<String, Double>();
@@ -303,6 +309,31 @@ public class CompanyService {
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 		return SortedValues;
+	}
+
+	//Sorted Deviation for Companies
+	public Map<String, Double> getDeviationCompany(String rank) {
+
+		if (rank.contentEquals("volume")) {
+			return getCompanyVolumeDeviation();
+		}
+
+		else {
+			return getCompanyPriceDeviation();
+		}
+
+	}
+
+	//Sorted Deviation for Sectors
+	public Map<String, Double> getDeviationSector(String rank) {
+		if (rank.contentEquals("volume")) {
+			return getSectorVolumeDeviation();
+		}
+
+		else {
+			return getSectorPriceDeviation();
+		}
+
 	}
 
 }
