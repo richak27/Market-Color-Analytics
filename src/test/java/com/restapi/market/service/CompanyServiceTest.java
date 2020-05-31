@@ -75,7 +75,7 @@ class CompanyServiceTest {
 	@Test
 	void testCalAvgVolByCompany() {
 		when(companyRepository.findByTicker(anyString())).thenReturn(company1);
-		VolumeAverage volumeAverage = companyService.calAvgVolByCompany("DMT");
+		VolumeAverage volumeAverage = companyService.calAvgVolumeByCompany("DMT");
 		assertEquals(45, volumeAverage.getPreCovidVolume());
 		assertEquals(65, volumeAverage.getPostCovidVolume());
 		assertEquals(20, volumeAverage.getDeviationVolume());
