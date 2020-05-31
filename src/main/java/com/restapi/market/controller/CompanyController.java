@@ -19,7 +19,7 @@ import com.restapi.market.model.VolumeAverage;
 import com.restapi.market.service.CompanyService;
 
 @RestController
-@RequestMapping("/company")
+@RequestMapping("/data")
 public class CompanyController {
 
 	@Bean
@@ -93,25 +93,25 @@ public class CompanyController {
 		return companyService.calAvgVolumeBySector(company);
 	}
 
-	@GetMapping("/volume-deviation-sector")
+	@GetMapping("/sort/deviation/sector/rank = volume")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getSectorVolumeDeviation() {
 		return companyService.getSectorVolumeDeviation();
 	}
 
-	@GetMapping("/price-deviation-sector")
+	@GetMapping("/sort/deviation/sector/rank = stock")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getSectorPriceDeviation() {
 		return companyService.getSectorPriceDeviation();
 	}
 
-	@GetMapping("/volume-deviation-company")
+	@GetMapping("/sort/deviation/company/rank = volume")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getCompanyVolumeDeviation() {
 		return companyService.getCompanyVolumeDeviation();
 	}
 
-	@GetMapping("/price-deviation-company")
+	@GetMapping("/sort/deviation/company/rank = stock")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getCompanyPriceDeviation() {
 		return companyService.getCompanyPriceDeviation();
