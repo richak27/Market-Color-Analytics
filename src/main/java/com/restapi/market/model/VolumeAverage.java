@@ -1,9 +1,9 @@
 package com.restapi.market.model;
 
 public class VolumeAverage {
-	double preCovidVolume;
-	double postCovidVolume;
-	double deviationVolume;
+	private double preCovidVolume;
+	private double postCovidVolume;
+	private double deviationVolume;
 
 	public VolumeAverage() {
 		super();
