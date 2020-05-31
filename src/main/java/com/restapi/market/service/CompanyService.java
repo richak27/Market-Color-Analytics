@@ -47,54 +47,24 @@ public class CompanyService {
 
 	SimpleDateFormat converter = new SimpleDateFormat("yyyy-MM-dd");
 
-	// daily update of stocks data for all companies
-	public void dailyUpdateAll() {
-		List<String> tickers = mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
-		for (String ticker : tickers) {
-			try {
-				Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_new + token, Stock[].class);
-				for (Stock stock : stocks) {
-					String sDate = stock.getDate();
-					Date nowDate = converter.parse(sDate);
-					Date thresholdDate = converter.parse(boundaryDate);
-					if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
-						stock.setPeriod("pre");
-					} else {
-						stock.setPeriod("post");
-					}
-				}
-				mongoTemplate.updateFirst(new Query(Criteria.where("ticker").is(ticker)),
-						new Update().addToSet("stocks", stocks[0]), Company.class);
-			} catch (Exception exception) {
-				System.out.println(exception);
-			}
-		}
-	}
-
-	// daily update of stocks data of company whose ticker is passed
-	public String updateByTicker(String ticker) throws ParseException {
-		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_new + token, Stock[].class);
-		for (Stock stock : stocks) {
-			String sDate = stock.getDate();
-			Date nowDate = converter.parse(sDate);
-			Date thresholdDate = converter.parse(boundaryDate);
-			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
-				stock.setPeriod("pre");
-			} else {
-				stock.setPeriod("post");
-			}
-		}
-		mongoTemplate.updateFirst(new Query(Criteria.where("ticker").is(ticker)),
-				new Update().addToSet("stocks", stocks[0]), Company.class);
-		return "Stocks data updated successfully!";
-	}
-
+	// returns company object when ticker is passed
 	public Company getByTicker(String ticker) {
 		return this.companyRepository.findByTicker(ticker);
 	}
 
+	// returns list of company objects belonging to a given sector
 	public List<Company> getBySector(String sector) {
 		return this.companyRepository.findBySector(sector);
+	}
+
+	// get list of all tickers in database
+	public List<String> getAllTickers() {
+		return mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
+	}
+
+	// get list of all sectors in database
+	public List<String> getAllSectors() {
+		return mongoTemplate.query(Company.class).distinct("sector").as(String.class).all();
 	}
 
 	// seed database on company basis
@@ -116,35 +86,12 @@ public class CompanyService {
 		return ticker + "information added to DB";
 	}
 
-	// get list of all tickers in database
-	public List<String> getAllTickers() {
-		return mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
-	}
-
-	// get list of all sectors in database
-	public List<String> getAllSectors() {
-		return mongoTemplate.query(Company.class).distinct("sector").as(String.class).all();
-	}
-
 	// seed database with data of all companies
 	public String seedDb() {
 		List<String> tickers = mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 		for (String ticker : tickers) {
 			try {
-				Company company = this.companyRepository.findByTicker(ticker);
-				Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_initial + token, Stock[].class);
-				for (Stock stock : stocks) {
-					String sDate = stock.getDate();
-					Date nowDate = converter.parse(sDate);
-					Date thresholdDate = converter.parse(boundaryDate);
-					if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
-						stock.setPeriod("pre");
-					} else {
-						stock.setPeriod("post");
-					}
-				}
-				company.setStocks(Arrays.asList(stocks));
-				this.companyRepository.save(company);
+				addStocksByTicker(ticker);
 			} catch (Exception exception) {
 				System.out.println("Did not find " + ticker);
 			}
@@ -152,7 +99,37 @@ public class CompanyService {
 		return "Seeding Successful!";
 	}
 
-	//calculate average volume for a company by ticker
+	// daily update of stocks data of company whose ticker is passed
+	public void updateByTicker(String ticker) throws ParseException {
+		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_new + token, Stock[].class); // returns only one
+																										// object
+		for (Stock stock : stocks) {
+			String sDate = stock.getDate();
+			Date nowDate = converter.parse(sDate);
+			Date thresholdDate = converter.parse(boundaryDate);
+			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
+				stock.setPeriod("pre");
+			} else {
+				stock.setPeriod("post");
+			}
+		}
+		mongoTemplate.updateFirst(new Query(Criteria.where("ticker").is(ticker)),
+				new Update().addToSet("stocks", stocks[0]), Company.class);
+	}
+
+	// daily update of stocks data for all companies
+	public void dailyUpdateAll() {
+		List<String> tickers = mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
+		for (String ticker : tickers) {
+			try {
+				updateByTicker(ticker);
+			} catch (Exception exception) {
+				System.out.println(exception);
+			}
+		}
+	}
+
+	// calculate average volume for a company by ticker
 	public VolumeAverage calAvgVolByCompany(String ticker) {
 		Company company = getByTicker(ticker);
 		VolumeAverage volumeAverage = new VolumeAverage();
@@ -177,13 +154,13 @@ public class CompanyService {
 
 	}
 
-	//calculate average stock-price for a company by ticker
+	// calculate average stock-price for a company by ticker
 	public PriceAverage calAvgPriceByCompany(String ticker) {
 		Company company = getByTicker(ticker);
 		PriceAverage priceAverage = new PriceAverage();
 		double sum_close_pre = 0;
 		double sum_close_post = 0;
-		int sizeofpre = 0; 	
+		int sizeofpre = 0;
 
 		List<Stock> stocks = company.getStocks();
 
@@ -208,7 +185,7 @@ public class CompanyService {
 
 	}
 
-	//calculate average stock-price for a sector
+	// calculate average stock-price for a sector
 	public PriceAverage calAvgPriceBySector(String sector) {
 		List<Company> company = getBySector(sector);
 		PriceAverage priceAverage = new PriceAverage();
@@ -230,7 +207,7 @@ public class CompanyService {
 
 	}
 
-	//calculate average volume for a sector
+	// calculate average volume for a sector
 	public VolumeAverage calAvgVolumeBySector(String sector) {
 		List<Company> company = getBySector(sector);
 
@@ -253,7 +230,7 @@ public class CompanyService {
 	}
 
 	// Sort Functions for Sector-wise Deviation:
-	
+
 	// Sort Average Volume Deviation of Sectors
 	public Map<String, Double> getSectorVolumeDeviation() {
 		List<String> SectorList = getAllSectors();
@@ -282,7 +259,7 @@ public class CompanyService {
 	}
 
 	// Sort Functions for Company-wise Deviation:
-	
+
 	// Sort Average Volume Deviation of Company
 	public Map<String, Double> getCompanyVolumeDeviation() {
 		List<String> TickerList = getAllTickers();
@@ -311,7 +288,7 @@ public class CompanyService {
 		return SortedValues;
 	}
 
-	//Sorted Deviation for Companies
+	// Sorted Deviation for Companies
 	public Map<String, Double> getDeviationCompany(String rank) {
 
 		if (rank.contentEquals("volume")) {
@@ -324,7 +301,7 @@ public class CompanyService {
 
 	}
 
-	//Sorted Deviation for Sectors
+	// Sorted Deviation for Sectors
 	public Map<String, Double> getDeviationSector(String rank) {
 		if (rank.contentEquals("volume")) {
 			return getSectorVolumeDeviation();

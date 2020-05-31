@@ -43,10 +43,15 @@ public class CompanyController {
 	public List<String> getTickerList() {
 		return companyService.getAllTickers();
 	}
-	
-	@GetMapping("sectors")
+
+	@GetMapping("/sectors")
 	public List<String> getSectorList() {
 		return companyService.getAllSectors();
+	}
+
+	@GetMapping("/add/{ticker}")
+	public String addStocksByTicker(@PathVariable("ticker") String ticker) throws ParseException {
+		return companyService.addStocksByTicker(ticker);
 	}
 
 	@GetMapping("/seed")
@@ -57,8 +62,8 @@ public class CompanyController {
 
 	@GetMapping("/update/{ticker}")
 	@CrossOrigin(origins = "http://localhost:51535")
-	public String updateByTicker(@PathVariable("ticker") String ticker) throws ParseException {
-		return companyService.updateByTicker(ticker);
+	public void updateByTicker(@PathVariable("ticker") String ticker) throws ParseException {
+		companyService.updateByTicker(ticker);
 	}
 
 	@GetMapping("/force-update")
@@ -67,36 +72,29 @@ public class CompanyController {
 		companyService.dailyUpdateAll();
 	}
 
-	@GetMapping("/add/{ticker}")
-	public String addStocksByTicker(@PathVariable("ticker") String ticker) throws ParseException {
-		return companyService.addStocksByTicker(ticker);
-	}
-
-
 	@GetMapping("/average-volume-company/{ticker}")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public VolumeAverage calAverageVolume(@PathVariable("ticker") String ticker) {
 		return companyService.calAvgVolByCompany(ticker);
 	}
-	
+
 	@GetMapping("/average-price-company/{ticker}")
-	@CrossOrigin(origins = "http://localhost:51535")	
+	@CrossOrigin(origins = "http://localhost:51535")
 	public PriceAverage calAvgPriceByCompany(@PathVariable("ticker") String ticker) {
 		return companyService.calAvgPriceByCompany(ticker);
 	}
-	
+
 	@GetMapping("/average-price-sector/{sector}")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public PriceAverage calAvgStockBySector(@PathVariable("sector") String sector) {
 		return companyService.calAvgPriceBySector(sector);
 	}
-	
+
 	@GetMapping("/average-volume-sector/{sector}")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public VolumeAverage calAvgVolumeBySector(@PathVariable("sector") String sector) {
 		return companyService.calAvgVolumeBySector(sector);
 	}
-	
 
 	@GetMapping("sort/company")
 	@ResponseBody
@@ -104,12 +102,12 @@ public class CompanyController {
 	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank) {
 		return companyService.getDeviationCompany(rank);
 	}
-	
+
 	@GetMapping("sort/sector")
 	@ResponseBody
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getDeviationSector(@RequestParam("rank") String rank) {
 		return companyService.getDeviationSector(rank);
 	}
-	
+
 }
