@@ -1,12 +1,12 @@
 package com.restapi.market.controller;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,7 +55,7 @@ public class CompanyController {
 		return companyService.updateByTicker(ticker);
 	}
 
-	@GetMapping("/force-update")
+	@GetMapping("/force-update")	
 	public void forceUpdate() {
 		companyService.dailyUpdateAll();
 	}
@@ -66,45 +66,53 @@ public class CompanyController {
 	}
 
 	@GetMapping("/average-volume-company/{ticker}")
+	@CrossOrigin(origins = "http://localhost:51535")
 	public VolumeAverage calAverageVolume(@PathVariable("ticker") String ticker) {
 		Company company = companyService.getByTicker(ticker);
 		return companyService.calAvgVolByCompany(company);
 	}
 
-	@GetMapping("/average-stock-company/{ticker}")
+	@GetMapping("/average-price-company/{ticker}")
+	@CrossOrigin(origins = "http://localhost:51535")
 	public PriceAverage calAvgStockByCompany(@PathVariable("ticker") String ticker) {
 		Company company = companyService.getByTicker(ticker);
-		return companyService.calAvgStockByCompany(company);
+		return companyService.calAvgPriceByCompany(company);
 	}
 
-	@GetMapping("/average-stock-sector/{sector}")
+	@GetMapping("/average-price-sector/{sector}")
+	@CrossOrigin(origins = "http://localhost:51535")
 	public PriceAverage calAvgStockBySector(@PathVariable("sector") String sector) {
 		List<Company> company = companyService.getBySector(sector);
-		return companyService.calAvgStockBySector(company);
+		return companyService.calAvgPriceBySector(company);
 	}
 
 	@GetMapping("/average-volume-sector/{sector}")
+	@CrossOrigin(origins = "http://localhost:51535")
 	public VolumeAverage calAvgVolumekBySector(@PathVariable("sector") String sector) {
 		List<Company> company = companyService.getBySector(sector);
 		return companyService.calAvgVolumeBySector(company);
 	}
 
 	@GetMapping("/volume-deviation-sector")
+	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getSectorVolumeDeviation() {
 		return companyService.getSectorVolumeDeviation();
 	}
 
 	@GetMapping("/price-deviation-sector")
+	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getSectorPriceDeviation() {
 		return companyService.getSectorPriceDeviation();
 	}
 
 	@GetMapping("/volume-deviation-company")
+	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getCompanyVolumeDeviation() {
 		return companyService.getCompanyVolumeDeviation();
 	}
 
 	@GetMapping("/price-deviation-company")
+	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getCompanyPriceDeviation() {
 		return companyService.getCompanyPriceDeviation();
 	}

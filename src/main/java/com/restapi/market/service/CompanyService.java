@@ -180,7 +180,7 @@ public class CompanyService {
 
 	}
 
-	public PriceAverage calAvgStockByCompany(Company company) {
+	public PriceAverage calAvgPriceByCompany(Company company) {
 		PriceAverage priceAverage = new PriceAverage();
 		double sum_close_pre = 0;
 		double sum_close_post = 0;
@@ -209,19 +209,19 @@ public class CompanyService {
 
 	}
 
-	public PriceAverage calAvgStockBySector(List<Company> company) {
+	public PriceAverage calAvgPriceBySector(List<Company> company) {
 		PriceAverage priceAverage = new PriceAverage();
-		double pre_sum_stock = 0, post_sum_stock = 0;
+		double pre_sum_price = 0, post_sum_price = 0;
 
 		for (Company comp : company) {
 
-			pre_sum_stock = pre_sum_stock + calAvgStockByCompany(comp).getPreCovidPrice();
-			post_sum_stock = post_sum_stock + calAvgStockByCompany(comp).getPostCovidPrice();
+			pre_sum_price = pre_sum_price + calAvgPriceByCompany(comp).getPreCovidPrice();
+			post_sum_price = post_sum_price + calAvgPriceByCompany(comp).getPostCovidPrice();
 
 		}
 
-		priceAverage.setPreCovidPrice((pre_sum_stock) / (company.size()));
-		priceAverage.setPostCovidPrice((post_sum_stock) / (company.size()));
+		priceAverage.setPreCovidPrice((pre_sum_price) / (company.size()));
+		priceAverage.setPostCovidPrice((post_sum_price) / (company.size()));
 		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice() - priceAverage.getPreCovidPrice());
 
 		return priceAverage;
@@ -235,7 +235,7 @@ public class CompanyService {
 		for (Company comp : company) {
 
 			pre_sum_volume = pre_sum_volume + calAvgVolByCompany(comp).getPreCovidVolume();
-			post_sum_volume = post_sum_volume + calAvgStockByCompany(comp).getPostCovidPrice();
+			post_sum_volume = post_sum_volume + calAvgVolByCompany(comp).getPostCovidVolume();
 
 		}
 
@@ -273,7 +273,7 @@ public class CompanyService {
 		for (String i : SectorList) {
 
 			List<Company> company = getBySector(i);
-			PriceAverage priceAverage = calAvgStockBySector(company);
+			PriceAverage priceAverage = calAvgPriceBySector(company);
 			Values.put(i, priceAverage.getDeviationPrice());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
@@ -307,7 +307,7 @@ public class CompanyService {
 
 		for (String i : TickerList) {
 			Company company = getByTicker(i);
-			PriceAverage priceAverage = calAvgStockByCompany(company);
+			PriceAverage priceAverage = calAvgPriceByCompany(company);
 			Values.put(i, priceAverage.getDeviationPrice());
 		}
 
