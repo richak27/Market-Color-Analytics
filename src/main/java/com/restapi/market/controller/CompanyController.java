@@ -75,7 +75,7 @@ public class CompanyController {
 	@GetMapping("/average-volume-company/{ticker}")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public VolumeAverage calAverageVolume(@PathVariable("ticker") String ticker) {
-		return companyService.calAvgVolByCompany(ticker);
+		return companyService.calAvgVolumeByCompany(ticker);
 	}
 
 	@GetMapping("/average-price-company/{ticker}")
