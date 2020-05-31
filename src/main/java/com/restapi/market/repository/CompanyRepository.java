@@ -12,6 +12,5 @@ public interface CompanyRepository extends MongoRepository<Company, String> {
 	Company findByTicker(String ticker);
 	List<Company> findBySector(String sector);
 
-	List<Company> findBySector(String sector);
 
 }
