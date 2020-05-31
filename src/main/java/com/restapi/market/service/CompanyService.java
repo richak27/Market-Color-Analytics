@@ -130,7 +130,7 @@ public class CompanyService {
 	}
 
 	// calculate average volume for a company by ticker
-	public VolumeAverage calAvgVolByCompany(String ticker) {
+	public VolumeAverage calAvgVolumeByCompany(String ticker) {
 		Company company = getByTicker(ticker);
 		VolumeAverage volumeAverage = new VolumeAverage();
 		double sum_volume_pre = 0;
@@ -215,7 +215,7 @@ public class CompanyService {
 		double pre_sum_volume = 0, post_sum_volume = 0;
 
 		for (Company comp : company) {
-			pre_sum_volume = pre_sum_volume + calAvgVolByCompany(comp.getTicker()).getPreCovidVolume();
+			pre_sum_volume = pre_sum_volume + calAvgVolumeByCompany(comp.getTicker()).getPreCovidVolume();
 
 			post_sum_volume = post_sum_volume + calAvgPriceByCompany(comp.getTicker()).getPostCovidPrice();
 
@@ -265,7 +265,7 @@ public class CompanyService {
 		List<String> TickerList = getAllTickers();
 		Map<String, Double> Values = new HashMap<String, Double>();
 		for (String i : TickerList) {
-			VolumeAverage volumeAverage = calAvgVolByCompany(i);
+			VolumeAverage volumeAverage = calAvgVolumeByCompany(i);
 			Values.put(i, volumeAverage.getDeviationVolume());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
