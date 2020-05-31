@@ -1,16 +1,18 @@
 package com.restapi.market.service;
 
-<<<<<<< HEAD
-import com.restapi.market.model.*;
-
-import java.util.ArrayList;
-=======
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
->>>>>>> a1a508e6328247c63a3c851b567fbebda747b3f3
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Collections;
+import java.util.Comparator;
+import static java.util.stream.Collectors.*;
+import static java.util.Map.Entry.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -19,7 +21,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import com.restapi.market.model.Company;
 import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.Stock;
@@ -41,8 +42,6 @@ public class CompanyService {
 	@Autowired
 	private RestTemplate restTemplate;
 
-
-	
 	@Autowired
 	private CompanyRepository companyRepository;
 
@@ -96,11 +95,6 @@ public class CompanyService {
 	public Company getByTicker(String ticker) {
 		return this.companyRepository.findByTicker(ticker);
 	}
-	
-	public List<Company> getBySector(String sector)
-	{
-		return this.companyRepository.findBySector(sector);
-	}
 
 	public List<Company> getBySector(String sector) {
 		return this.companyRepository.findBySector(sector);
@@ -129,12 +123,14 @@ public class CompanyService {
 	public List<String> getAllTickers() {
 		return mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 	}
-
-<<<<<<< HEAD
 	
-=======
+	
+	// get list of all tickers in database
+		public List<String> getAllSectors() {
+			return mongoTemplate.query(Company.class).distinct("sector").as(String.class).all();
+		}
+
 	// seed database with data of all companies
->>>>>>> a1a508e6328247c63a3c851b567fbebda747b3f3
 	public String seedDb() {
 		List<String> tickers = mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 		for (String ticker : tickers) {
@@ -159,69 +155,9 @@ public class CompanyService {
 		}
 		return "Seeding Successful!";
 	}
-	
 
-	
-	public Average getAvgVolumeByCompany(Company company)
-	{
-	    Average avg_object;
-		float pre_sum_vol = 0,post_sum_vol=0,pre_size=0,post_size=0;
-
-		List<Stock> stocks = company.getStocks();
-		for (Stock stock: stocks) 
-		{
-			   if(stock.getperiod().equals("pre"))
-			    {
-				   		pre_sum_vol = pre_sum_vol + stock.getVolume();
-				   		pre_size++;
-			    }
-			   else
-			   {
-				   pre_sum_vol = pre_sum_vol + stock.getClose();
-				   pre_size++;
-			   }
-			   	   
-		}
-		
-	    avg_object.setPre_covid(pre_sum_vol/pre_size);
-	    avg_object.setPost_covid(post_sum_vol/post_size);
-		
-		return avg_object;
-		
-
-	}
-	
-
-	public Average getAvgStockByCompany(Company company)
-	{
-	   
-		Average avg_object;
-
-		float pre_sum_stock = 0,post_sum_stock=0,pre_size=0,post_size=0;
-		List<Stock> stocks = company.getStocks();
-		for (Stock stock: stocks) 
-		{
-			   if(stock.getperiod().equals("pre"))
-				  {
-				   pre_sum_stock = pre_sum_stock + stock.getClose();
-				   pre_size++;
-				  }
-			   
-			   else 
-			   {
-				   post_sum_stock = post_sum_stock + stock.getClose();	
-				   post_size++;
-			   }
-
-		}
-		
-
-	    avg_object.setPre_covid(pre_sum_stock/pre_size);
-	    avg_object.setPost_covid(post_sum_stock/post_size);
-	    
-	    return avg_object;
-
-	public VolumeAverage calAvgVolByCompany(Company company) {
+	public VolumeAverage calAvgVolByCompany(String ticker) {
+		Company company = getByTicker(ticker);		
 		VolumeAverage volumeAverage = new VolumeAverage();
 		double sum_volume_pre = 0;
 		double sum_volume_post = 0;
@@ -244,7 +180,8 @@ public class CompanyService {
 
 	}
 
-	public PriceAverage calAvgStockByCompany(Company company) {
+	public PriceAverage calAvgPriceByCompany(String ticker) {
+		Company company = getByTicker(ticker);
 		PriceAverage priceAverage = new PriceAverage();
 		double sum_close_pre = 0;
 		double sum_close_post = 0;
@@ -273,35 +210,37 @@ public class CompanyService {
 
 	}
 
-	public PriceAverage calAvgStockBySector(List<Company> company) {
+	public PriceAverage calAvgPriceBySector(String sector) {
+		List<Company> company = getBySector(sector);
 		PriceAverage priceAverage = new PriceAverage();
-		double pre_sum_stock = 0, post_sum_stock = 0;
+		double pre_sum_price = 0, post_sum_price = 0;
 
 		for (Company comp : company) {
-			// List<Stock> stocks = comp.getStocks();
 
-			pre_sum_stock = pre_sum_stock + calAvgStockByCompany(comp).getPreCovidPrice();
+			pre_sum_price = pre_sum_price + calAvgPriceByCompany(comp.getTicker()).getPreCovidPrice();
 
-			post_sum_stock = post_sum_stock + calAvgStockByCompany(comp).getPostCovidPrice();
+			post_sum_price = post_sum_price + calAvgPriceByCompany(comp.getTicker()).getPostCovidPrice();
 
 		}
 
-		priceAverage.setPreCovidPrice((pre_sum_stock) / (company.size()));
-		priceAverage.setPostCovidPrice((post_sum_stock) / (company.size()));
+		priceAverage.setPreCovidPrice((pre_sum_price) / (company.size()));
+		priceAverage.setPostCovidPrice((post_sum_price) / (company.size()));
 		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice() - priceAverage.getPreCovidPrice());
 
 		return priceAverage;
 
 	}
 
-	public VolumeAverage getAvgVolumekBySector(List<Company> company) {
+	public VolumeAverage calAvgVolumeBySector(String sector) {
+		List<Company> company = getBySector(sector);
+
 		VolumeAverage volumeAverage = new VolumeAverage();
 		double pre_sum_volume = 0, post_sum_volume = 0;
 
 		for (Company comp : company) {
-			pre_sum_volume = pre_sum_volume + calAvgVolByCompany(comp).getPreCovidVolume();
+			pre_sum_volume = pre_sum_volume + calAvgVolByCompany(comp.getTicker()).getPreCovidVolume();
 
-			post_sum_volume = post_sum_volume + calAvgStockByCompany(comp).getPostCovidPrice();
+			post_sum_volume = post_sum_volume + calAvgPriceByCompany(comp.getTicker()).getPostCovidPrice();
 
 		}
 
@@ -313,13 +252,59 @@ public class CompanyService {
 
 	}
 
+	// Sort Functions for Sector-wise Deviation:
+	// Sort Average Volume Deviation of Sectors
+	public Map<String, Double> getSectorVolumeDeviation() {
+		List<String> SectorList = getAllSectors();
+		Map<String, Double> Values = new HashMap<String, Double>();
+		for (String i : SectorList) {
+			VolumeAverage volumeAverage = calAvgVolumeBySector(i);
+			Values.put(i, volumeAverage.getDeviationVolume());
+		}
+		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+		return SortedValues;
+	}
+	
+	// Sort Average Price Deviation of Sectors
+	public Map<String, Double> getSectorPriceDeviation() {
+		List<String> SectorList = getAllSectors();
+		Map<String, Double> Values = new HashMap<String, Double>();
+		for (String i : SectorList) {
+
+			PriceAverage priceAverage = calAvgPriceBySector(i);
+			Values.put(i, priceAverage.getDeviationPrice());
+		}
+		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+		return SortedValues;
+	}
+	// Sort Functions for Company-wise Deviation:
+	// Sort Average Volume Deviation of Company
+	public Map<String, Double> getCompanyVolumeDeviation() {
+		List<String> TickerList = getAllTickers();
+		Map<String, Double> Values = new HashMap<String, Double>();
+		for (String i : TickerList) {
+			VolumeAverage volumeAverage = calAvgVolByCompany(i);
+			Values.put(i, volumeAverage.getDeviationVolume());
+		}
+		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+		return SortedValues;
+	}
+	// Sort Average Price Deviation of Company
+	public Map<String, Double> getCompanyPriceDeviation() {
+		List<String> TickerList = getAllTickers();
+		Map<String, Double> Values = new HashMap<String, Double>();
+
+		for (String i : TickerList) {
+			PriceAverage priceAverage = calAvgPriceByCompany(i);
+			Values.put(i, priceAverage.getDeviationPrice());
+		}
+
+		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+		return SortedValues;
+	}
+
 }
-	
-
-	
-	
-
-
-
-
-
