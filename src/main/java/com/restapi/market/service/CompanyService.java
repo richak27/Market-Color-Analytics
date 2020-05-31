@@ -208,7 +208,7 @@ public class CompanyService {
 
 	}
 
-	//calculate average stock-price for a company by ticker
+	//calculate average stock-price for a sector
 	public PriceAverage calAvgPriceBySector(String sector) {
 		List<Company> company = getBySector(sector);
 		PriceAverage priceAverage = new PriceAverage();
