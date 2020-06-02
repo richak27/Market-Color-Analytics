@@ -71,15 +71,16 @@ public class CompanyService {
 	public String addStocksByTicker(String ticker) throws ParseException {
 		Company company = this.companyRepository.findByTicker(ticker);
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_initial + token, Stock[].class);
-		for (Stock stock : stocks) {
-			String sDate = stock.getDate();
-			Date nowDate = converter.parse(sDate);
+		for (Stock stock : stocks) {			
+			Date nowDate = converter.parse(stock.getDate());
 			Date thresholdDate = converter.parse(boundaryDate);
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 				stock.setPeriod("pre");
 			} else {
 				stock.setPeriod("post");
 			}
+			stock.setMonth("2020m"+stock.getDate().substring(5, 7));
+			stock.setWeek("okyaya");
 		}
 		company.setStocks(Arrays.asList(stocks));
 		this.companyRepository.save(company);
@@ -103,15 +104,16 @@ public class CompanyService {
 	public void updateByTicker(String ticker) throws ParseException {
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_new + token, Stock[].class); // returns only one
 																										// object
-		for (Stock stock : stocks) {
-			String sDate = stock.getDate();
-			Date nowDate = converter.parse(sDate);
+		for (Stock stock : stocks) {			
+			Date nowDate = converter.parse(stock.getDate());
 			Date thresholdDate = converter.parse(boundaryDate);
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 				stock.setPeriod("pre");
 			} else {
 				stock.setPeriod("post");
 			}
+			stock.setMonth("2020m"+stock.getDate().substring(5, 7));
+			stock.setWeek("okyaya");
 		}
 		mongoTemplate.updateFirst(new Query(Criteria.where("ticker").is(ticker)),
 				new Update().addToSet("stocks", stocks[0]), Company.class);
