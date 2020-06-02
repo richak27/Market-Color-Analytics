@@ -191,6 +191,25 @@ public class CompanyService {
 
 	}
 
+	// Alternate method
+
+	public Map<String, Double> DataCompany(String ticker, String type) {
+		Company company = getByTicker(ticker);
+		List<Stock> stocks = company.getStocks();
+		if (type.contentEquals("volume")) {
+			Map<String, Double> value = stocks.stream()
+					.collect(Collectors.groupingBy(Stock::getPeriod, Collectors.averagingDouble(Stock::getVolume)));
+
+			return value;
+		} else {
+			Map<String, Double> value = stocks.stream()
+					.collect(Collectors.groupingBy(Stock::getPeriod, Collectors.averagingDouble(Stock::getClose)));
+			return value;
+
+		}
+
+	}
+
 	// calculate average stock-price for a sector
 	public PriceAverage calAvgPriceBySector(String sector) {
 		List<Company> company = getBySector(sector);
@@ -234,6 +253,9 @@ public class CompanyService {
 		return volumeAverage;
 
 	}
+	
+	
+	
 
 	// Sort Functions for Sector-wise Deviation:
 
@@ -409,6 +431,7 @@ public class CompanyService {
 
 	}
 
+	// Return Date-wise Data on the basis of date range for Company
 	public Map<String, Double> DailyCompany(String ticker, String frdate, String todate, String type)
 			throws ParseException {
 
@@ -446,6 +469,7 @@ public class CompanyService {
 		}
 	}
 
+	// Return Date-wise Data on the basis of date range for Sector
 	public Map<String, Double> DailySector(String sector, String frdate, String todate, String type)
 			throws ParseException {
 

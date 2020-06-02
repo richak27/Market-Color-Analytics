@@ -170,4 +170,10 @@ public class CompanyController {
 			@PathVariable("todate") String todate, @RequestParam("type") String type) throws ParseException {
 		return companyService.DailySector(sector, frdate, todate, type);
 	}
+	
+	@GetMapping("/company/{ticker}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Map<String, Double> DailySector(@PathVariable("ticker") String ticker, @RequestParam("type") String type) throws ParseException {
+		return companyService.DataCompany(ticker, type);
+	}
 }
