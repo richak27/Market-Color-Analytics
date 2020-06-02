@@ -2,12 +2,16 @@ package com.restapi.market.service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.*;
 import static java.util.Map.Entry.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.restapi.market.model.Calculate;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.Stock;
@@ -71,9 +77,21 @@ public class CompanyService {
 	public String addStocksByTicker(String ticker) throws ParseException {
 		Company company = this.companyRepository.findByTicker(ticker);
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_initial + token, Stock[].class);
-		for (Stock stock : stocks) {
+		for (Stock stock : stocks)
+		{
 			String sDate = stock.getDate();
 			Date nowDate = converter.parse(sDate);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(nowDate);
+			int week_no= cal.get(Calendar.WEEK_OF_YEAR);
+			String week="";
+			 if((week_no/10)==0)
+		         week = "0"+Integer.toString(week_no); 
+			 else 
+				 week=Integer.toString(week_no); 
+		   
+		    stock.setWeek(week);
+			
 			Date thresholdDate = converter.parse(boundaryDate);
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 				stock.setPeriod("pre");
@@ -106,6 +124,15 @@ public class CompanyService {
 		for (Stock stock : stocks) {
 			String sDate = stock.getDate();
 			Date nowDate = converter.parse(sDate);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(nowDate);
+			int week_no= cal.get(Calendar.WEEK_OF_YEAR);
+			String week="";
+			 if((week_no/10)==0)
+		         week = "0"+Integer.toString(week_no); 
+			 else 
+				 week=Integer.toString(week_no); 
+		    stock.setWeek(week);
 			Date thresholdDate = converter.parse(boundaryDate);
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 				stock.setPeriod("pre");
@@ -312,5 +339,118 @@ public class CompanyService {
 		}
 
 	}
+	
+	//Calculate Average Stock Price and Volume 
+	public Calculate averagestock(List<Stock> stocks) {
 
+		Calculate cal = new Calculate();
+		double sum_close = 0;
+		double sum_volume = 0;
+		for (Stock stock : stocks) {
+			sum_close += stock.getClose();
+			sum_volume += stock.getVolume();
+		}
+		cal.setPrice(sum_close / stocks.size());
+		cal.setVolume(sum_volume / stocks.size());
+		return cal;
+	}
+
+	
+	// Calculate for Average date range by company
+	public Calculate getDataByDayCompany(String ticker, String todate, String fdate) throws ParseException {
+		Company company = getByTicker(ticker);
+		List<Stock> stocks = company.getStocks();
+		List<Stock> stocksnew = new ArrayList<>();
+		Date toDate = converter.parse(todate);
+		Date fDate = converter.parse(fdate);
+		for (Stock stock : stocks) {
+			
+			String sDate = stock.getDate();
+			Date nowDate = converter.parse(sDate);
+			if (nowDate.before(fDate) && nowDate.after(toDate)) {
+				stocksnew.add(stock);
+			}
+		}
+		return averagestock(stocksnew);
+	}
+
+	// Calculate for Average date range by sector
+	public Calculate getDataByDaySector(String sector, String todate, String fdate) throws ParseException {
+		List<Company> companies = getBySector(sector);
+		List<Stock> stocksnew = new ArrayList<>();
+		Date toDate = converter.parse(todate);
+		Date fDate = converter.parse(fdate);
+		for (Company comp : companies) {
+
+			List<Stock> stocks = comp.getStocks();
+			for (Stock stock : stocks) {
+
+				String sDate = stock.getDate();
+				Date nowDate = converter.parse(sDate);
+				if (nowDate.before(fDate) && nowDate.after(toDate)) {
+					stocksnew.add(stock);
+				}
+			}
+		}
+		return averagestock(stocksnew);
+	}
+	
+	// For one date send values for company
+	public Calculate getDataByDateCompany(String ticker,String rdate) throws ParseException{
+		Calculate cal = new Calculate();
+		Company company = getByTicker(ticker);
+		List<Stock>stocks = company.getStocks();
+		for(Stock stock: stocks) {
+			if(rdate.contentEquals(stock.getDate())) {
+				cal.setPrice(stock.getClose());
+				cal.setVolume(stock.getVolume());
+				}
+		}
+		return cal;
+	}
+
+	// For one date send average values of sector
+	public Calculate getDataByDateSector(String sector,String rdate) throws ParseException{
+		Calculate cal = new Calculate();
+		List<Company>companies = getBySector(sector);
+		double sum_sector_price = 0;
+		double sum_sector_volume = 0;
+		for(Company comp: companies) {
+			
+			cal = averagestock(comp.getStocks());
+			sum_sector_price += cal.getPrice();
+			sum_sector_volume += cal.getVolume(); 
+			
+		}
+
+		cal.setPrice(sum_sector_price/companies.size());
+		cal.setVolume(sum_sector_volume/companies.size());
+		
+		return cal;
+		
+	}
+	
+	public Map<String,Double> getPriceByWeekCompany(String ticker, String startDate, String endDate) throws ParseException
+	{
+		Company company=getByTicker(ticker);
+		List<Stock> stocks=company.getStocks();
+		List<Stock> stocksnew=new ArrayList<>();
+		Date sDate=converter.parse(startDate);
+		Date eDate=converter.parse(endDate);
+		for(Stock stock : stocks)
+		{
+			Date nowDate=converter.parse(stock.getDate());
+			if((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate))
+				stocksnew.add(stock);
+		}
+		
+		Map<String,Double> weekly=stocksnew.stream().collect(
+				Collectors.groupingBy(Stock::getWeek,Collectors.averagingDouble(Stock::getClose)));
+		
+		return weekly;
+	
+	}
+	
+	
+		
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.restapi.market.model.Calculate;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.VolumeAverage;
@@ -43,7 +44,7 @@ public class CompanyController {
 	public List<String> getTickerList() {
 		return companyService.getAllTickers();
 	}
-
+	
 	@GetMapping("/sectors")
 	public List<String> getSectorList() {
 		return companyService.getAllSectors();
@@ -59,7 +60,7 @@ public class CompanyController {
 	public String populateDb() {
 		return companyService.seedDb();
 	}
-
+	
 	@GetMapping("/update/{ticker}")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public void updateByTicker(@PathVariable("ticker") String ticker) throws ParseException {
@@ -74,7 +75,7 @@ public class CompanyController {
 
 	@GetMapping("/average-volume-company/{ticker}")
 	@CrossOrigin(origins = "http://localhost:51535")
-	public VolumeAverage calAvgVolumeByCompany(@PathVariable("ticker") String ticker) {
+	public VolumeAverage calAverageVolume(@PathVariable("ticker") String ticker) {
 		return companyService.calAvgVolumeByCompany(ticker);
 	}
 
@@ -86,7 +87,7 @@ public class CompanyController {
 
 	@GetMapping("/average-price-sector/{sector}")
 	@CrossOrigin(origins = "http://localhost:51535")
-	public PriceAverage calAvgPriceBySector(@PathVariable("sector") String sector) {
+	public PriceAverage calAvgStockBySector(@PathVariable("sector") String sector) {
 		return companyService.calAvgPriceBySector(sector);
 	}
 
@@ -96,18 +97,40 @@ public class CompanyController {
 		return companyService.calAvgVolumeBySector(sector);
 	}
 
-	@GetMapping("sort/company")
-	@ResponseBody
+	@GetMapping("/sort/company")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank) {
 		return companyService.getDeviationCompany(rank);
 	}
 
-	@GetMapping("sort/sector")
-	@ResponseBody
+	@GetMapping("/sort/sector")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getDeviationSector(@RequestParam("rank") String rank) {
 		return companyService.getDeviationSector(rank);
 	}
 
+	
+	@GetMapping("/detailsCompany/{ticker}/{todate}/{fdate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Calculate getDataByDayCompany(@PathVariable("ticker")String ticker,@PathVariable("todate") String todate,@PathVariable("fdate") String fdate) throws ParseException {
+		return companyService.getDataByDayCompany(ticker,todate,fdate);
+	}
+	
+	@GetMapping("/detailsSector/{sector}/{todate}/{fdate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Calculate getDataByDaySector(@PathVariable("sector")String sector,@PathVariable("todate") String todate,@PathVariable("fdate") String fdate) throws ParseException {
+		return companyService.getDataByDaySector(sector,todate,fdate);
+	}
+	
+	@GetMapping("/detailsCompany/{ticker}/{newDate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Calculate getDataByDateCompany(@PathVariable("ticker")String ticker,@PathVariable("newDate") String newDate) throws ParseException {
+		return companyService.getDataByDateCompany(ticker,newDate);
+	}
+	
+	@GetMapping("/detailsSector/{sector}/{newDate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Calculate getDataByDateSector(@PathVariable("sector")String sector,@PathVariable("newDate") String newDate) throws ParseException {
+		return companyService.getDataByDateSector(sector,newDate);
+	}
 }
