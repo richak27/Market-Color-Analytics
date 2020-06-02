@@ -145,4 +145,32 @@ public class CompanyController {
 	public Map<String, Double> getPriceByMonthSector(@PathVariable("sector") String sector, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate) throws ParseException {
 		return companyService.getPriceByMonthSector(sector, startDate, endDate);
 	}
+	
+
+	@GetMapping("/weekly-volume-sector/{sector}/{startDate}/{endDate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Map<String, Double> getPriceByWeeklySector(@PathVariable("sector") String sector, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate) throws ParseException {
+		return companyService.getPriceByWeekSector(sector, startDate, endDate);
+	}
+	
+	@GetMapping("/company/{ticker}/{frdate}/{todate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Map<String, Double> DailyCompany(@PathVariable("ticker") String ticker,
+			@PathVariable("frdate") String frdate, @PathVariable("todate") String todate,
+			@RequestParam("type") String type) throws ParseException {
+		return companyService.DailyCompany(ticker, frdate, todate, type);
+	}
+
+	@GetMapping("/sector/{sector}/{frdate}/{todate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Map<String, Double> DailySector(@PathVariable("sector") String sector, @PathVariable("frdate") String frdate,
+			@PathVariable("todate") String todate, @RequestParam("type") String type) throws ParseException {
+		return companyService.DailySector(sector, frdate, todate, type);
+	}
+	
+	@GetMapping("/company/{ticker}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Map<String, Double> DailySector(@PathVariable("ticker") String ticker, @RequestParam("type") String type) throws ParseException {
+		return companyService.DataCompany(ticker, type);
+	}
 }
