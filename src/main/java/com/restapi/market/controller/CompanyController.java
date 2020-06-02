@@ -110,41 +110,64 @@ public class CompanyController {
 		return companyService.getDeviationSector(rank);
 	}
 
-	
 	@GetMapping("/detailsCompany/{ticker}/{todate}/{fdate}")
 	@CrossOrigin(origins = "http://localhost:51535")
-	public Calculate getDataByDayCompany(@PathVariable("ticker")String ticker,@PathVariable("todate") String todate,@PathVariable("fdate") String fdate) throws ParseException {
-		return companyService.getDataByDayCompany(ticker,todate,fdate);
+	public Calculate getDataByDayCompany(@PathVariable("ticker") String ticker, @PathVariable("todate") String todate,
+			@PathVariable("fdate") String fdate) throws ParseException {
+		return companyService.getDataByDayCompany(ticker, todate, fdate);
 	}
-	
+
 	@GetMapping("/detailsSector/{sector}/{todate}/{fdate}")
 	@CrossOrigin(origins = "http://localhost:51535")
-	public Calculate getDataByDaySector(@PathVariable("sector")String sector,@PathVariable("todate") String todate,@PathVariable("fdate") String fdate) throws ParseException {
-		return companyService.getDataByDaySector(sector,todate,fdate);
+	public Calculate getDataByDaySector(@PathVariable("sector") String sector, @PathVariable("todate") String todate,
+			@PathVariable("fdate") String fdate) throws ParseException {
+		return companyService.getDataByDaySector(sector, todate, fdate);
 	}
-	
+
 	@GetMapping("/detailsCompany/{ticker}/{newDate}")
 	@CrossOrigin(origins = "http://localhost:51535")
-	public Calculate getDataByDateCompany(@PathVariable("ticker")String ticker,@PathVariable("newDate") String newDate) throws ParseException {
-		return companyService.getDataByDateCompany(ticker,newDate);
+	public Calculate getDataByDateCompany(@PathVariable("ticker") String ticker,
+			@PathVariable("newDate") String newDate) throws ParseException {
+		return companyService.getDataByDateCompany(ticker, newDate);
 	}
-	
+
 	@GetMapping("/detailsSector/{sector}/{newDate}")
 	@CrossOrigin(origins = "http://localhost:51535")
-	public Calculate getDataByDateSector(@PathVariable("sector")String sector,@PathVariable("newDate") String newDate) throws ParseException {
-		return companyService.getDataByDateSector(sector,newDate);
+	public Calculate getDataByDateSector(@PathVariable("sector") String sector, @PathVariable("newDate") String newDate)
+			throws ParseException {
+		return companyService.getDataByDateSector(sector, newDate);
 	}
-	
-	@GetMapping("/detailsCompanyDaily/{ticker}/{frdate}/{todate}")
+
+	/*
+	 * @GetMapping("/detailsCompanyDaily/{ticker}/{frdate}/{todate}")
+	 * 
+	 * @CrossOrigin(origins = "http://localhost:51535") public Map<String,Double>
+	 * DailyAverageCompany(@PathVariable("ticker")String
+	 * ticker,@PathVariable("frdate") String frdate,@PathVariable("todate") String
+	 * todate) throws ParseException { return
+	 * companyService.DailyAverageCompany(ticker,frdate,todate); }
+	 * 
+	 * @GetMapping("/detailsCompanySector/{sector}/{frdate}/{todate}")
+	 * 
+	 * @CrossOrigin(origins = "http://localhost:51535") public Map<String,Double>
+	 * DailyAverageSector(@PathVariable("sector")String
+	 * sector,@PathVariable("frdate") String frdate,@PathVariable("todate") String
+	 * todate) throws ParseException { return
+	 * companyService.DailyAverageSector(sector,frdate,todate); }
+	 */
+
+	@GetMapping("/company/{ticker}/{frdate}/{todate}")
 	@CrossOrigin(origins = "http://localhost:51535")
-	public List<DailyData> DailyAverageCompany(@PathVariable("ticker")String ticker,@PathVariable("frdate") String frdate,@PathVariable("todate") String todate) throws ParseException {
-		return companyService.DailyAverageCompany(ticker,frdate,todate);
+	public Map<String, Double> DailyCompany(@PathVariable("ticker") String ticker,
+			@PathVariable("frdate") String frdate, @PathVariable("todate") String todate,
+			@RequestParam("type") String type) throws ParseException {
+		return companyService.DailyCompany(ticker, frdate, todate, type);
 	}
-	
-	@GetMapping("/detailsCompanySector/{sector}/{frdate}/{todate}")
+
+	@GetMapping("/sector/{sector}/{frdate}/{todate}")
 	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String,Double> DailyAverageSector(@PathVariable("sector")String sector,@PathVariable("frdate") String frdate,@PathVariable("todate") String todate) throws ParseException {
-		return companyService.DailyAverageSector(sector,frdate,todate);
+	public Map<String, Double> DailySector(@PathVariable("sector") String sector, @PathVariable("frdate") String frdate,
+			@PathVariable("todate") String todate, @RequestParam("type") String type) throws ParseException {
+		return companyService.DailySector(sector, frdate, todate, type);
 	}
-	
 }

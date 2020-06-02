@@ -409,30 +409,45 @@ public class CompanyService {
 
 	}
 
-	public List<DailyData> DailyAverageCompany(String ticker, String frdate, String todate) throws ParseException {
+	public Map<String, Double> DailyCompany(String ticker, String frdate, String todate, String type)
+			throws ParseException {
 
 		Date toDate = converter.parse(todate);
 		Date frDate = converter.parse(frdate);
 		Company company = getByTicker(ticker);
-		List<DailyData> value = new ArrayList<>();
-		List<Stock> stocks = company.getStocks();
+		List<Stock> stocknew = new ArrayList<>();
 
+		List<Stock> stocks = company.getStocks();
 		for (Stock stock : stocks) {
 
 			Date nDate = converter.parse(stock.getDate());
-			if (nDate.before(toDate) && nDate.after(frDate)  || nDate.equals(toDate) || nDate.equals(frDate)) {
-
-				DailyData dailyData = new DailyData();
-				dailyData.setPrice(stock.getClose());
-				dailyData.setVolume(stock.getVolume());
-				dailyData.setDate(stock.getDate());
-				value.add(dailyData);
+			if (nDate.before(toDate) && nDate.after(frDate) || nDate.equals(toDate) || nDate.equals(frDate)) {
+				stocknew.add(stock);
 			}
 		}
-		return value;
+
+		if (type.contentEquals("price")) {
+			Map<String, Double> value = stocknew.stream()
+					.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getClose)));
+
+			Map<String, Double> daily = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			return daily;
+		}
+
+		else {
+			Map<String, Double> value = stocknew.stream()
+					.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)));
+
+			Map<String, Double> daily = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			return daily;
+
+		}
 	}
 
-	public Map<String, Double> DailyAverageSector(String sector, String frdate, String todate) throws ParseException {
+	public Map<String, Double> DailySector(String sector, String frdate, String todate, String type)
+			throws ParseException {
 
 		List<Company> company = getBySector(sector);
 		Date toDate = converter.parse(todate);
@@ -444,16 +459,31 @@ public class CompanyService {
 			for (Stock stock : stocks) {
 
 				Date nDate = converter.parse(stock.getDate());
-				if (nDate.before(toDate) && nDate.after(frDate)) {
+				if (nDate.before(toDate) && nDate.after(frDate) || nDate.equals(toDate) || nDate.equals(frDate)) {
 					stocknew.add(stock);
 				}
 			}
 
 		}
-		Map<String, Double> daily = stocknew.stream()
-				.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)));
 
-		return daily;
+		if (type.contentEquals("price")) {
+			Map<String, Double> value = stocknew.stream()
+					.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getClose)));
+
+			Map<String, Double> daily = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			return daily;
+		}
+
+		else {
+			Map<String, Double> value = stocknew.stream()
+					.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)));
+
+			Map<String, Double> daily = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			return daily;
+
+		}
 
 	}
 
