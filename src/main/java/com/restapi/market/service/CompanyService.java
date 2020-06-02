@@ -357,6 +357,26 @@ public class CompanyService {
 		return cal;
 	}
 
+	
+	// Alternate method
+
+		public Map<String, Double> DataCompany(String ticker, String type) {
+			Company company = getByTicker(ticker);
+			List<Stock> stocks = company.getStocks();
+			if (type.contentEquals("volume")) {
+				Map<String, Double> value = stocks.stream()
+						.collect(Collectors.groupingBy(Stock::getPeriod, Collectors.averagingDouble(Stock::getVolume)));
+
+				return value;
+			} else {
+				Map<String, Double> value = stocks.stream()
+						.collect(Collectors.groupingBy(Stock::getPeriod, Collectors.averagingDouble(Stock::getClose)));
+				return value;
+
+			}
+
+		}
+
 	// Calculate for Average date range by company
 	public Calculate getDataByDayCompany(String ticker, String todate, String fdate) throws ParseException {
 		Company company = getByTicker(ticker);
@@ -428,6 +448,86 @@ public class CompanyService {
 		cal.setVolume(sum_sector_volume / companies.size());
 
 		return cal;
+
+	}
+
+	// Return Date-wise Data on the basis of date range for Company
+	public Map<String, Double> DailyCompany(String ticker, String frdate, String todate, String type)
+			throws ParseException {
+
+		Date toDate = converter.parse(todate);
+		Date frDate = converter.parse(frdate);
+		Company company = getByTicker(ticker);
+		List<Stock> stocknew = new ArrayList<>();
+
+		List<Stock> stocks = company.getStocks();
+		for (Stock stock : stocks) {
+
+			Date nDate = converter.parse(stock.getDate());
+			if (nDate.before(toDate) && nDate.after(frDate) || nDate.equals(toDate) || nDate.equals(frDate)) {
+				stocknew.add(stock);
+			}
+		}
+
+		if (type.contentEquals("price")) {
+			Map<String, Double> value = stocknew.stream()
+					.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getClose)));
+
+			Map<String, Double> daily = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			return daily;
+		}
+
+		else {
+			Map<String, Double> value = stocknew.stream()
+					.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)));
+
+			Map<String, Double> daily = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			return daily;
+
+		}
+	}
+
+	// Return Date-wise Data on the basis of date range for Sector
+	public Map<String, Double> DailySector(String sector, String frdate, String todate, String type)
+			throws ParseException {
+
+		List<Company> company = getBySector(sector);
+		Date toDate = converter.parse(todate);
+		Date frDate = converter.parse(frdate);
+		List<Stock> stocknew = new ArrayList<>();
+		for (Company comp : company) {
+
+			List<Stock> stocks = comp.getStocks();
+			for (Stock stock : stocks) {
+
+				Date nDate = converter.parse(stock.getDate());
+				if (nDate.before(toDate) && nDate.after(frDate) || nDate.equals(toDate) || nDate.equals(frDate)) {
+					stocknew.add(stock);
+				}
+			}
+
+		}
+
+		if (type.contentEquals("price")) {
+			Map<String, Double> value = stocknew.stream()
+					.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getClose)));
+
+			Map<String, Double> daily = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			return daily;
+		}
+
+		else {
+			Map<String, Double> value = stocknew.stream()
+					.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)));
+
+			Map<String, Double> daily = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			return daily;
+
+		}
 
 	}
 
@@ -600,5 +700,7 @@ public class CompanyService {
 				.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getVolume)));
 		return monthly;
 	}
+	
+
 
 }
