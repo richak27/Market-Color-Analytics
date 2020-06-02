@@ -2,12 +2,15 @@ package com.restapi.market.service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.*;
 import static java.util.Map.Entry.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import com.restapi.market.model.Company;
 import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.Stock;
@@ -71,7 +75,7 @@ public class CompanyService {
 	public String addStocksByTicker(String ticker) throws ParseException {
 		Company company = this.companyRepository.findByTicker(ticker);
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_initial + token, Stock[].class);
-		for (Stock stock : stocks) {			
+		for (Stock stock : stocks) {
 			Date nowDate = converter.parse(stock.getDate());
 			Date thresholdDate = converter.parse(boundaryDate);
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
@@ -79,8 +83,8 @@ public class CompanyService {
 			} else {
 				stock.setPeriod("post");
 			}
-			stock.setMonth("2020m"+stock.getDate().substring(5, 7));
-			stock.setWeek("okyaya");
+			stock.setMonth("2020m" + stock.getDate().substring(5, 7));
+			stock.setWeek("richakaregikuch");
 		}
 		company.setStocks(Arrays.asList(stocks));
 		this.companyRepository.save(company);
@@ -104,7 +108,7 @@ public class CompanyService {
 	public void updateByTicker(String ticker) throws ParseException {
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_new + token, Stock[].class); // returns only one
 																										// object
-		for (Stock stock : stocks) {			
+		for (Stock stock : stocks) {
 			Date nowDate = converter.parse(stock.getDate());
 			Date thresholdDate = converter.parse(boundaryDate);
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
@@ -112,8 +116,8 @@ public class CompanyService {
 			} else {
 				stock.setPeriod("post");
 			}
-			stock.setMonth("2020m"+stock.getDate().substring(5, 7));
-			stock.setWeek("okyaya");
+			stock.setMonth("2020m" + stock.getDate().substring(5, 7));
+			stock.setWeek("richakaregikuch");
 		}
 		mongoTemplate.updateFirst(new Query(Criteria.where("ticker").is(ticker)),
 				new Update().addToSet("stocks", stocks[0]), Company.class);
@@ -314,5 +318,91 @@ public class CompanyService {
 		}
 
 	}
+
+	// month-wise company prices when ticker is passed
+	public Map<String, Double> getPriceByMonthCompany(String ticker, String startDate, String endDate)
+			throws ParseException {
+		Company company = getByTicker(ticker);
+		List<Stock> stocks = company.getStocks();
+		List<Stock> stocksnew = new ArrayList<>();
+		Date sDate = converter.parse(startDate);
+		Date eDate = converter.parse(endDate);
+		for (Stock stock : stocks) {
+			Date nowDate = converter.parse(stock.getDate());
+			if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
+				stocksnew.add(stock);
+			}
+		}
+		Map<String, Double> monthly = stocksnew.stream()
+				.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getClose)));
+		return monthly;
+	}
+
+	// month-wise company volumes when ticker is passed
+	public Map<String, Double> getVolumeByMonthCompany(String ticker, String startDate, String endDate)
+			throws ParseException {
+		Company company = getByTicker(ticker);
+		List<Stock> stocks = company.getStocks();
+		List<Stock> stocksnew = new ArrayList<>();
+		Date sDate = converter.parse(startDate);
+		Date eDate = converter.parse(endDate);
+		for (Stock stock : stocks) {
+			Date nowDate = converter.parse(stock.getDate());
+			if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
+				stocksnew.add(stock);
+			}
+		}
+		Map<String, Double> monthly = stocksnew.stream()
+				.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getVolume)));
+		return monthly;
+	}
+	
+	// month-wise sector prices when sector name is passed
+	public Map<String, Double> getPriceByMonthSector(String sector, String startDate, String endDate)
+			throws ParseException {
+		List<Company> companies = getBySector(sector);
+		
+		List<Stock> stocks = new ArrayList<>();
+		for (Company company : companies) {
+			stocks.addAll(company.getStocks());
+		}
+		List<Stock> stocksnew = new ArrayList<>();
+		Date sDate = converter.parse(startDate);
+		Date eDate = converter.parse(endDate);
+		for (Stock stock : stocks) {
+			Date nowDate = converter.parse(stock.getDate());
+			if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
+				stocksnew.add(stock);
+			}
+		}
+		Map<String, Double> monthly = stocksnew.stream()
+				.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getClose)));
+		return monthly;
+	}
+	
+	// month-wise sector volumes when sector name is passed
+		public Map<String, Double> getVolumeByMonthSector(String sector, String startDate, String endDate)
+				throws ParseException {
+			List<Company> companies = getBySector(sector);
+			
+			List<Stock> stocks = new ArrayList<>();
+			for (Company company : companies) {
+				stocks.addAll(company.getStocks());
+			}
+			List<Stock> stocksnew = new ArrayList<>();
+			Date sDate = converter.parse(startDate);
+			Date eDate = converter.parse(endDate);
+			for (Stock stock : stocks) {
+				Date nowDate = converter.parse(stock.getDate());
+				if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
+					stocksnew.add(stock);
+				}
+			}
+			Map<String, Double> monthly = stocksnew.stream()
+					.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getVolume)));
+			return monthly;
+		}
+	
+	
 
 }

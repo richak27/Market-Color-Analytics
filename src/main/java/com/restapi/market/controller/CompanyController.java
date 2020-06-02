@@ -110,4 +110,16 @@ public class CompanyController {
 		return companyService.getDeviationSector(rank);
 	}
 
+	@GetMapping("/monthly-volume-company/{ticker}/{startDate}/{endDate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Map<String, Double> getDataByMonthCompany(@PathVariable("ticker") String ticker, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate) throws ParseException {
+		return companyService.getVolumeByMonthCompany(ticker, startDate, endDate);
+	}
+	
+	@GetMapping("/monthly-volume-sector/{sector}/{startDate}/{endDate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Map<String, Double> getPriceByMonthSector(@PathVariable("sector") String sector, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate) throws ParseException {
+		return companyService.getPriceByMonthSector(sector, startDate, endDate);
+	}
+	
 }
