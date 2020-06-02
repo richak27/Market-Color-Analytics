@@ -109,7 +109,7 @@ public class CompanyController {
 		return companyService.getDeviationSector(rank);
 	}
 
-	
+	/*
 	@GetMapping("/detailsCompany/{ticker}/{todate}/{fdate}")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Calculate getDataByDayCompany(@PathVariable("ticker")String ticker,@PathVariable("todate") String todate,@PathVariable("fdate") String fdate) throws ParseException {
@@ -121,7 +121,7 @@ public class CompanyController {
 	public Calculate getDataByDaySector(@PathVariable("sector")String sector,@PathVariable("todate") String todate,@PathVariable("fdate") String fdate) throws ParseException {
 		return companyService.getDataByDaySector(sector,todate,fdate);
 	}
-	
+	*/
 	@GetMapping("/detailsCompany/{ticker}/{newDate}")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Calculate getDataByDateCompany(@PathVariable("ticker")String ticker,@PathVariable("newDate") String newDate) throws ParseException {
