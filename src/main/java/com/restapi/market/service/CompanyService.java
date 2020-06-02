@@ -53,6 +53,7 @@ public class CompanyService {
 
 	SimpleDateFormat converter = new SimpleDateFormat("yyyy-MM-dd");
 
+	Calendar cal = Calendar.getInstance();
 	// returns company object when ticker is passed
 	public Company getByTicker(String ticker) {
 		return this.companyRepository.findByTicker(ticker);
@@ -78,9 +79,8 @@ public class CompanyService {
 		Company company = this.companyRepository.findByTicker(ticker);
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_initial + token, Stock[].class);
 		for (Stock stock : stocks) {
-			String sDate = stock.getDate();
-			Date nowDate = converter.parse(sDate);
-			Calendar cal = Calendar.getInstance();
+			Date nowDate = converter.parse(stock.getDate());
+			Date thresholdDate = converter.parse(boundaryDate);
 			cal.setTime(nowDate);
 			int week_no = cal.get(Calendar.WEEK_OF_YEAR);
 			String week = "";
@@ -90,8 +90,8 @@ public class CompanyService {
 				week = Integer.toString(week_no);
 
 			stock.setWeek(week);
-			stock.setMonth("2020m" + stock.getDate().substring(5, 7));
-			Date thresholdDate = converter.parse(boundaryDate);
+			stock.setMonth(stock.getDate().substring(5, 7));
+			
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 				stock.setPeriod("pre");
 			} else {
@@ -122,9 +122,9 @@ public class CompanyService {
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_new + token, Stock[].class); // returns only one
 																										// object
 		for (Stock stock : stocks) {
-			String sDate = stock.getDate();
-			Date nowDate = converter.parse(sDate);
-			Calendar cal = Calendar.getInstance();
+			
+			Date nowDate = converter.parse(stock.getDate());
+			
 			cal.setTime(nowDate);
 			int week_no = cal.get(Calendar.WEEK_OF_YEAR);
 			String week = "";
@@ -133,7 +133,7 @@ public class CompanyService {
 			else
 				week = Integer.toString(week_no);
 			stock.setWeek(week);
-			stock.setMonth("2020m" + stock.getDate().substring(5, 7));
+			stock.setMonth(stock.getDate().substring(5, 7));
 			Date thresholdDate = converter.parse(boundaryDate);
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 				stock.setPeriod("pre");
@@ -573,7 +573,7 @@ public class CompanyService {
 
 	}
 
-	// month-wise sector prices when sector name is passed
+	// week-wise sector prices when sector name is passed
 	public Map<String, Double> getPriceByWeekSector(String sector, String startDate, String endDate)throws ParseException {
 		
 		List<Company> companies = getBySector(sector);
@@ -595,7 +595,7 @@ public class CompanyService {
 		return weekly;
 	}
 
-	// month-wise sector volumes when sector name is passed
+	// week-wise sector volumes when sector name is passed
 	public Map<String, Double> getVolumeByWeekSector(String sector, String startDate, String endDate)throws ParseException {
 		List<Company> companies = getBySector(sector);
 
