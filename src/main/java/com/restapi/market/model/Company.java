@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Company {
 	@Id
 	private String id;
-	
 	private String name;
 	private String ticker;
 	private String sector;

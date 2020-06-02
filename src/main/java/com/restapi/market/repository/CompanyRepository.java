@@ -10,7 +10,6 @@ import com.restapi.market.model.Company;
 @Repository
 public interface CompanyRepository extends MongoRepository<Company, String> {
 	Company findByTicker(String ticker);
-
 	List<Company> findBySector(String sector);
 
 }
