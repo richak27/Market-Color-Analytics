@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.restapi.market.model.Calculate;
 import com.restapi.market.model.Company;
+import com.restapi.market.model.DailyData;
 import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.VolumeAverage;
 import com.restapi.market.service.CompanyService;
@@ -133,4 +134,17 @@ public class CompanyController {
 	public Calculate getDataByDateSector(@PathVariable("sector")String sector,@PathVariable("newDate") String newDate) throws ParseException {
 		return companyService.getDataByDateSector(sector,newDate);
 	}
+	
+	@GetMapping("/detailsCompanyDaily/{ticker}/{frdate}/{todate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public List<DailyData> DailyAverageCompany(@PathVariable("ticker")String ticker,@PathVariable("frdate") String frdate,@PathVariable("todate") String todate) throws ParseException {
+		return companyService.DailyAverageCompany(ticker,frdate,todate);
+	}
+	
+	@GetMapping("/detailsCompanySector/{sector}/{frdate}/{todate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Map<String,Double> DailyAverageSector(@PathVariable("sector")String sector,@PathVariable("frdate") String frdate,@PathVariable("todate") String todate) throws ParseException {
+		return companyService.DailyAverageSector(sector,frdate,todate);
+	}
+	
 }

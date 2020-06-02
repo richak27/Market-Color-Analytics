@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.*;
 import static java.util.Map.Entry.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.restapi.market.model.Calculate;
 import com.restapi.market.model.Company;
+import com.restapi.market.model.DailyData;
 import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.Stock;
 import com.restapi.market.model.VolumeAverage;
@@ -315,8 +318,8 @@ public class CompanyService {
 		}
 
 	}
-	
-	//Calculate Average Stock Price and Volume 
+
+	// Calculate Average Stock Price and Volume
 
 	public Calculate averagestock(List<Stock> stocks) {
 
@@ -332,7 +335,6 @@ public class CompanyService {
 		return cal;
 	}
 
-	
 	// Calculate for Average date range by company
 	public Calculate getDataByDayCompany(String ticker, String todate, String fdate) throws ParseException {
 		Company company = getByTicker(ticker);
@@ -341,7 +343,7 @@ public class CompanyService {
 		Date toDate = converter.parse(todate);
 		Date fDate = converter.parse(fdate);
 		for (Stock stock : stocks) {
-			
+
 			String sDate = stock.getDate();
 			Date nowDate = converter.parse(sDate);
 			if (nowDate.before(fDate) && nowDate.after(toDate)) {
@@ -371,48 +373,88 @@ public class CompanyService {
 		}
 		return averagestock(stocksnew);
 	}
-	
+
 	// For one date send values for company
-	public Calculate getDataByDateCompany(String ticker,String rdate) throws ParseException{
+	public Calculate getDataByDateCompany(String ticker, String rdate) throws ParseException {
 		Calculate cal = new Calculate();
 		Company company = getByTicker(ticker);
-		List<Stock>stocks = company.getStocks();
-		for(Stock stock: stocks) {
-			if(rdate.contentEquals(stock.getDate())) {
+		List<Stock> stocks = company.getStocks();
+		for (Stock stock : stocks) {
+			if (rdate.contentEquals(stock.getDate())) {
 				cal.setPrice(stock.getClose());
 				cal.setVolume(stock.getVolume());
-				}
+			}
 		}
 		return cal;
 	}
 
 	// For one date send average values of sector
-	public Calculate getDataByDateSector(String sector,String rdate) throws ParseException{
+	public Calculate getDataByDateSector(String sector, String rdate) throws ParseException {
 		Calculate cal = new Calculate();
-		List<Company>companies = getBySector(sector);
+		List<Company> companies = getBySector(sector);
 		double sum_sector_price = 0;
 		double sum_sector_volume = 0;
-		for(Company comp: companies) {
-			
+		for (Company comp : companies) {
+
 			cal = averagestock(comp.getStocks());
 			sum_sector_price += cal.getPrice();
-			sum_sector_volume += cal.getVolume(); 
-			
+			sum_sector_volume += cal.getVolume();
+
 		}
 
-		cal.setPrice(sum_sector_price/companies.size());
-		cal.setVolume(sum_sector_volume/companies.size());
-		
+		cal.setPrice(sum_sector_price / companies.size());
+		cal.setVolume(sum_sector_volume / companies.size());
+
 		return cal;
-		
+
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+	public List<DailyData> DailyAverageCompany(String ticker, String frdate, String todate) throws ParseException {
+
+		Date toDate = converter.parse(todate);
+		Date frDate = converter.parse(frdate);
+		Company company = getByTicker(ticker);
+		List<DailyData> value = new ArrayList<>();
+		List<Stock> stocks = company.getStocks();
+
+		for (Stock stock : stocks) {
+
+			Date nDate = converter.parse(stock.getDate());
+			if (nDate.before(toDate) && nDate.after(frDate)  || nDate.equals(toDate) || nDate.equals(frDate)) {
+
+				DailyData dailyData = new DailyData();
+				dailyData.setPrice(stock.getClose());
+				dailyData.setVolume(stock.getVolume());
+				dailyData.setDate(stock.getDate());
+				value.add(dailyData);
+			}
+		}
+		return value;
+	}
+
+	public Map<String, Double> DailyAverageSector(String sector, String frdate, String todate) throws ParseException {
+
+		List<Company> company = getBySector(sector);
+		Date toDate = converter.parse(todate);
+		Date frDate = converter.parse(frdate);
+		List<Stock> stocknew = new ArrayList<>();
+		for (Company comp : company) {
+
+			List<Stock> stocks = comp.getStocks();
+			for (Stock stock : stocks) {
+
+				Date nDate = converter.parse(stock.getDate());
+				if (nDate.before(toDate) && nDate.after(frDate)) {
+					stocknew.add(stock);
+				}
+			}
+
+		}
+		Map<String, Double> daily = stocknew.stream()
+				.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)));
+
+		return daily;
+
+	}
+
 }
