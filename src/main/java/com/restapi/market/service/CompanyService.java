@@ -378,247 +378,46 @@ public class CompanyService {
 
 	}
 
-	/*
-	 * // Calculate for Average date range by company public Calculate
-	 * getDataByDayCompany(String ticker, String todate, String fdate) throws
-	 * ParseException { Company company = getByTicker(ticker); List<Stock> stocks =
-	 * company.getStocks(); List<Stock> stocksnew = new ArrayList<>(); Date toDate =
-	 * converter.parse(todate); Date fDate = converter.parse(fdate); for (Stock
-	 * stock : stocks) {
-	 * 
-	 * String sDate = stock.getDate(); Date nowDate = converter.parse(sDate); if
-	 * (nowDate.before(fDate) && nowDate.after(toDate)) { stocksnew.add(stock); } }
-	 * return averagestock(stocksnew); }
-	 * 
-	 * // Calculate for Average date range by sector public Calculate
-	 * getDataByDaySector(String sector, String todate, String fdate) throws
-	 * ParseException { List<Company> companies = getBySector(sector); List<Stock>
-	 * stocksnew = new ArrayList<>(); Date toDate = converter.parse(todate); Date
-	 * fDate = converter.parse(fdate); for (Company comp : companies) {
-	 * 
-	 * List<Stock> stocks = comp.getStocks(); for (Stock stock : stocks) {
-	 * 
-	 * String sDate = stock.getDate(); Date nowDate = converter.parse(sDate); if
-	 * (nowDate.before(fDate) && nowDate.after(toDate)) { stocksnew.add(stock); } }
-	 * } return averagestock(stocksnew); }
-	 * 
-	 * // For one date send values for company public Calculate
-	 * getDataByDateCompany(String ticker, String rdate) throws ParseException {
-	 * Calculate cal = new Calculate(); Company company = getByTicker(ticker);
-	 * List<Stock> stocks = company.getStocks(); for (Stock stock : stocks) { if
-	 * (rdate.contentEquals(stock.getDate())) { cal.setPrice(stock.getClose());
-	 * cal.setVolume(stock.getVolume()); } } return cal; }
-	 * 
-	 * // For one date send average values of sector public Calculate
-	 * getDataByDateSector(String sector, String rdate) throws ParseException {
-	 * Calculate cal = new Calculate(); List<Company> companies =
-	 * getBySector(sector); double sum_sector_price = 0; double sum_sector_volume =
-	 * 0; for (Company comp : companies) {
-	 * 
-	 * cal = averagestock(comp.getStocks()); sum_sector_price += cal.getPrice();
-	 * sum_sector_volume += cal.getVolume();
-	 * 
-	 * }
-	 * 
-	 * cal.setPrice(sum_sector_price / companies.size());
-	 * cal.setVolume(sum_sector_volume / companies.size());
-	 * 
-	 * return cal;
-	 * 
-	 * }
-	 * 
-	 * // Return Date-wise Data on the basis of date range for Company public
-	 * Map<String, Double> DailyCompany(String ticker, String frdate, String todate,
-	 * String type) throws ParseException {
-	 * 
-	 * Date toDate = converter.parse(todate); Date frDate = converter.parse(frdate);
-	 * Company company = getByTicker(ticker); List<Stock> stocknew = new
-	 * ArrayList<>();
-	 * 
-	 * List<Stock> stocks = company.getStocks(); for (Stock stock : stocks) {
-	 * 
-	 * Date nDate = converter.parse(stock.getDate()); if (nDate.before(toDate) &&
-	 * nDate.after(frDate) || nDate.equals(toDate) || nDate.equals(frDate)) {
-	 * stocknew.add(stock); } }
-	 * 
-	 * if (type.contentEquals("price")) { Map<String, Double> value =
-	 * stocknew.stream() .collect(Collectors.groupingBy(Stock::getDate,
-	 * Collectors.averagingDouble(Stock::getClose)));
-	 * 
-	 * Map<String, Double> daily =
-	 * value.entrySet().stream().sorted(comparingByKey())
-	 * .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
-	 * LinkedHashMap::new)); return daily; }
-	 * 
-	 * else { Map<String, Double> value = stocknew.stream()
-	 * .collect(Collectors.groupingBy(Stock::getDate,
-	 * Collectors.averagingDouble(Stock::getVolume)));
-	 * 
-	 * Map<String, Double> daily =
-	 * value.entrySet().stream().sorted(comparingByKey())
-	 * .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
-	 * LinkedHashMap::new)); return daily;
-	 * 
-	 * } }
-	 * 
-	 * // Return Date-wise Data on the basis of date range for Sector public
-	 * Map<String, Double> DailySector(String sector, String frdate, String todate,
-	 * String type) throws ParseException {
-	 * 
-	 * List<Company> company = getBySector(sector); Date toDate =
-	 * converter.parse(todate); Date frDate = converter.parse(frdate); List<Stock>
-	 * stocknew = new ArrayList<>(); for (Company comp : company) {
-	 * 
-	 * List<Stock> stocks = comp.getStocks(); for (Stock stock : stocks) {
-	 * 
-	 * Date nDate = converter.parse(stock.getDate()); if (nDate.before(toDate) &&
-	 * nDate.after(frDate) || nDate.equals(toDate) || nDate.equals(frDate)) {
-	 * stocknew.add(stock); } }
-	 * 
-	 * }
-	 * 
-	 * if (type.contentEquals("price")) { Map<String, Double> value =
-	 * stocknew.stream() .collect(Collectors.groupingBy(Stock::getDate,
-	 * Collectors.averagingDouble(Stock::getClose)));
-	 * 
-	 * Map<String, Double> daily =
-	 * value.entrySet().stream().sorted(comparingByKey())
-	 * .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
-	 * LinkedHashMap::new)); return daily; }
-	 * 
-	 * else { Map<String, Double> value = stocknew.stream()
-	 * .collect(Collectors.groupingBy(Stock::getDate,
-	 * Collectors.averagingDouble(Stock::getVolume)));
-	 * 
-	 * Map<String, Double> daily =
-	 * value.entrySet().stream().sorted(comparingByKey())
-	 * .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1,
-	 * LinkedHashMap::new)); return daily;
-	 * 
-	 * }
-	 * 
-	 * }
-	 * 
-	 * // week-wise company prices when ticker is passed public Map<String, Double>
-	 * getPriceByWeekCompany(String ticker, String startDate, String endDate) throws
-	 * ParseException { Company company = getByTicker(ticker); List<Stock> stocks =
-	 * company.getStocks(); List<Stock> stocksnew = new ArrayList<>(); Date sDate =
-	 * converter.parse(startDate); Date eDate = converter.parse(endDate); for (Stock
-	 * stock : stocks) { Date nowDate = converter.parse(stock.getDate()); if
-	 * ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) ||
-	 * nowDate.equals(eDate)) stocksnew.add(stock); }
-	 * 
-	 * Map<String, Double> weekly = stocksnew.stream()
-	 * .collect(Collectors.groupingBy(Stock::getWeek,
-	 * Collectors.averagingDouble(Stock::getClose)));
-	 * 
-	 * return weekly;
-	 * 
-	 * }
-	 * 
-	 * // week-wise company volume when ticker is passed public Map<String, Double>
-	 * getVolumeByWeekCompany(String ticker, String startDate, String endDate)
-	 * throws ParseException { Company company = getByTicker(ticker); List<Stock>
-	 * stocks = company.getStocks(); List<Stock> stocksnew = new ArrayList<>(); Date
-	 * sDate = converter.parse(startDate); Date eDate = converter.parse(endDate);
-	 * for (Stock stock : stocks) { Date nowDate = converter.parse(stock.getDate());
-	 * if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate)
-	 * || nowDate.equals(eDate)) stocksnew.add(stock); }
-	 * 
-	 * Map<String, Double> weekly = stocksnew.stream()
-	 * .collect(Collectors.groupingBy(Stock::getWeek,
-	 * Collectors.averagingDouble(Stock::getVolume)));
-	 * 
-	 * return weekly;
-	 * 
-	 * }
-	 * 
-	 * // week-wise sector prices when sector name is passed public Map<String,
-	 * Double> getPriceByWeekSector(String sector, String startDate, String
-	 * endDate)throws ParseException {
-	 * 
-	 * List<Company> companies = getBySector(sector); List<Stock> stocks = new
-	 * ArrayList<>(); for (Company company : companies) {
-	 * stocks.addAll(company.getStocks()); } List<Stock> stocksnew = new
-	 * ArrayList<>(); Date sDate = converter.parse(startDate); Date eDate =
-	 * converter.parse(endDate); for (Stock stock : stocks) { Date nowDate =
-	 * converter.parse(stock.getDate()); if ((nowDate.after(sDate) &&
-	 * nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
-	 * stocksnew.add(stock); } } Map<String, Double> weekly = stocksnew.stream()
-	 * .collect(Collectors.groupingBy(Stock::getWeek,
-	 * Collectors.averagingDouble(Stock::getClose))); return weekly; }
-	 * 
-	 * // week-wise sector volumes when sector name is passed public Map<String,
-	 * Double> getVolumeByWeekSector(String sector, String startDate, String
-	 * endDate)throws ParseException { List<Company> companies =
-	 * getBySector(sector);
-	 * 
-	 * List<Stock> stocks = new ArrayList<>(); for (Company company : companies) {
-	 * stocks.addAll(company.getStocks()); } List<Stock> stocksnew = new
-	 * ArrayList<>(); Date sDate = converter.parse(startDate); Date eDate =
-	 * converter.parse(endDate); for (Stock stock : stocks) { Date nowDate =
-	 * converter.parse(stock.getDate()); if ((nowDate.after(sDate) &&
-	 * nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
-	 * stocksnew.add(stock); } } Map<String, Double> weekly = stocksnew.stream()
-	 * .collect(Collectors.groupingBy(Stock::getWeek,
-	 * Collectors.averagingDouble(Stock::getVolume))); return weekly; }
-	 * 
-	 * // month-wise company prices when ticker is passed public Map<String, Double>
-	 * getPriceByMonthCompany(String ticker, String startDate, String endDate)
-	 * throws ParseException { Company company = getByTicker(ticker); List<Stock>
-	 * stocks = company.getStocks(); List<Stock> stocksnew = new ArrayList<>(); Date
-	 * sDate = converter.parse(startDate); Date eDate = converter.parse(endDate);
-	 * for (Stock stock : stocks) { Date nowDate = converter.parse(stock.getDate());
-	 * if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate)
-	 * || nowDate.equals(eDate)) { stocksnew.add(stock); } } Map<String, Double>
-	 * monthly = stocksnew.stream() .collect(Collectors.groupingBy(Stock::getMonth,
-	 * Collectors.averagingDouble(Stock::getClose))); return monthly; }
-	 * 
-	 * // month-wise company volumes when ticker is passed public Map<String,
-	 * Double> getVolumeByMonthCompany(String ticker, String startDate, String
-	 * endDate) throws ParseException { Company company = getByTicker(ticker);
-	 * List<Stock> stocks = company.getStocks(); List<Stock> stocksnew = new
-	 * ArrayList<>(); Date sDate = converter.parse(startDate); Date eDate =
-	 * converter.parse(endDate); for (Stock stock : stocks) { Date nowDate =
-	 * converter.parse(stock.getDate()); if ((nowDate.after(sDate) &&
-	 * nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
-	 * stocksnew.add(stock); } } Map<String, Double> monthly = stocksnew.stream()
-	 * .collect(Collectors.groupingBy(Stock::getMonth,
-	 * Collectors.averagingDouble(Stock::getVolume))); return monthly; }
-	 * 
-	 * // month-wise sector prices when sector name is passed public Map<String,
-	 * Double> getPriceByMonthSector(String sector, String startDate, String
-	 * endDate) throws ParseException { List<Company> companies =
-	 * getBySector(sector);
-	 * 
-	 * List<Stock> stocks = new ArrayList<>(); for (Company company : companies) {
-	 * stocks.addAll(company.getStocks()); } List<Stock> stocksnew = new
-	 * ArrayList<>(); Date sDate = converter.parse(startDate); Date eDate =
-	 * converter.parse(endDate); for (Stock stock : stocks) { Date nowDate =
-	 * converter.parse(stock.getDate()); if ((nowDate.after(sDate) &&
-	 * nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
-	 * stocksnew.add(stock); } } Map<String, Double> monthly = stocksnew.stream()
-	 * .collect(Collectors.groupingBy(Stock::getMonth,
-	 * Collectors.averagingDouble(Stock::getClose))); return monthly; }
-	 * 
-	 * // month-wise sector volumes when sector name is passed public Map<String,
-	 * Double> getVolumeByMonthSector(String sector, String startDate, String
-	 * endDate) throws ParseException { List<Company> companies =
-	 * getBySector(sector);
-	 * 
-	 * List<Stock> stocks = new ArrayList<>(); for (Company company : companies) {
-	 * stocks.addAll(company.getStocks()); } List<Stock> stocksnew = new
-	 * ArrayList<>(); Date sDate = converter.parse(startDate); Date eDate =
-	 * converter.parse(endDate); for (Stock stock : stocks) { Date nowDate =
-	 * converter.parse(stock.getDate()); if ((nowDate.after(sDate) &&
-	 * nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
-	 * stocksnew.add(stock); } } Map<String, Double> monthly = stocksnew.stream()
-	 * .collect(Collectors.groupingBy(Stock::getMonth,
-	 * Collectors.averagingDouble(Stock::getVolume))); return monthly; }
-	 * 
-	 */
+	// Calculate for Average date range by company public Calculate
+	public Calculate getDataByRangeCompany(String ticker, String startDate, String endDate) throws ParseException {
+		Company company = getByTicker(ticker);
+		List<Stock> stocks = company.getStocks();
+		List<Stock> stocksnew = new ArrayList<>();
+		Date eDate = converter.parse(endDate);
+		Date sDate = converter.parse(startDate);
+		for (Stock stock : stocks) {
 
-/////////////DAILY COMPANY ////////////
+			String nDate = stock.getDate();
+			Date nowDate = converter.parse(nDate);
+			if (nowDate.before(eDate) && nowDate.after(sDate) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
+				stocksnew.add(stock);
+			}
+		}
+		return averagestock(stocksnew);
+	}
+
+	// Calculate for Average date range by sector public Calculate
+	public Calculate getDataByRangeSector(String sector, String startDate, String endDate) throws ParseException {
+		List<Company> companies = getBySector(sector);
+		List<Stock> stocksnew = new ArrayList<>();
+		Date eDate = converter.parse(endDate);
+		Date sDate = converter.parse(startDate);
+		for (Company comp : companies) {
+
+			List<Stock> stocks = comp.getStocks();
+			for (Stock stock : stocks) {
+
+				String nDate = stock.getDate();
+				Date nowDate = converter.parse(nDate);
+				if (nowDate.before(eDate) && nowDate.after(sDate) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
+					stocksnew.add(stock);
+				}
+			}
+		}
+		return averagestock(stocksnew);
+	}
+
+/////////////                              DAILY COMPANY                          ////////////
 	public Map<String, Double> DailyCompany(String ticker, String frdate, String todate, String type)
 			throws ParseException {
 
@@ -662,7 +461,7 @@ public class CompanyService {
 		}
 	}
 
-/////////////////     DAILY SECTOR      /////////////////
+/////////////////                     DAILY SECTOR                     /////////////////
 	public Map<String, Double> DailySector(String sector, String startdate, String enddate, String type)
 			throws ParseException {
 
@@ -709,7 +508,7 @@ public class CompanyService {
 
 	}
 
-//////////////WEEKLY COMPANY   //////////////////////
+//////////////                      WEEKLY COMPANY              //////////////////////
 	public Map<String, Double> WeeklyCompany(String ticker, String startDate, String endDate, String type)
 			throws ParseException {
 		Company company = getByTicker(ticker);
@@ -785,7 +584,7 @@ public class CompanyService {
 		}
 
 	}
-////////////////////////WEEKLY SECTOR         ////////////////////////
+////////////////////////                WEEKLY SECTOR         ////////////////////////
 
 	public Map<String, Double> WeeklySector(String sector, String startDate, String endDate, String type)
 			throws ParseException {
@@ -866,7 +665,7 @@ public class CompanyService {
 
 	}
 
-///////////////////////    FUNCTION FOR DAILY WEEKLY MONTHLY FOR A SECTOR        ///////////////////////////
+///////////////////////    FUNCTION FOR DAILY WEEKLY MONTHLY FOR A SECTOR               ///////////////////////////
 	public Map<String, Double> DataSector(String sector, String startDate, String endDate, String type, String range)
 			throws ParseException {
 		if (range.contentEquals("daily")) {
@@ -888,7 +687,7 @@ public class CompanyService {
 		}
 	}
 
-///////////////////// FUNCTION FOR DAILY WEEKLY MONTHLY FOR A COMPANY  ////////////////////////////
+/////////////////////          FUNCTION FOR DAILY WEEKLY MONTHLY FOR A COMPANY           ////////////////////////////
 	public Map<String, Double> DataCompany(String ticker, String startDate, String endDate, String type, String range)
 			throws ParseException {
 		if (range.contentEquals("daily")) {
@@ -910,6 +709,7 @@ public class CompanyService {
 		}
 	}
 
+	// List of objects with daily data for a company
 	public List<DailyData> gridCompany(String ticker, String startDate, String endDate) throws ParseException {
 
 		Company company = getByTicker(ticker);
@@ -937,6 +737,7 @@ public class CompanyService {
 		return objList;
 	}
 
+	// List of objects with daily data for a sector
 	public List<List<DailyData>> gridSector(String sector, String startDate, String endDate) throws ParseException {
 		List<Company> companies = getBySector(sector);
 		List<List<DailyData>> nestedList = new ArrayList<List<DailyData>>();
