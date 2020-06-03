@@ -10,17 +10,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.restapi.market.model.Calculate;
 import com.restapi.market.model.Company;
+import com.restapi.market.model.DailyData;
 import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.VolumeAverage;
 import com.restapi.market.service.CompanyService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+@CrossOrigin(origins = "http://localhost:51535")
 @RestController
 @RequestMapping("/data")
 public class CompanyController {
@@ -33,184 +34,129 @@ public class CompanyController {
 	@Autowired
 	private CompanyService companyService;
 
+	
+	//Details of company based on the ticker
 	@GetMapping("/{ticker}")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public Company getCompany(@PathVariable("ticker") String ticker) throws ParseException {
 		return companyService.getByTicker(ticker);
 	}
 
+	//List of all tickers
 	@GetMapping("/tickers")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public List<String> getTickerList() {
 		return companyService.getAllTickers();
 	}
-	
+
+	//List of all sectors
 	@GetMapping("/sectors")
 	public List<String> getSectorList() {
 		return companyService.getAllSectors();
 	}
 
+	//Add data according to the ticker
 	@GetMapping("/add/{ticker}")
 	public String addStocksByTicker(@PathVariable("ticker") String ticker) throws ParseException {
 		return companyService.addStocksByTicker(ticker);
 	}
 
+	//Populate Database
 	@GetMapping("/seed")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public String populateDb() {
 		return companyService.seedDb();
 	}
-	
+
+	//Modify data according to the ticker
 	@GetMapping("/update/{ticker}")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public void updateByTicker(@PathVariable("ticker") String ticker) throws ParseException {
 		companyService.updateByTicker(ticker);
 	}
 
+	//Update data  
 	@GetMapping("/force-update")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public void forceUpdate() {
 		companyService.dailyUpdateAll();
 	}
 
+	//Calculate Pre and Post Covid Volume for a company
 	@GetMapping("/average-volume-company/{ticker}")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public VolumeAverage calAverageVolume(@PathVariable("ticker") String ticker) {
 		return companyService.calAvgVolumeByCompany(ticker);
 	}
 
+	//Calculate Pre and Post Covid Price for a company
 	@GetMapping("/average-price-company/{ticker}")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public PriceAverage calAvgPriceByCompany(@PathVariable("ticker") String ticker) {
 		return companyService.calAvgPriceByCompany(ticker);
 	}
 
+	//Calculate Pre and Post Covid Price for a sector
 	@GetMapping("/average-price-sector/{sector}")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public PriceAverage calAvgStockBySector(@PathVariable("sector") String sector) {
 		return companyService.calAvgPriceBySector(sector);
 	}
 
+	//Calculate Pre and Post Covid Volume for a sector
 	@GetMapping("/average-volume-sector/{sector}")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public VolumeAverage calAvgVolumeBySector(@PathVariable("sector") String sector) {
 		return companyService.calAvgVolumeBySector(sector);
 	}
 
+	//Sorted values of Deviation Price or Volume for a company
 	@GetMapping("/sort/company")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank) {
 		return companyService.getDeviationCompany(rank);
 	}
 
+	//Sorted values of Deviation Price or Volume for a Sector
 	@GetMapping("/sort/sector")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> getDeviationSector(@RequestParam("rank") String rank) {
 		return companyService.getDeviationSector(rank);
 	}
 
-	/*
-	@GetMapping("/detailsCompany/{ticker}/{todate}/{fdate}")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Calculate getDataByDayCompany(@PathVariable("ticker")String ticker,@PathVariable("todate") String todate,@PathVariable("fdate") String fdate) throws ParseException {
-		return companyService.getDataByDayCompany(ticker,todate,fdate);
+	// For a range of date average price,volume for a company
+	@GetMapping("/detailsCompany/{ticker}/{startDate}/{endDate}")
+	public Calculate DataCompany(@PathVariable("ticker") String ticker,
+			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate) throws ParseException {
+		return companyService.getDataByRangeCompany(ticker, startDate, endDate);
 	}
 	
-	@GetMapping("/detailsSector/{sector}/{todate}/{fdate}")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Calculate getDataByDaySector(@PathVariable("sector")String sector,@PathVariable("todate") String todate,@PathVariable("fdate") String fdate) throws ParseException {
-		return companyService.getDataByDaySector(sector,todate,fdate);
-	}
+	// For a range of date average price,volume for a sector
+		@GetMapping("/detailsSector/{sector}/{startDate}/{endDate}")
+		public Calculate DataSector(@PathVariable("sector") String sector,
+				@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate) throws ParseException {
+			return companyService.getDataByRangeSector(sector, startDate, endDate);
+		}
 	
-	@GetMapping("/detailsCompany/{ticker}/{newDate}")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Calculate getDataByDateCompany(@PathVariable("ticker")String ticker,@PathVariable("newDate") String newDate) throws ParseException {
-		return companyService.getDataByDateCompany(ticker,newDate);
-	}
-	
-	@GetMapping("/detailsSector/{sector}/{newDate}")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Calculate getDataByDateSector(@PathVariable("sector")String sector,@PathVariable("newDate") String newDate) throws ParseException {
-		return companyService.getDataByDateSector(sector,newDate);
-	}
-	
-	@GetMapping("/monthly-volume-company/{ticker}/{startDate}/{endDate}")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getDataByMonthCompany(@PathVariable("ticker") String ticker, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate) throws ParseException {
-		return companyService.getVolumeByMonthCompany(ticker, startDate, endDate);
-	}
-	
-	@GetMapping("/monthly-volume-sector/{sector}/{startDate}/{endDate}")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getPriceByMonthSector(@PathVariable("sector") String sector, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate) throws ParseException {
-		return companyService.getPriceByMonthSector(sector, startDate, endDate);
-	}
-	
-
-	@GetMapping("/weekly-volume-sector/{sector}/{startDate}/{endDate}")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> getPriceByWeeklySector(@PathVariable("sector") String sector, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate) throws ParseException {
-		return companyService.getPriceByWeekSector(sector, startDate, endDate);
-	}
-	
-	@GetMapping("/company/{ticker}/{frdate}/{todate}")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> DailyCompany(@PathVariable("ticker") String ticker,
-			@PathVariable("frdate") String frdate, @PathVariable("todate") String todate,
-			@RequestParam("type") String type) throws ParseException {
-		return companyService.DailyCompany(ticker, frdate, todate, type);
-	}
-
-	@GetMapping("/sector/{sector}/{frdate}/{todate}")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> DailySector(@PathVariable("sector") String sector, @PathVariable("frdate") String frdate,
-			@PathVariable("todate") String todate, @RequestParam("type") String type) throws ParseException {
-		return companyService.DailySector(sector, frdate, todate, type);
-	}
-	
-	@GetMapping("/company/{ticker}")
-	@CrossOrigin(origins = "http://localhost:51535")
-	public Map<String, Double> DailySector(@PathVariable("ticker") String ticker, @RequestParam("type") String type) throws ParseException {
-		return companyService.DataCompany(ticker, type);
-	}*/
-	
-	
+	//Daily, Weekly, Monthly Average Stock Price/Volume for a company
 	@GetMapping("/company/{ticker}/{startDate}/{endDate}")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> DataCompany(@PathVariable("ticker") String ticker,
 			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate,
 			@RequestParam("type") String type, @RequestParam("range") String range) throws ParseException {
 		return companyService.DataCompany(ticker, startDate, endDate, type, range);
 	}
-	
+
+	//Daily, Weekly, Monthly Average Stock Price/Volume for a sector
 	@GetMapping("/sector/{sector}/{startDate}/{endDate}")
-	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> DataSector(@PathVariable("sector") String sector,
 			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate,
 			@RequestParam("type") String type, @RequestParam("range") String range) throws ParseException {
 		return companyService.DataSector(sector, startDate, endDate, type, range);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+	//List of objects with daily data for a company
+	@GetMapping("/gridCompany/{ticker}/{startDate}/{endDate}")
+	public List<DailyData> gridCompany(@PathVariable("ticker") String ticker,
+			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate)
+			throws ParseException {
+		return companyService.gridCompany(ticker, startDate, endDate);
+	}
+
+	//List of objects with daily data for a sector
+	@GetMapping("/gridSector/{sector}/{startDate}/{endDate}")
+	public List<List<DailyData>> gridSector(@PathVariable("sector") String sector,
+			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate)
+			throws ParseException {
+		return companyService.gridSector(sector, startDate, endDate);
+	}
+
 }
