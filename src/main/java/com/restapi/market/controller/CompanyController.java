@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.restapi.market.model.Calculate;
 import com.restapi.market.model.Company;
+import com.restapi.market.model.DailyData;
 import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.VolumeAverage;
 import com.restapi.market.service.CompanyService;
@@ -190,6 +191,12 @@ public class CompanyController {
 		return companyService.DataSector(sector, startDate, endDate, type, range);
 	}
 	
+	
+	@GetMapping("/Company/{ticker}/{startDate}/{endDate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public List<DailyData> AverageForDateCompany(@PathVariable("ticker")String ticker,@PathVariable("startDate") String startDate,@PathVariable("endDate") String endDate) throws ParseException {
+		return companyService.AverageForDateCompany(ticker,startDate,endDate);
+	}
 	
 	
 	

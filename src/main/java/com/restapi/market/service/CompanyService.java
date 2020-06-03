@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.restapi.market.model.Calculate;
 import com.restapi.market.model.Company;
+import com.restapi.market.model.DailyData;
 import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.Stock;
 import com.restapi.market.model.VolumeAverage;
@@ -909,4 +910,33 @@ public class CompanyService {
 		}
 	}
 
+public List<DailyData> AverageForDateCompany(String ticker, String startDate, String endDate) throws ParseException{
+		
+		Company company = getByTicker(ticker);
+		List<Stock>stocks = company.getStocks();
+		List<DailyData>obj = new ArrayList<>();
+		
+		
+		Date sDate = converter.parse(startDate);
+		Date eDate = converter.parse(endDate);
+		
+		
+		for(Stock stock: stocks) {
+			
+			
+			Date nowDate = converter.parse(stock.getDate());
+			if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
+				
+			
+			DailyData dailyData = new DailyData();
+			dailyData.setDate(stock.getDate());
+			dailyData.setPrice(stock.getClose());
+			dailyData.setVolume(stock.getVolume());
+			dailyData.setCompanyName(company.getName());
+			dailyData.setSector(company.getSector());
+			dailyData.setTicker(company.getTicker());
+			obj.add(dailyData);}
+		}
+		return obj;
+}
 }
