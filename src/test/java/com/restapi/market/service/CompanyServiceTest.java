@@ -34,28 +34,28 @@ class CompanyServiceTest {
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		List<Stock> stocks1 = new ArrayList<Stock>();
-		stocks1.add(new Stock("2020-02-06", "pre", 100, 50));
-		stocks1.add(new Stock("2020-02-07", "pre", 120, 40));
-		stocks1.add(new Stock("2020-02-10", "post", 80, 70));
-		stocks1.add(new Stock("2020-02-11", "post", 100, 60));
+		stocks1.add(new Stock("2020-02-06", "pre", 100, 50,null,null));
+		stocks1.add(new Stock("2020-02-07", "pre", 120, 40,null,null));
+		stocks1.add(new Stock("2020-02-10", "post", 80, 70,null,null));
+		stocks1.add(new Stock("2020-02-11", "post", 100, 60,null,null));
 		
 		List<Stock> stocks2 = new ArrayList<Stock>();
-		stocks2.add(new Stock("2020-02-06", "pre", 80, 40));
-		stocks2.add(new Stock("2020-02-07", "pre", 130, 40));
-		stocks2.add(new Stock("2020-02-10", "post", 80, 70));
-		stocks2.add(new Stock("2020-02-11", "post", 100, 60));
+		stocks2.add(new Stock("2020-02-06", "pre", 80, 40,null,null));
+		stocks2.add(new Stock("2020-02-07", "pre", 130, 40,null,null));
+		stocks2.add(new Stock("2020-02-10", "post", 80, 70,null,null));
+		stocks2.add(new Stock("2020-02-11", "post", 100, 60,null,null));
 		
 		List<Stock> stocks3 = new ArrayList<Stock>();
-		stocks3.add(new Stock("2020-02-06", "pre", 120, 60));
-		stocks3.add(new Stock("2020-02-07", "pre", 100, 40));
-		stocks3.add(new Stock("2020-02-10", "post", 80, 90));
-		stocks3.add(new Stock("2020-02-11", "post", 100, 60));
+		stocks3.add(new Stock("2020-02-06", "pre", 120, 60,null,null));
+		stocks3.add(new Stock("2020-02-07", "pre", 100, 40,null,null));
+		stocks3.add(new Stock("2020-02-10", "post", 80, 90,null,null));
+		stocks3.add(new Stock("2020-02-11", "post", 100, 60,null,null));
 		
 		List<Stock> stocks4 = new ArrayList<Stock>();
-		stocks4.add(new Stock("2020-02-06", "pre", 110, 50));
-		stocks4.add(new Stock("2020-02-07", "pre", 180, 40));
-		stocks4.add(new Stock("2020-02-10", "post", 80, 70));
-		stocks4.add(new Stock("2020-02-11", "post", 70, 60));
+		stocks4.add(new Stock("2020-02-06", "pre", 110, 50,null,null));
+		stocks4.add(new Stock("2020-02-07", "pre", 180, 40,null,null));
+		stocks4.add(new Stock("2020-02-10", "post", 80, 70,null,null));
+		stocks4.add(new Stock("2020-02-11", "post", 70, 60,null,null));
 		
 		company1 = new Company("id1", "DMart", "DMT", "Retail", stocks1);
 		company2 = new Company("id2", "Future Grp", "BBZ", "Retail", stocks2);

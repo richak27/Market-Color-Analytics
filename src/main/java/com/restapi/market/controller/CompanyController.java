@@ -121,7 +121,7 @@ public class CompanyController {
 	public Calculate getDataByDaySector(@PathVariable("sector")String sector,@PathVariable("todate") String todate,@PathVariable("fdate") String fdate) throws ParseException {
 		return companyService.getDataByDaySector(sector,todate,fdate);
 	}
-	*/
+	
 	@GetMapping("/detailsCompany/{ticker}/{newDate}")
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Calculate getDataByDateCompany(@PathVariable("ticker")String ticker,@PathVariable("newDate") String newDate) throws ParseException {
@@ -172,5 +172,25 @@ public class CompanyController {
 	@CrossOrigin(origins = "http://localhost:51535")
 	public Map<String, Double> DailySector(@PathVariable("ticker") String ticker, @RequestParam("type") String type) throws ParseException {
 		return companyService.DataCompany(ticker, type);
+	}*/
+	
+	@GetMapping("/company/{ticker}/{startDate}/{endDate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Map<String, Double> DataCompany(@PathVariable("ticker") String ticker,
+			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate,
+			@RequestParam("type") String type, @RequestParam("range") String range) throws ParseException {
+		return companyService.DataCompany(ticker, startDate, endDate, type, range);
 	}
+	
+	@GetMapping("/sector/{sector}/{startDate}/{endDate}")
+	@CrossOrigin(origins = "http://localhost:51535")
+	public Map<String, Double> DataSector(@PathVariable("sector") String sector,
+			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate,
+			@RequestParam("type") String type, @RequestParam("range") String range) throws ParseException {
+		return companyService.DataSector(sector, startDate, endDate, type, range);
+	}
+	
+	
+	
+	
 }
