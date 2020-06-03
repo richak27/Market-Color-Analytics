@@ -910,33 +910,40 @@ public class CompanyService {
 		}
 	}
 
-public List<DailyData> AverageForDateCompany(String ticker, String startDate, String endDate) throws ParseException{
-		
+	public List<DailyData> gridCompany(String ticker, String startDate, String endDate) throws ParseException {
+
 		Company company = getByTicker(ticker);
-		List<Stock>stocks = company.getStocks();
-		List<DailyData>obj = new ArrayList<>();
-		
-		
+		List<Stock> stocks = company.getStocks();
+		List<DailyData> objList = new ArrayList<>();
+
 		Date sDate = converter.parse(startDate);
 		Date eDate = converter.parse(endDate);
-		
-		
-		for(Stock stock: stocks) {
-			
-			
+
+		for (Stock stock : stocks) {
+
 			Date nowDate = converter.parse(stock.getDate());
 			if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
-				
-			
-			DailyData dailyData = new DailyData();
-			dailyData.setDate(stock.getDate());
-			dailyData.setPrice(stock.getClose());
-			dailyData.setVolume(stock.getVolume());
-			dailyData.setCompanyName(company.getName());
-			dailyData.setSector(company.getSector());
-			dailyData.setTicker(company.getTicker());
-			obj.add(dailyData);}
+
+				DailyData dailyData = new DailyData();
+				dailyData.setDate(stock.getDate());
+				dailyData.setPrice(stock.getClose());
+				dailyData.setVolume(stock.getVolume());
+				dailyData.setCompanyName(company.getName());
+				dailyData.setSector(company.getSector());
+				dailyData.setTicker(company.getTicker());
+				objList.add(dailyData);
+			}
 		}
-		return obj;
-}
+		return objList;
+	}
+
+	public List<List<DailyData>> gridSector(String sector, String startDate, String endDate) throws ParseException {
+		List<Company> companies = getBySector(sector);
+		List<List<DailyData>> nestedList = new ArrayList<List<DailyData>>();
+		for (Company company : companies) {
+			nestedList.add(gridCompany(company.getTicker(), startDate, endDate));
+		}
+		return nestedList;
+	}
+
 }
