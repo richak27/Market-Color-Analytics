@@ -796,5 +796,72 @@ public class CompanyService {
 		}
 		return nestedList;
 	}
+	
+	
+	
+	// Companies with sector selected, returns only companies 
+	public Map<String,List<Double>> ChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
 
+		Map<String, List<Double>> Map3 = new HashMap<>();
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+			for (String sector : sectorList) {
+				if (company.getSector().equalsIgnoreCase(sector)) {
+					AverageValues obj = CompanyAverage(ticker, type);
+					Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+				}
+			}
+		}
+
+		return Map3;
+	}
+
+	
+	// Companies with sector selected, returns companies and avg values of sectors
+	public Map<String,List<Double>> AvgChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
+
+		List<String>sectors = new ArrayList<>();
+
+		Map<String, List<Double>> Map3 = new HashMap<>();
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+			for (String sector : sectorList) {
+				if (company.getSector().equalsIgnoreCase(sector)) {
+					sectors.add(sector);
+					AverageValues obj = CompanyAverage(ticker, type);
+					Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+				}
+			}
+		}
+		for(String sector: sectors) {
+		AverageValues obj = SectorAverage(sector,type);
+		Map3.put(sector,Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+		}
+		return Map3;
+	}
+	
+	//Companies Selected return only companies
+	
+	public Map<String,List<Double>> ChartCompany(List<String> tickerList, String type) {
+		Map<String, List<Double>> Map3 = new HashMap<>();
+		for(String ticker: tickerList) {
+			Company company = getByTicker(ticker);
+			AverageValues obj = CompanyAverage(ticker, type);
+			Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));		
+		}
+		return Map3;
+	}
+	
+	// Sector Selected return only Avg values of sectors	
+	
+	public Map<String,List<Double>> ChartSector(List<String> sectorList, String type) {
+		Map<String, List<Double>> Map3 = new HashMap<>();
+		for(String sector: sectorList) {
+			AverageValues obj = SectorAverage(sector, type);
+			Map3.put(sector, Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));		
+		}
+		return Map3;
+	}
+	
+	
 }
