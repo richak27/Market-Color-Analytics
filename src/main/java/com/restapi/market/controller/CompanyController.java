@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.restapi.market.model.AverageValues;
 import com.restapi.market.model.Calculate;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.DailyData;
@@ -77,30 +78,45 @@ public class CompanyController {
 		companyService.dailyUpdateAll();
 	}
 
-	//Calculate Pre and Post Covid Volume for a company
+	/*
+	//Calculate Pre and Post Covid volume for a company
 	@GetMapping("/average-volume-company/{ticker}")
-	public VolumeAverage calAverageVolume(@PathVariable("ticker") String ticker) {
+	public AverageValues calAverageVolume(@PathVariable("ticker") String ticker) {
 		return companyService.calAvgVolumeByCompany(ticker);
 	}
 
 	//Calculate Pre and Post Covid Price for a company
 	@GetMapping("/average-price-company/{ticker}")
-	public PriceAverage calAvgPriceByCompany(@PathVariable("ticker") String ticker) {
+	public AverageValues calAvgPriceByCompany(@PathVariable("ticker") String ticker) {
 		return companyService.calAvgPriceByCompany(ticker);
 	}
 
 	//Calculate Pre and Post Covid Price for a sector
 	@GetMapping("/average-price-sector/{sector}")
-	public PriceAverage calAvgStockBySector(@PathVariable("sector") String sector) {
-		return companyService.calAvgPriceBySector(sector);
+	public AverageValues calAvgStockBySector(@PathVariable("sector") String sector) {
+		return companyService.calAvgPriceBySector(sector);  
 	}
 
 	//Calculate Pre and Post Covid Volume for a sector
 	@GetMapping("/average-volume-sector/{sector}")
-	public VolumeAverage calAvgVolumeBySector(@PathVariable("sector") String sector) {
+	public AverageValues calAvgVolumeBySector(@PathVariable("sector") String sector) {
 		return companyService.calAvgVolumeBySector(sector);
 	}
-
+*/
+	//Calculate Pre and Post Covid price/volume for a company
+		@GetMapping("/average-company/{ticker}")
+		public AverageValues CompanyAverage(@PathVariable("ticker") String ticker, @RequestParam("type") String type) {
+			return companyService.CompanyAverage(ticker,type);
+		}
+	
+	//Calculate Pre and Post Covid price/volume for a company
+		@GetMapping("/average-sector/{sector}")
+		public AverageValues SectorAverage(@PathVariable("sector") String sector, @RequestParam("type") String type) {
+			return companyService.SectorAverage(sector,type);
+		}
+	
+	
+	
 	//Sorted values of Deviation Price or Volume for a company
 	@GetMapping("/sort/company")
 	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank) {
