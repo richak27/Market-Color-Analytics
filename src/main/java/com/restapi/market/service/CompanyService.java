@@ -278,28 +278,44 @@ public class CompanyService {
 			return null;
 		}
 	}
-	
+
 	// Calculate average values for a sector
-		public AverageValues SectorAverage(String sector, String type) {
+	public AverageValues SectorAverage(String sector, String type) {
 
-			if (type.contentEquals("price")) {
+		if (type.contentEquals("price")) {
 
-				return calAvgPriceBySector(sector);
-			}
-
-			else if (type.contentEquals("volume")) {
-
-				return calAvgVolumeBySector(sector);
-			}
-
-			else {
-				return null;
-			}
+			return calAvgPriceBySector(sector);
 		}
-		
-	
-	
-	
+
+		else if (type.contentEquals("volume")) {
+
+			return calAvgVolumeBySector(sector);
+		}
+
+		else {
+			return null;
+		}
+	}
+
+	// to plot pre and post averages of all companies in a sector
+	public Map<String, AverageValues> getSectorChart(String sector, String type) {
+		List<String> tickerList = getAllTickers();
+		Map<String, AverageValues> chart = new HashMap<String, AverageValues>();
+		if (type.contentEquals("price")) {
+			for (String ticker : tickerList) {
+				chart.put(ticker, calAvgPriceByCompany(ticker));
+			}
+			return chart;
+		} else if (type.contentEquals("volume")) {
+			for (String ticker : tickerList) {
+				chart.put(ticker, calAvgVolumeByCompany(ticker));
+			}
+			return chart;
+		} else {
+			return null;
+		}
+
+	}
 
 	// Sort Functions for Sector-wise Deviation:
 
