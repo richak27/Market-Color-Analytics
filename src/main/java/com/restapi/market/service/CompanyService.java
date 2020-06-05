@@ -87,11 +87,7 @@ public class CompanyService {
 			cal.setTime(nowDate);
 			int week_no = cal.get(Calendar.WEEK_OF_YEAR);
 			String week = null;
-			if ((week_no / 10) == 0)
-				week = "0" + Integer.toString(week_no);
-			else
-				week = Integer.toString(week_no);
-
+			week = Integer.toString(week_no);
 			stock.setWeek(week);
 			stock.setMonth(stock.getDate().substring(5, 7));
 
@@ -127,14 +123,10 @@ public class CompanyService {
 		for (Stock stock : stocks) {
 
 			Date nowDate = converter.parse(stock.getDate());
-
 			cal.setTime(nowDate);
 			int week_no = cal.get(Calendar.WEEK_OF_YEAR);
 			String week = null;
-			if ((week_no / 10) == 0)
-				week = "0" + Integer.toString(week_no);
-			else
-				week = Integer.toString(week_no);
+			week = Integer.toString(week_no);
 			stock.setWeek(week);
 			stock.setMonth(stock.getDate().substring(5, 7));
 			Date thresholdDate = converter.parse(boundaryDate);
@@ -671,6 +663,7 @@ public class CompanyService {
 
 			Map<String, Double> weekly = value.entrySet().stream().sorted(comparingByKey())
 					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			
 			return weekly;
 
 		}
@@ -681,7 +674,9 @@ public class CompanyService {
 
 			Map<String, Double> weekly = value.entrySet().stream().sorted(comparingByKey())
 					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			
 			return weekly;
+	
 		}
 
 		else {
