@@ -23,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.restapi.market.model.AverageValues;
 import com.restapi.market.model.Calculate;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.DailyData;
@@ -85,7 +86,7 @@ public class CompanyService {
 			Date thresholdDate = converter.parse(boundaryDate);
 			cal.setTime(nowDate);
 			int week_no = cal.get(Calendar.WEEK_OF_YEAR);
-			String week = "";
+			String week = null;
 			if ((week_no / 10) == 0)
 				week = "0" + Integer.toString(week_no);
 			else
@@ -129,7 +130,7 @@ public class CompanyService {
 
 			cal.setTime(nowDate);
 			int week_no = cal.get(Calendar.WEEK_OF_YEAR);
-			String week = "";
+			String week = null;
 			if ((week_no / 10) == 0)
 				week = "0" + Integer.toString(week_no);
 			else
@@ -161,9 +162,9 @@ public class CompanyService {
 	}
 
 	// calculate average volume for a company by ticker
-	public VolumeAverage calAvgVolumeByCompany(String ticker) {
+	public AverageValues calAvgVolumeByCompany(String ticker) {
 		Company company = getByTicker(ticker);
-		VolumeAverage volumeAverage = new VolumeAverage();
+		AverageValues volumeAverage = new AverageValues();
 		double sum_volume_pre = 0;
 		double sum_volume_post = 0;
 		int sizeofpre = 0;
@@ -177,18 +178,18 @@ public class CompanyService {
 			}
 		}
 
-		volumeAverage.setPreCovidVolume((sum_volume_pre) / (sizeofpre));
-		volumeAverage.setPostCovidVolume((sum_volume_post) / (stocks.size() - sizeofpre));
-		volumeAverage.setDeviationVolume(volumeAverage.getPostCovidVolume() - volumeAverage.getPreCovidVolume());
+		volumeAverage.setPreCovidValue((sum_volume_pre) / (sizeofpre));
+		volumeAverage.setPostCovidValue((sum_volume_post) / (stocks.size() - sizeofpre));
+		volumeAverage.setDeviation(volumeAverage.getPostCovidValue() - volumeAverage.getPreCovidValue());
 
 		return volumeAverage;
 
 	}
 
 	// calculate average stock-price for a company by ticker
-	public PriceAverage calAvgPriceByCompany(String ticker) {
+	public AverageValues calAvgPriceByCompany(String ticker) {
 		Company company = getByTicker(ticker);
-		PriceAverage priceAverage = new PriceAverage();
+		AverageValues priceAverage = new AverageValues();
 		double sum_close_pre = 0;
 		double sum_close_post = 0;
 		int sizeofpre = 0;
@@ -208,55 +209,111 @@ public class CompanyService {
 			}
 		}
 
-		priceAverage.setPreCovidPrice((sum_close_pre) / (sizeofpre));
-		priceAverage.setPostCovidPrice((sum_close_post) / (stocks.size() - sizeofpre));
-		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice() - priceAverage.getPreCovidPrice());
+		priceAverage.setPreCovidValue((sum_close_pre) / (sizeofpre));
+		priceAverage.setPostCovidValue((sum_close_post) / (stocks.size() - sizeofpre));
+		priceAverage.setDeviation(priceAverage.getPostCovidValue() - priceAverage.getPreCovidValue());
 
 		return priceAverage;
 
 	}
 
 	// calculate average stock-price for a sector
-	public PriceAverage calAvgPriceBySector(String sector) {
+	public AverageValues calAvgPriceBySector(String sector) {
 		List<Company> company = getBySector(sector);
-		PriceAverage priceAverage = new PriceAverage();
+		AverageValues priceAverage = new AverageValues();
 		double pre_sum_price = 0, post_sum_price = 0;
 
 		for (Company comp : company) {
 
-			pre_sum_price = pre_sum_price + calAvgPriceByCompany(comp.getTicker()).getPreCovidPrice();
+			pre_sum_price = pre_sum_price + calAvgPriceByCompany(comp.getTicker()).getPreCovidValue();
 
-			post_sum_price = post_sum_price + calAvgPriceByCompany(comp.getTicker()).getPostCovidPrice();
+			post_sum_price = post_sum_price + calAvgPriceByCompany(comp.getTicker()).getPostCovidValue();
 
 		}
 
-		priceAverage.setPreCovidPrice((pre_sum_price) / (company.size()));
-		priceAverage.setPostCovidPrice((post_sum_price) / (company.size()));
-		priceAverage.setDeviationPrice(priceAverage.getPostCovidPrice() - priceAverage.getPreCovidPrice());
+		priceAverage.setPreCovidValue((pre_sum_price) / (company.size()));
+		priceAverage.setPostCovidValue((post_sum_price) / (company.size()));
+		priceAverage.setDeviation(priceAverage.getPostCovidValue() - priceAverage.getPreCovidValue());
 
 		return priceAverage;
 
 	}
 
 	// calculate average volume for a sector
-	public VolumeAverage calAvgVolumeBySector(String sector) {
+	public AverageValues calAvgVolumeBySector(String sector) {
 		List<Company> company = getBySector(sector);
 
-		VolumeAverage volumeAverage = new VolumeAverage();
+		AverageValues volumeAverage = new AverageValues();
 		double pre_sum_volume = 0, post_sum_volume = 0;
 
 		for (Company comp : company) {
-			pre_sum_volume = pre_sum_volume + calAvgVolumeByCompany(comp.getTicker()).getPreCovidVolume();
+			pre_sum_volume = pre_sum_volume + calAvgVolumeByCompany(comp.getTicker()).getPreCovidValue();
 
-			post_sum_volume = post_sum_volume + calAvgPriceByCompany(comp.getTicker()).getPostCovidPrice();
+			post_sum_volume = post_sum_volume + calAvgPriceByCompany(comp.getTicker()).getPostCovidValue();
 
 		}
 
-		volumeAverage.setPreCovidVolume((pre_sum_volume) / (company.size()));
-		volumeAverage.setPostCovidVolume((post_sum_volume) / (company.size()));
-		volumeAverage.setDeviationVolume(volumeAverage.getPostCovidVolume() - volumeAverage.getPreCovidVolume());
+		volumeAverage.setPreCovidValue((pre_sum_volume) / (company.size()));
+		volumeAverage.setPostCovidValue((post_sum_volume) / (company.size()));
+		volumeAverage.setDeviation(volumeAverage.getPostCovidValue() - volumeAverage.getPreCovidValue());
 
 		return volumeAverage;
+
+	}
+
+	// Calculate average values for a company
+	public AverageValues CompanyAverage(String ticker, String type) {
+
+		if (type.contentEquals("price")) {
+
+			return calAvgPriceByCompany(ticker);
+		}
+
+		else if (type.contentEquals("volume")) {
+
+			return calAvgVolumeByCompany(ticker);
+		}
+
+		else {
+			return null;
+		}
+	}
+
+	// Calculate average values for a sector
+	public AverageValues SectorAverage(String sector, String type) {
+
+		if (type.contentEquals("price")) {
+
+			return calAvgPriceBySector(sector);
+		}
+
+		else if (type.contentEquals("volume")) {
+
+			return calAvgVolumeBySector(sector);
+		}
+
+		else {
+			return null;
+		}
+	}
+
+	// to plot pre and post averages of all companies in a sector
+	public Map<String, AverageValues> getSectorChart(String sector, String type) {
+		List<String> tickerList = getAllTickers();
+		Map<String, AverageValues> chart = new HashMap<String, AverageValues>();
+		if (type.contentEquals("price")) {
+			for (String ticker : tickerList) {
+				chart.put(ticker, calAvgPriceByCompany(ticker));
+			}
+			return chart;
+		} else if (type.contentEquals("volume")) {
+			for (String ticker : tickerList) {
+				chart.put(ticker, calAvgVolumeByCompany(ticker));
+			}
+			return chart;
+		} else {
+			return null;
+		}
 
 	}
 
@@ -267,8 +324,8 @@ public class CompanyService {
 		List<String> SectorList = getAllSectors();
 		Map<String, Double> Values = new HashMap<String, Double>();
 		for (String i : SectorList) {
-			VolumeAverage volumeAverage = calAvgVolumeBySector(i);
-			Values.put(i, volumeAverage.getDeviationVolume());
+			AverageValues volumeAverage = calAvgVolumeBySector(i);
+			Values.put(i, volumeAverage.getDeviation());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
@@ -281,8 +338,8 @@ public class CompanyService {
 		Map<String, Double> Values = new HashMap<String, Double>();
 		for (String i : SectorList) {
 
-			PriceAverage priceAverage = calAvgPriceBySector(i);
-			Values.put(i, priceAverage.getDeviationPrice());
+			AverageValues priceAverage = calAvgPriceBySector(i);
+			Values.put(i, priceAverage.getDeviation());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
@@ -296,8 +353,8 @@ public class CompanyService {
 		List<String> TickerList = getAllTickers();
 		Map<String, Double> Values = new HashMap<String, Double>();
 		for (String i : TickerList) {
-			VolumeAverage volumeAverage = calAvgVolumeByCompany(i);
-			Values.put(i, volumeAverage.getDeviationVolume());
+			AverageValues volumeAverage = calAvgVolumeByCompany(i);
+			Values.put(i, volumeAverage.getDeviation());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
@@ -310,8 +367,8 @@ public class CompanyService {
 		Map<String, Double> Values = new HashMap<String, Double>();
 
 		for (String i : TickerList) {
-			PriceAverage priceAverage = calAvgPriceByCompany(i);
-			Values.put(i, priceAverage.getDeviationPrice());
+			AverageValues priceAverage = calAvgPriceByCompany(i);
+			Values.put(i, priceAverage.getDeviation());
 		}
 
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
@@ -338,8 +395,10 @@ public class CompanyService {
 			return getSectorVolumeDeviation();
 		}
 
-		else {
+		else if (rank.contentEquals("price")) {
 			return getSectorPriceDeviation();
+		} else {
+			return null;
 		}
 
 	}
@@ -523,19 +582,22 @@ public class CompanyService {
 		}
 
 		if (type.contentEquals("price")) {
-			Map<String, Double> weekly = stocksnew.stream()
+			Map<String, Double> value = stocksnew.stream()
 					.collect(Collectors.groupingBy(Stock::getWeek, Collectors.averagingDouble(Stock::getClose)));
 
+			Map<String, Double> weekly = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 			return weekly;
 
 		}
 
 		else if (type.contentEquals("volume")) {
-			Map<String, Double> weekly = stocksnew.stream()
+			Map<String, Double> value = stocksnew.stream()
 					.collect(Collectors.groupingBy(Stock::getWeek, Collectors.averagingDouble(Stock::getVolume)));
 
+			Map<String, Double> weekly = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 			return weekly;
-
 		}
 
 		else {
@@ -604,17 +666,21 @@ public class CompanyService {
 		}
 
 		if (type.contentEquals("price")) {
-			Map<String, Double> weekly = stocksnew.stream()
+			Map<String, Double> value = stocksnew.stream()
 					.collect(Collectors.groupingBy(Stock::getWeek, Collectors.averagingDouble(Stock::getClose)));
 
+			Map<String, Double> weekly = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 			return weekly;
 
 		}
 
 		else if (type.contentEquals("volume")) {
-			Map<String, Double> weekly = stocksnew.stream()
+			Map<String, Double> value = stocksnew.stream()
 					.collect(Collectors.groupingBy(Stock::getWeek, Collectors.averagingDouble(Stock::getVolume)));
 
+			Map<String, Double> weekly = value.entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 			return weekly;
 		}
 
