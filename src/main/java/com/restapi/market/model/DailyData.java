@@ -1,6 +1,6 @@
 package com.restapi.market.model;
 
-public class DailyData {
+public class DailyData implements Comparable<DailyData>{
 	
 	public DailyData(String companyName, String sector, String ticker, double price, double volume, String date) {
 		super();
@@ -59,6 +59,12 @@ public class DailyData {
 	}
 	public void setTicker(String ticker) {
 		this.ticker = ticker;
+	}
+
+
+	@Override
+	public int compareTo(DailyData o) {
+		return this.getDate().compareTo(o.getDate());
 	}
 
 }
