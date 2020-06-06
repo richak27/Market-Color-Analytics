@@ -28,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.restapi.market.model.AverageValues;
 import com.restapi.market.model.Calculate;
+import com.restapi.market.model.ChartObject;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.DailyData;
 
@@ -933,4 +934,47 @@ public class CompanyService {
 	}
 
 
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	public List<ChartObject>getChartCompany(List<String>tickerList,String type){
+		
+		List<ChartObject>chart = new ArrayList<>();
+		
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+			AverageValues obj = CompanyAverage(ticker, type);
+			//Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+			ChartObject object = new ChartObject();
+			
+			object.setLabel(company.getName());
+			object.setBorderColor("#7CB342");
+			object.setBackgroundColor("#9CCC65");
+			object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+			
+			chart.add(object);
+	}
+	
+	
+	return chart;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

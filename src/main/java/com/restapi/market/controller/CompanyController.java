@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.restapi.market.model.AverageValues;
 import com.restapi.market.model.Calculate;
+import com.restapi.market.model.ChartObject;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.DailyData;
 import com.restapi.market.model.PriceAverage;
@@ -201,6 +202,18 @@ public class CompanyController {
 		return companyService.ChartCompany(tickerList, type);
 	}
 
+	
+	// Companies selected return companies as list of object
+	
+	
+	@GetMapping("/chartCompanyObject/{tickerList}")
+	public List<ChartObject> getChartCompany(@PathVariable("tickerList") List<String> tickerList,
+			@RequestParam("type") String type) {
+		return companyService.getChartCompany(tickerList, type);
+	}
+	
+	
+	
 
 	// Sectors Selected return only Sectors
 
