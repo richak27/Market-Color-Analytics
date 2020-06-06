@@ -179,36 +179,41 @@ public class CompanyController {
 		return companyService.gridSector(sector, startDate, endDate);
 	}
 
-
-
 	// Companies and Sectors Selected return only companies
-		@GetMapping("/chartCompanySector/{tickerList}/{sectorList}")
-		public Map<String, List<Double>> ChartCompanySector(@PathVariable("tickerList") List<String> tickerList,
-				@PathVariable("sectorList") List<String> sectorList, @RequestParam("type") String type) {
-			return companyService.ChartCompanySector(tickerList, sectorList, type);
-		}
+	@GetMapping("/chartCompanySector/{tickerList}/{sectorList}")
+	public Map<String, List<Double>> ChartCompanySector(@PathVariable("tickerList") List<String> tickerList,
+			@PathVariable("sectorList") List<String> sectorList, @RequestParam("type") String type) {
+		return companyService.ChartCompanySector(tickerList, sectorList, type);
+	}
 
-		// Companies and Sectors Selected return companies and avg sector
-		@GetMapping("/chartCompanyAvgSector/{tickerList}/{sectorList}")
-		public Map<String, List<Double>> AvgChartCompanySector(@PathVariable("tickerList") List<String> tickerList,
-				@PathVariable("sectorList") List<String> sectorList, @RequestParam("type") String type) {
-			return companyService.AvgChartCompanySector(tickerList, sectorList, type);
-		}
+	// Companies and Sectors Selected return companies and avg sector
+	@GetMapping("/chartCompanyAvgSector/{tickerList}/{sectorList}")
+	public Map<String, List<Double>> AvgChartCompanySector(@PathVariable("tickerList") List<String> tickerList,
+			@PathVariable("sectorList") List<String> sectorList, @RequestParam("type") String type) {
+		return companyService.AvgChartCompanySector(tickerList, sectorList, type);
+	}
 
-		// Companies Selected return only companies
+	// Companies Selected return only companies
 
-		@GetMapping("/chartCompany/{tickerList}")
-		public Map<String, List<Double>> ChartCompany(@PathVariable("tickerList") List<String> tickerList,
-				@RequestParam("type") String type) {
-			return companyService.ChartCompany(tickerList, type);
-		}
+	@GetMapping("/chartCompany/{tickerList}")
+	public Map<String, List<Double>> ChartCompany(@PathVariable("tickerList") List<String> tickerList,
+			@RequestParam("type") String type) {
+		return companyService.ChartCompany(tickerList, type);
+	}
 
-		// Sectors Selected return only Sectors
+	// Sectors Selected return only Sectors
 
-		@GetMapping("/chartSector/{sectorList}")
-		public Map<String, List<Double>> ChartSector(@PathVariable("sectorList") List<String> sectorList,
-				@RequestParam("type") String type) {
-			return companyService.ChartSector(sectorList, type);
-		}
+	@GetMapping("/chartSector/{sectorList}")
+	public Map<String, List<Double>> ChartSector(@PathVariable("sectorList") List<String> sectorList,
+			@RequestParam("type") String type) {
+		return companyService.ChartSector(sectorList, type);
+	}
 
+	@GetMapping("/chartCustomRange/{tickerList}/{startDate}/{endDate}")
+	public Map<String, Map<String, Double>> ChartCustomRange(@PathVariable("tickerList") List<String>tickerList,
+			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate,
+			@RequestParam("type") String type,
+			@RequestParam("range") String range) throws ParseException {
+		return companyService.chartCustomRange(tickerList, startDate, endDate, type, range);
+	}
 }

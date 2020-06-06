@@ -301,21 +301,11 @@ public class CompanyService {
 	// to plot pre and post averages of all companies in a sector
 	public Map<String, AverageValues> getSectorChart(String sector, String type) {
 		List<String> tickerList = getAllTickers();
-		Map<String, AverageValues> chart = new HashMap<String, AverageValues>();
-		if (type.contentEquals("price")) {
-			for (String ticker : tickerList) {
-				chart.put(ticker, calAvgPriceByCompany(ticker));
-			}
-			return chart;
-		} else if (type.contentEquals("volume")) {
-			for (String ticker : tickerList) {
-				chart.put(ticker, calAvgVolumeByCompany(ticker));
-			}
-			return chart;
-		} else {
-			return null;
+		Map<String, AverageValues> chart = new HashMap<String, AverageValues>();		
+		for (String ticker : tickerList) {
+			chart.put(ticker, CompanyAverage(ticker,type));
 		}
-
+		return chart;
 	}
 
 	// Sort Functions for Sector-wise Deviation:
@@ -825,12 +815,12 @@ public class CompanyService {
 		Map<String, List<Double>> Map3 = new HashMap<>();
 		for (String ticker : tickerList) {
 			Company company = getByTicker(ticker);
-			for (String sector : sectorList) {
-				if (company.getSector().equalsIgnoreCase(sector)) {
-					AverageValues obj = CompanyAverage(ticker, type);
-					Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
-				}
+			if(sectorList.contains(company.getSector())) {
+
+				AverageValues obj = CompanyAverage(ticker, type);
+				Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 			}
+		
 		}
 
 		return Map3;
@@ -844,14 +834,13 @@ public class CompanyService {
 
 		Map<String, List<Double>> Map3 = new HashMap<>();
 		for (String ticker : tickerList) {
-			Company company = getByTicker(ticker);
-			for (String sector : sectorList) {
-				if (company.getSector().equalsIgnoreCase(sector)) {
-					sectors.add(sector);
+			Company company = getByTicker(ticker);	
+				if(sectorList.contains(company.getSector())) {
+					sectors.add(company.getSector());
 					AverageValues obj = CompanyAverage(ticker, type);
 					Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 				}
-			}
+			
 		}
 		for(String sector: sectors) {
 		AverageValues obj = SectorAverage(sector,type);
@@ -883,5 +872,12 @@ public class CompanyService {
 		return Map3;
 	}
 	
-	
+	public Map<String, Map<String,Double>>  chartCustomRange(List<String>tickerList, String startDate, String endDate, String type, String range) throws ParseException{		
+		Map<String, Map<String,Double>>chart = new HashMap<>();
+		for(String ticker: tickerList) {
+			Company company = getByTicker(ticker);
+			chart.put(company.getName(), DataCompany(ticker,startDate,endDate,type,range));			
+		}
+		return chart;
+	}
 }
