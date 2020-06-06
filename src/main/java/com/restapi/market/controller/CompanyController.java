@@ -201,12 +201,22 @@ public class CompanyController {
 		return companyService.ChartCompany(tickerList, type);
 	}
 
+
 	// Sectors Selected return only Sectors
 
 	@GetMapping("/chartSector/{sectorList}")
 	public Map<String, List<Double>> ChartSector(@PathVariable("sectorList") List<String> sectorList,
 			@RequestParam("type") String type) {
 		return companyService.ChartSector(sectorList, type);
+	}
+
+	// companies and sector for grid
+	@GetMapping("/grid/{startDate}/{endDate}")
+	public List<DailyData> getGridData(@PathVariable("startDate") String startDate,
+			@PathVariable("endDate") String endDate, @RequestParam(defaultValue = "") List<String> gotTickers,
+			@RequestParam(defaultValue = "") List<String> gotSectors) throws ParseException {
+		return companyService.getGridData(startDate, endDate, gotTickers, gotSectors);
+
 	}
 
 	@GetMapping("/chartCustomRange/{tickerList}/{startDate}/{endDate}")

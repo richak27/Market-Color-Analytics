@@ -5,11 +5,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
@@ -89,12 +92,10 @@ public class CompanyService {
 			String week = null;
 			week = Integer.toString(week_no);
 			stock.setWeek(week);
-			String month=stock.getDate().substring(5, 7);
-			if( month.charAt(0)=='0')
-			     stock.setMonth(stock.getDate().substring(6, 7));
+			if(stock.getDate().charAt(5)=='0')
+				stock.setMonth(stock.getDate().substring(6, 7));
 			else
-			     stock.setMonth(stock.getDate().substring(5, 7));
-
+				stock.setMonth(stock.getDate().substring(5, 7));
 
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 				stock.setPeriod("pre");
@@ -133,11 +134,11 @@ public class CompanyService {
 			String week = null;
 			week = Integer.toString(week_no);
 			stock.setWeek(week);
-			String month=stock.getDate().substring(5, 7);
-			if( month.charAt(0)=='0')
-			     stock.setMonth(stock.getDate().substring(7, 8));
+			if(stock.getDate().charAt(5)=='0')
+				stock.setMonth(stock.getDate().substring(6, 7));
 			else
-			     stock.setMonth(stock.getDate().substring(5, 7));
+				stock.setMonth(stock.getDate().substring(5, 7));
+			
 			Date thresholdDate = converter.parse(boundaryDate);
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 				stock.setPeriod("pre");
@@ -662,7 +663,7 @@ public class CompanyService {
 
 			Map<String, Double> weekly = value.entrySet().stream().sorted(comparingByKey())
 					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-			
+
 			return weekly;
 
 		}
@@ -673,9 +674,9 @@ public class CompanyService {
 
 			Map<String, Double> weekly = value.entrySet().stream().sorted(comparingByKey())
 					.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-			
+
 			return weekly;
-	
+
 		}
 
 		else {
@@ -806,11 +807,9 @@ public class CompanyService {
 		}
 		return nestedList;
 	}
-	
-	
-	
-	// Companies with sector selected, returns only companies 
-	public Map<String,List<Double>> ChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
+
+	// Companies with sector selected, returns only companies
+	public Map<String, List<Double>> ChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
 
 		Map<String, List<Double>> Map3 = new HashMap<>();
 		for (String ticker : tickerList) {
@@ -826,11 +825,11 @@ public class CompanyService {
 		return Map3;
 	}
 
-	
 	// Companies with sector selected, returns companies and avg values of sectors
-	public Map<String,List<Double>> AvgChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
+	public Map<String, List<Double>> AvgChartCompanySector(List<String> tickerList, List<String> sectorList,
+			String type) {
 
-		List<String>sectors = new ArrayList<>();
+		List<String> sectors = new ArrayList<>();
 
 		Map<String, List<Double>> Map3 = new HashMap<>();
 		for (String ticker : tickerList) {
@@ -842,35 +841,36 @@ public class CompanyService {
 				}
 			
 		}
-		for(String sector: sectors) {
-		AverageValues obj = SectorAverage(sector,type);
-		Map3.put(sector,Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+		for (String sector : sectors) {
+			AverageValues obj = SectorAverage(sector, type);
+			Map3.put(sector, Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 		}
 		return Map3;
 	}
-	
-	//Companies Selected return only companies
-	
-	public Map<String,List<Double>> ChartCompany(List<String> tickerList, String type) {
+
+	// Companies Selected return only companies
+
+	public Map<String, List<Double>> ChartCompany(List<String> tickerList, String type) {
 		Map<String, List<Double>> Map3 = new HashMap<>();
-		for(String ticker: tickerList) {
+		for (String ticker : tickerList) {
 			Company company = getByTicker(ticker);
 			AverageValues obj = CompanyAverage(ticker, type);
-			Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));		
+			Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 		}
 		return Map3;
 	}
-	
-	// Sector Selected return only Avg values of sectors	
-	
-	public Map<String,List<Double>> ChartSector(List<String> sectorList, String type) {
+
+	// Sector Selected return only Avg values of sectors
+
+	public Map<String, List<Double>> ChartSector(List<String> sectorList, String type) {
 		Map<String, List<Double>> Map3 = new HashMap<>();
-		for(String sector: sectorList) {
+		for (String sector : sectorList) {
 			AverageValues obj = SectorAverage(sector, type);
-			Map3.put(sector, Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));		
+			Map3.put(sector, Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 		}
 		return Map3;
 	}
+
 	
 	public Map<String, Map<String,Double>>  chartCustomRange(List<String>tickerList, String startDate, String endDate, String type, String range) throws ParseException{		
 		Map<String, Map<String,Double>>chart = new HashMap<>();
@@ -880,4 +880,57 @@ public class CompanyService {
 		}
 		return chart;
 	}
+
+
+	public List<DailyData> getGridData(String startDate, String endDate, List<String> gotTickers,
+			List<String> gotSectors) throws ParseException {
+
+		List<DailyData> allCompanies = new ArrayList<>();
+		Set<String> filteredTickers = new HashSet<>();
+		Set<String> filteredSectors = new HashSet<>();
+		if (gotSectors.isEmpty()) {
+			for (String ticker : gotTickers) {
+				allCompanies.addAll(gridCompany(ticker, startDate, endDate));
+			}
+			Collections.sort(allCompanies);
+			return allCompanies;
+		} else if (gotTickers.isEmpty()) {
+			for (String sector : gotSectors) {
+				List<Company> companies = getBySector(sector);
+				for (Company company : companies) {
+					filteredTickers.add(company.getTicker());
+				}
+			}
+			for (String ticker : filteredTickers) {
+				allCompanies.addAll(gridCompany(ticker, startDate, endDate));
+			}
+			Collections.sort(allCompanies);
+			return allCompanies;
+		}
+
+		else if (gotTickers.size() != 0 && gotSectors.size() != 0) {
+			for (String ticker : gotTickers) {
+				Company company = getByTicker(ticker);
+				if (gotSectors.contains(company.getSector())) {
+					filteredSectors.add(company.getSector());
+				}
+			}
+			for (String sector : filteredSectors) {
+				List<Company> companies = getBySector(sector);
+				for (Company company : companies) {
+					filteredTickers.add(company.getTicker());
+				}
+			}
+			for (String ticker : filteredTickers) {
+				allCompanies.addAll(gridCompany(ticker, startDate, endDate));
+			}
+			Collections.sort(allCompanies);
+			return allCompanies;
+		} else {
+			return null;
+		}
+
+	}
+
+
 }
