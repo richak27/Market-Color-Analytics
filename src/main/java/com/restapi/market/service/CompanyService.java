@@ -92,15 +92,8 @@ public class CompanyService {
 			String week = null;
 			week = Integer.toString(week_no);
 			stock.setWeek(week);
-<<<<<<< HEAD
 			if(stock.getDate().charAt(5)=='0')
 				stock.setMonth(stock.getDate().substring(6, 7));
-
-=======
-			String month = stock.getDate().substring(5, 7);
-			if (month.charAt(0) == '0')
-				stock.setMonth(stock.getDate().substring(6, 7));
->>>>>>> 9aedca918cfa3a8af0625632258ed586ec224f99
 			else
 				stock.setMonth(stock.getDate().substring(5, 7));
 
@@ -141,17 +134,11 @@ public class CompanyService {
 			String week = null;
 			week = Integer.toString(week_no);
 			stock.setWeek(week);
-<<<<<<< HEAD
 			if(stock.getDate().charAt(5)=='0')
 				stock.setMonth(stock.getDate().substring(6, 7));
-
-=======
-			String month = stock.getDate().substring(5, 7);
-			if (month.charAt(0) == '0')
-				stock.setMonth(stock.getDate().substring(7, 8));
->>>>>>> 9aedca918cfa3a8af0625632258ed586ec224f99
 			else
 				stock.setMonth(stock.getDate().substring(5, 7));
+			
 			Date thresholdDate = converter.parse(boundaryDate);
 			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 				stock.setPeriod("pre");
