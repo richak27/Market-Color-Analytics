@@ -28,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.restapi.market.model.AverageValues;
 import com.restapi.market.model.Calculate;
+import com.restapi.market.model.ChartObject;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.DailyData;
 
@@ -302,21 +303,11 @@ public class CompanyService {
 	// to plot pre and post averages of all companies in a sector
 	public Map<String, AverageValues> getSectorChart(String sector, String type) {
 		List<String> tickerList = getAllTickers();
-		Map<String, AverageValues> chart = new HashMap<String, AverageValues>();
-		if (type.contentEquals("price")) {
-			for (String ticker : tickerList) {
-				chart.put(ticker, calAvgPriceByCompany(ticker));
-			}
-			return chart;
-		} else if (type.contentEquals("volume")) {
-			for (String ticker : tickerList) {
-				chart.put(ticker, calAvgVolumeByCompany(ticker));
-			}
-			return chart;
-		} else {
-			return null;
+		Map<String, AverageValues> chart = new HashMap<String, AverageValues>();		
+		for (String ticker : tickerList) {
+			chart.put(ticker, CompanyAverage(ticker,type));
 		}
-
+		return chart;
 	}
 
 	// Sort Functions for Sector-wise Deviation:
@@ -824,12 +815,12 @@ public class CompanyService {
 		Map<String, List<Double>> Map3 = new HashMap<>();
 		for (String ticker : tickerList) {
 			Company company = getByTicker(ticker);
-			for (String sector : sectorList) {
-				if (company.getSector().equalsIgnoreCase(sector)) {
-					AverageValues obj = CompanyAverage(ticker, type);
-					Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
-				}
+			if(sectorList.contains(company.getSector())) {
+
+				AverageValues obj = CompanyAverage(ticker, type);
+				Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 			}
+		
 		}
 
 		return Map3;
@@ -843,14 +834,13 @@ public class CompanyService {
 
 		Map<String, List<Double>> Map3 = new HashMap<>();
 		for (String ticker : tickerList) {
-			Company company = getByTicker(ticker);
-			for (String sector : sectorList) {
-				if (company.getSector().equalsIgnoreCase(sector)) {
-					sectors.add(sector);
+			Company company = getByTicker(ticker);	
+				if(sectorList.contains(company.getSector())) {
+					sectors.add(company.getSector());
 					AverageValues obj = CompanyAverage(ticker, type);
 					Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 				}
-			}
+			
 		}
 		for (String sector : sectors) {
 			AverageValues obj = SectorAverage(sector, type);
@@ -881,6 +871,17 @@ public class CompanyService {
 		}
 		return Map3;
 	}
+
+	
+	public Map<String, Map<String,Double>>  chartCustomRange(List<String>tickerList, String startDate, String endDate, String type, String range) throws ParseException{		
+		Map<String, Map<String,Double>>chart = new HashMap<>();
+		for(String ticker: tickerList) {
+			Company company = getByTicker(ticker);
+			chart.put(company.getName(), DataCompany(ticker,startDate,endDate,type,range));			
+		}
+		return chart;
+	}
+
 
 	public List<DailyData> getGridData(String startDate, String endDate, List<String> gotTickers,
 			List<String> gotSectors) throws ParseException {
@@ -930,6 +931,129 @@ public class CompanyService {
 			return null;
 		}
 
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	private String[] colour_array = { "#FFCDD2", "#F8BBD0", "#E1BEE7", "#D1C4E9", "#C5CAE9", "#B3E5FC", "#B2DFDB",
+			"#FFECB3", "#FFCCBC", "#D7CCC8", "#F06292", "#64B5F6", "#FFCA28", "#8BC34A", "#A1887F", "#B71C1C",
+			"#4A148C", "#CD5C5C", "#EC407A", "#7CB342", "#9CCC65", "#F08080", "#FFA07A", "#808080", "#000080",
+			"#FF00FF", "#800080", "#00FFFF", "#008000", "#FFFF00", "#800000", "#FFC0CB", "#CD5C5C", "#F08080",
+			"#FA8072", "#E9967A", "#FFA07A", "#DC143C", "#FF0000", "#B22222", "#8B0000", "#FFC0CB", "#FFB6C1",
+			"#FF69B4", "#FF1493", "#C71585", "#DB7093", "#FFA07A", "#FF7F50", "#FF6347", "#FF4500", "#FF8C00",
+			"#FFA500", "#FF69B4", "#FFA500", "#9400D3", "#7CFC00", "#2E8B57", "#191970", "#CD853F", "#800000",
+			"#00FFFF", "#4682B4", "#00BFFF", "#4169E1", "#F4A460" };
+	
+	//ONLY COMPANIES
+	
+	public List<ChartObject>getChartCompany(List<String>tickerList,String type){
+		int i=0;
+		List<ChartObject>chart = new ArrayList<>();
+		
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+			AverageValues obj = CompanyAverage(ticker, type);
+
+			ChartObject object = new ChartObject();
+			i++;
+			object.setLabel(company.getName());
+			object.setBorderColor(colour_array[i]);
+			object.setBackgroundColor(colour_array[i]);
+			object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+			
+			chart.add(object);
+	}
+	
+	
+	return chart;
+	}
+	
+	//COMPANIES WITH SECTOR, RETURN ONLY COMPANIES
+	public List<ChartObject> getChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
+
+		List<ChartObject> chart = new ArrayList<>();
+		int i=0;
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+
+			if (sectorList.contains(company.getSector())) {
+				AverageValues obj = CompanyAverage(ticker, type);
+
+				ChartObject object = new ChartObject();
+				i++;
+				object.setLabel(company.getName());
+				object.setBorderColor(colour_array[i]);
+				object.setBackgroundColor(colour_array[i]);
+				object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+
+				chart.add(object);
+			}
+
+		}
+		return chart;
+	}
+	
+	//COMPANIES WITH SECTOR, RETURN COMPANIES AND SECTORS
+	public List<ChartObject> getAvgChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
+		int i=0;
+		List<ChartObject> chart = new ArrayList<>();
+		List<String> sectors = new ArrayList<>();
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+
+			if (sectorList.contains(company.getSector())) {
+				AverageValues obj = CompanyAverage(ticker, type);
+				sectors.add(company.getSector());
+				ChartObject object = new ChartObject();
+				i++;
+				object.setLabel(company.getName());
+				object.setBorderColor(colour_array[i]);
+				object.setBackgroundColor(colour_array[i]);
+				object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+
+				chart.add(object);
+			}
+
+		}
+		
+		List<String>Sectors = new ArrayList<>(new HashSet<String>(sectors));
+		for(String sector: Sectors) {
+			AverageValues obj = SectorAverage(sector, type);
+			
+			ChartObject object = new ChartObject();
+			i++;
+			object.setLabel(sector);
+			object.setBorderColor(colour_array[i]);
+			object.setBackgroundColor(colour_array[i]);
+			object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+
+			chart.add(object);
+		}
+		return chart;
+	}
+	
+	
+	//ONLY SECTORS
+	public List<ChartObject>getChartSector(List<String>sectorList,String type){
+		
+		List<ChartObject>chart = new ArrayList<>();
+		int i=0;
+		for (String sector : sectorList) {
+			
+			AverageValues obj = SectorAverage(sector, type);
+
+			ChartObject object = new ChartObject();
+			i++;
+			object.setLabel(sector);
+			object.setBorderColor(colour_array[i]);
+			object.setBackgroundColor(colour_array[i]);
+			object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+			
+			chart.add(object);
+	}
+
+	return chart;
 	}
 
 }
