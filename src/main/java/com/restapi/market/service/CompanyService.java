@@ -937,19 +937,28 @@ public class CompanyService {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
+	private String[] colour_array = {"#7CB342","#9CCC65","#F08080","#FFA07A","#808080","#000080","#FF00FF","#800080","#00FFFF","#008000",
+									"#FFFF00","#800000","#FF0000","#FF4567","#80AC12","#FF56AB","#ABC345","#FFA234","#00ABFF","#AB2317",
+									"#FF1234","#FF2345","#1234FF","#AB12AB","#FF00FF","#12ABFF","#CD4567","#ABCD21","#ABCDFF","#00ABFF",
+									"#FFABCD","#FF0086","#1200FF","#AB0000","#FFAB56","#12ABAB","#AB4567","#AB0088","#FF0068","#00AB00"};
+	
+
+	
+	//ONLY COMPANIES
+	
 	public List<ChartObject>getChartCompany(List<String>tickerList,String type){
-		
+		int i=0;
 		List<ChartObject>chart = new ArrayList<>();
 		
 		for (String ticker : tickerList) {
 			Company company = getByTicker(ticker);
 			AverageValues obj = CompanyAverage(ticker, type);
-			//Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+
 			ChartObject object = new ChartObject();
-			
+			i++;
 			object.setLabel(company.getName());
-			object.setBorderColor("#7CB342");
-			object.setBackgroundColor("#9CCC65");
+			object.setBorderColor(colour_array[i]);
+			object.setBackgroundColor(colour_array[i]);
 			object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 			
 			chart.add(object);
@@ -959,13 +968,92 @@ public class CompanyService {
 	return chart;
 	}
 	
+	//COMPANIES WITH SECTOR, RETURN ONLY COMPANIES
+	public List<ChartObject> getChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
+
+		List<ChartObject> chart = new ArrayList<>();
+		int i=0;
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+
+			if (sectorList.contains(company.getSector())) {
+				AverageValues obj = CompanyAverage(ticker, type);
+
+				ChartObject object = new ChartObject();
+				i++;
+				object.setLabel(company.getName());
+				object.setBorderColor(colour_array[i]);
+				object.setBackgroundColor(colour_array[i]);
+				object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+
+				chart.add(object);
+			}
+
+		}
+		return chart;
+	}
+	
+	//COMPANIES WITH SECTOR, RETURN COMPANIES AND SECTORS
+	public List<ChartObject> getAvgChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
+		int i=0;
+		List<ChartObject> chart = new ArrayList<>();
+		List<String> sectors = new ArrayList<>();
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+
+			if (sectorList.contains(company.getSector())) {
+				AverageValues obj = CompanyAverage(ticker, type);
+				sectors.add(company.getSector());
+				ChartObject object = new ChartObject();
+				i++;
+				object.setLabel(company.getName());
+				object.setBorderColor(colour_array[i]);
+				object.setBackgroundColor(colour_array[i]);
+				object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+
+				chart.add(object);
+			}
+
+		}
+		
+		List<String>Sectors = new ArrayList<>(new HashSet<String>(sectors));
+		for(String sector: Sectors) {
+			AverageValues obj = SectorAverage(sector, type);
+			
+			ChartObject object = new ChartObject();
+			i++;
+			object.setLabel(sector);
+			object.setBorderColor(colour_array[i]);
+			object.setBackgroundColor(colour_array[i]);
+			object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+
+			chart.add(object);
+		}
+		return chart;
+	}
 	
 	
-	
-	
-	
-	
-	
+	//ONLY SECTORS
+	public List<ChartObject>getChartSector(List<String>sectorList,String type){
+		
+		List<ChartObject>chart = new ArrayList<>();
+		int i=0;
+		for (String sector : sectorList) {
+			
+			AverageValues obj = SectorAverage(sector, type);
+
+			ChartObject object = new ChartObject();
+			i++;
+			object.setLabel(sector);
+			object.setBorderColor(colour_array[i]);
+			object.setBackgroundColor(colour_array[i]);
+			object.setData(Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
+			
+			chart.add(object);
+	}
+
+	return chart;
+	}
 	
 	
 	

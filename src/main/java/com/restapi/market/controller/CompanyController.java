@@ -201,18 +201,6 @@ public class CompanyController {
 			@RequestParam("type") String type) {
 		return companyService.ChartCompany(tickerList, type);
 	}
-
-	
-	// Companies selected return companies as list of object
-	
-	
-	@GetMapping("/chartCompanyObject/{tickerList}")
-	public List<ChartObject> getChartCompany(@PathVariable("tickerList") List<String> tickerList,
-			@RequestParam("type") String type) {
-		return companyService.getChartCompany(tickerList, type);
-	}
-	
-	
 	
 
 	// Sectors Selected return only Sectors
@@ -239,4 +227,36 @@ public class CompanyController {
 			@RequestParam("range") String range) throws ParseException {
 		return companyService.chartCustomRange(tickerList, startDate, endDate, type, range);
 	}
+	
+	// Companies selected return companies as list of object	
+	
+	@GetMapping("/chartCompanyObject/{tickerList}")
+	public List<ChartObject> getChartCompany(@PathVariable("tickerList") List<String> tickerList,
+			@RequestParam("type") String type) {
+		return companyService.getChartCompany(tickerList, type);
+	}
+	
+	// Sector selected return sectors as list of object	
+	
+		@GetMapping("/chartSectorObject/{sectorList}")
+		public List<ChartObject> getChartSector(@PathVariable("sectorList") List<String> sectorList,
+				@RequestParam("type") String type) {
+			return companyService.getChartSector(sectorList, type);
+		}
+		
+	//Companies and sectors matched, returns only companies
+		
+		@GetMapping("/chartCompanySectorObject/{tickerList}/{sectorList}")
+		public List<ChartObject> getChartCompanySector(@PathVariable("sectorList") List<String> sectorList,
+				@PathVariable("tickerList") List<String> tickerList, @RequestParam("type") String type) {
+			return companyService.getChartCompanySector(tickerList, sectorList, type);
+		}
+		
+		// Companies and sectors matched, returns companies and sectors
+
+		@GetMapping("/chartAvgCompanySectorObject/{tickerList}/{sectorList}")
+		public List<ChartObject> getAvgChartCompanySector(@PathVariable("sectorList") List<String> sectorList,
+				@PathVariable("tickerList") List<String> tickerList, @RequestParam("type") String type) {
+			return companyService.getAvgChartCompanySector(tickerList, sectorList, type);
+		}
 }
