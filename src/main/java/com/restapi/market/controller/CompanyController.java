@@ -38,24 +38,6 @@ public class CompanyController {
 	@Autowired
 	private CompanyService companyService;
 
-	// Details of company based on the ticker
-	@GetMapping("/{ticker}")
-	public Company getCompany(@PathVariable("ticker") String ticker) throws ParseException {
-		return companyService.getByTicker(ticker);
-	}
-
-	// List of all tickers
-	@GetMapping("/tickers")
-	public List<String> getTickerList() {
-		return companyService.getAllTickers();
-	}
-
-	// List of all sectors
-	@GetMapping("/sectors")
-	public List<String> getSectorList() {
-		return companyService.getAllSectors();
-	}
-
 	// Add data according to the ticker
 	@GetMapping("/add/{ticker}")
 	public String addStocksByTicker(@PathVariable("ticker") String ticker) throws ParseException {
@@ -78,50 +60,6 @@ public class CompanyController {
 	@GetMapping("/force-update")
 	public void forceUpdate() {
 		companyService.dailyUpdateAll();
-	}
-
-	/*
-	 * //Calculate Pre and Post Covid volume for a company
-	 * 
-	 * @GetMapping("/average-volume-company/{ticker}") public AverageValues
-	 * calAverageVolume(@PathVariable("ticker") String ticker) { return
-	 * companyService.calAvgVolumeByCompany(ticker); }
-	 * 
-	 * //Calculate Pre and Post Covid Price for a company
-	 * 
-	 * @GetMapping("/average-price-company/{ticker}") public AverageValues
-	 * calAvgPriceByCompany(@PathVariable("ticker") String ticker) { return
-	 * companyService.calAvgPriceByCompany(ticker); }
-	 * 
-	 * //Calculate Pre and Post Covid Price for a sector
-	 * 
-	 * @GetMapping("/average-price-sector/{sector}") public AverageValues
-	 * calAvgStockBySector(@PathVariable("sector") String sector) { return
-	 * companyService.calAvgPriceBySector(sector); }
-	 * 
-	 * //Calculate Pre and Post Covid Volume for a sector
-	 * 
-	 * @GetMapping("/average-volume-sector/{sector}") public AverageValues
-	 * calAvgVolumeBySector(@PathVariable("sector") String sector) { return
-	 * companyService.calAvgVolumeBySector(sector); }
-	 */
-	// Calculate Pre and Post Covid price/volume for a company
-	@GetMapping("/average-company/{ticker}")
-	public AverageValues CompanyAverage(@PathVariable("ticker") String ticker, @RequestParam("type") String type) {
-		return companyService.CompanyAverage(ticker, type);
-	}
-
-	// Calculate Pre and Post Covid price/volume for a company
-	@GetMapping("/average-sector/{sector}")
-	public AverageValues SectorAverage(@PathVariable("sector") String sector, @RequestParam("type") String type) {
-		return companyService.SectorAverage(sector, type);
-	}
-
-	// pre and post covid values for all companies in a sector
-	@GetMapping("/chart-sector/{sector}")
-	public Map<String, AverageValues> getSectorChart(@PathVariable("sector") String sector,
-			@RequestParam("type") String type) {
-		return companyService.getSectorChart(sector, type);
 	}
 
 	// Sorted values of Deviation Price or Volume for a company
@@ -166,70 +104,15 @@ public class CompanyController {
 		return companyService.DataSector(sector, startDate, endDate, type, range);
 	}
 
-	// List of objects with daily data for a company
-	@GetMapping("/gridCompany/{ticker}/{startDate}/{endDate}")
-	public List<DailyData> gridCompany(@PathVariable("ticker") String ticker,
-			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate)
-			throws ParseException {
-		return companyService.gridCompany(ticker, startDate, endDate);
-	}
-
-	// List of objects with daily data for a sector
-	@GetMapping("/gridSector/{sector}/{startDate}/{endDate}")
-	public List<List<DailyData>> gridSector(@PathVariable("sector") String sector,
-			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate)
-			throws ParseException {
-		return companyService.gridSector(sector, startDate, endDate);
-	}
-
-	// Companies and Sectors Selected return only companies
-	@GetMapping("/chartCompanySector/{tickerList}/{sectorList}")
-	public Map<String, List<Double>> ChartCompanySector(@PathVariable("tickerList") List<String> tickerList,
-			@PathVariable("sectorList") List<String> sectorList, @RequestParam("type") String type) {
-		return companyService.ChartCompanySector(tickerList, sectorList, type);
-	}
-
-	// Companies and Sectors Selected return companies and avg sector
-	@GetMapping("/chartCompanyAvgSector/{tickerList}/{sectorList}")
-	public Map<String, List<Double>> AvgChartCompanySector(@PathVariable("tickerList") List<String> tickerList,
-			@PathVariable("sectorList") List<String> sectorList, @RequestParam("type") String type) {
-		return companyService.AvgChartCompanySector(tickerList, sectorList, type);
-	}
-
-	// Companies Selected return only companies
-
-	@GetMapping("/chartCompany/{tickerList}")
-	public Map<String, List<Double>> ChartCompany(@PathVariable("tickerList") List<String> tickerList,
-			@RequestParam("type") String type) {
-		return companyService.ChartCompany(tickerList, type);
-	}
-	
-
-	// Sectors Selected return only Sectors
-
-	@GetMapping("/chartSector/{sectorList}")
-	public Map<String, List<Double>> ChartSector(@PathVariable("sectorList") List<String> sectorList,
-			@RequestParam("type") String type) {
-		return companyService.ChartSector(sectorList, type);
-	}
-
-	// companies and sector for grid
-	@GetMapping("/grid/{startDate}/{endDate}")
-	public List<DailyData> getGridData(@PathVariable("startDate") String startDate,
+		// companies and sector for grid
+		@GetMapping("/grid/{startDate}/{endDate}")
+			public List<DailyData> getGridData(@PathVariable("startDate") String startDate,
 			@PathVariable("endDate") String endDate, @RequestParam(defaultValue = "") List<String> gotTickers,
 			@RequestParam(defaultValue = "") List<String> gotSectors) throws ParseException {
-		return companyService.getGridData(startDate, endDate, gotTickers, gotSectors);
+			return companyService.getGridData(startDate, endDate, gotTickers, gotSectors);
 
-	}
+		}
 
-	@GetMapping("/chartCustomRange/{tickerList}/{startDate}/{endDate}")
-	public Map<String, Map<String, Double>> ChartCustomRange(@PathVariable("tickerList") List<String>tickerList,
-			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate,
-			@RequestParam("type") String type,
-			@RequestParam("range") String range) throws ParseException {
-		return companyService.chartCustomRange(tickerList, startDate, endDate, type, range);
-	}
-	
 		// Companies selected return companies as list of object	
 	
 		@GetMapping("/chartCompanyObject/{tickerList}")
@@ -262,8 +145,6 @@ public class CompanyController {
 			return companyService.getAvgChartCompanySector(tickerList, sectorList, type);
 		}
 		
-		
-		
 		////////    RETURNS DATE WISE DATA FOR COMPANIES ////////////
 		@GetMapping("/chartCDCompany/{tickerList}/{startDate}/{endDate}")
 		public ChartObjectCustom DailyCompanyObject(@PathVariable("tickerList") List<String> tickerList,
@@ -271,6 +152,43 @@ public class CompanyController {
 				@RequestParam("type") String type) throws ParseException {
 			return companyService.DailyCompanyObject(tickerList, startDate, endDate, type);
 		}
+		
+		
+		////////RETURNS DATE WISE DATA FOR SECTORS ////////////
+		@GetMapping("/chartCDSector/{sectorList}/{startDate}/{endDate}")
+		public ChartObjectCustom DailySectorObject(@PathVariable("sectorList") List<String> sectorList,
+				@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate,
+				@RequestParam("type") String type) throws ParseException {
+			return companyService.DailySectorObject(sectorList, startDate, endDate, type);
+		}
+		
+		
+		////////RETURNS DATE WISE DATA FOR MATCHED  COMPANY-SECTOR  ////////////
+		@GetMapping("/chartCDCompanySector/{tickerList}/{sectorList}/{startDate}/{endDate}")
+		public ChartObjectCustom DailyCompanySectorObject(@PathVariable("tickerList") List<String> tickerList,
+				@PathVariable("sectorList") List<String> sectorList, @PathVariable("startDate") String startDate,
+				@PathVariable("endDate") String endDate, @RequestParam("type") String type) throws ParseException {
+			return companyService.DailyCompanySectorObject(tickerList, sectorList, startDate, endDate, type);
+		}
+		
+		
+		////////RETURNS DATE WISE DATA FOR MATCHED  COMPANY-SECTOR  ////////////
+		@GetMapping("/chartCDAvgCompanySector/{tickerList}/{sectorList}/{startDate}/{endDate}")
+		public ChartObjectCustom DailyAvgCompanySectorObject(@PathVariable("tickerList") List<String> tickerList,
+				@PathVariable("sectorList") List<String> sectorList, @PathVariable("startDate") String startDate,
+				@PathVariable("endDate") String endDate, @RequestParam("type") String type) throws ParseException {
+			return companyService.DailyAvgCompanySectorObject(tickerList, sectorList, startDate, endDate, type);
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 }
 
 
