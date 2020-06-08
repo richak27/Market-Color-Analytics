@@ -181,13 +181,41 @@ public class CompanyController {
 		}
 		
 		
+		////////RETURNS MONTH WISE DATA FOR COMPANIES ////////////
+		@GetMapping("/chartCMCompany/{tickerList}/{startDate}/{endDate}")
+		public ChartObjectCustom MonthlyCompanyObject(@PathVariable("tickerList") List<String> tickerList,
+			@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate,
+			@RequestParam("type") String type) throws ParseException {
+		return companyService.MonthlyCompanyObject(tickerList, startDate, endDate, type);
+		}
+		
+		
+		////////RETURNS MONTH WISE DATA FOR SECTORS ////////////
+		@GetMapping("/chartCMSector/{sectorList}/{startDate}/{endDate}")
+		public ChartObjectCustom MonthlySectorObject(@PathVariable("sectorList") List<String> sectorList,
+				@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate,
+				@RequestParam("type") String type) throws ParseException {
+			return companyService.MonthlySectorObject(sectorList, startDate, endDate, type);
+		}
 		
 		
 		
+		////////RETURNS MONTH WISE DATA FOR MATCHED  COMPANY-SECTOR  ////////////
+		@GetMapping("/chartCMCompanySector/{tickerList}/{sectorList}/{startDate}/{endDate}")
+		public ChartObjectCustom MonthlyCompanySectorObject(@PathVariable("tickerList") List<String> tickerList,
+				@PathVariable("sectorList") List<String> sectorList, @PathVariable("startDate") String startDate,
+				@PathVariable("endDate") String endDate, @RequestParam("type") String type) throws ParseException {
+			return companyService.MonthlyCompanySectorObject(tickerList, sectorList, startDate, endDate, type);
+		}
 		
 		
-		
-		
+		////////RETURNS DATE WISE DATA FOR MATCHED  COMPANY-SECTOR  ////////////
+		@GetMapping("/chartCMAvgCompanySector/{tickerList}/{sectorList}/{startDate}/{endDate}")
+		public ChartObjectCustom MonthlyAvgCompanySectorObject(@PathVariable("tickerList") List<String> tickerList,
+				@PathVariable("sectorList") List<String> sectorList, @PathVariable("startDate") String startDate,
+				@PathVariable("endDate") String endDate, @RequestParam("type") String type) throws ParseException {
+			return companyService.MonthlyAvgCompanySectorObject(tickerList, sectorList, startDate, endDate, type);
+		}
 		
 }
 

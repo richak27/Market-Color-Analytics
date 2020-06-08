@@ -1295,4 +1295,186 @@ public class CompanyService {
 		}
 
 	
+	
+	
+	/////// 	MONTHLY 1. ONLY COMPANIES
+	public ChartObjectCustom MonthlyCompanyObject(List<String> tickerList, String startDate, String endDate, String type)
+			throws ParseException {
+
+		Date sDate = converter.parse(startDate);
+		Date eDate = converter.parse(endDate);
+		int i = 0;
+		ChartObjectCustom value = new ChartObjectCustom();
+		List<ChartObject> chart = new ArrayList<>();
+		List<String> labels = new ArrayList<>();
+		List<Stock> stocknew = new ArrayList<>();
+		ArrayList<String> keyList = new ArrayList<>();
+		ArrayList<Double> valueList = new ArrayList<>();
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+
+			List<Stock> stocks = company.getStocks();
+
+			for (Stock stock : stocks) {
+
+				Date nDate = converter.parse(stock.getDate());
+				if (nDate.before(eDate) && nDate.after(sDate) || nDate.equals(sDate) || nDate.equals(eDate)) {
+					stocknew.add(stock);
+				}
+			}
+
+			ChartObject obj = new ChartObject();
+			i++;
+			obj.setLabel(company.getName());
+			obj.setBackgroundColor(colour_array[i]);
+			obj.setBorderColor(colour_array[i]);
+
+			if (type.contentEquals("price")) {
+				Map<String, Double> daily = stocknew.stream()
+						.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getClose)))
+						.entrySet().stream().sorted(comparingByKey())
+						.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+				keyList = new ArrayList<String>(daily.keySet());
+				valueList = new ArrayList<Double>(daily.values());
+			}
+
+			else if (type.contentEquals("volume")) {
+				Map<String, Double> daily = stocknew.stream()
+						.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getVolume)))
+						.entrySet().stream().sorted(comparingByKey())
+						.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+				keyList = new ArrayList<String>(daily.keySet());
+				valueList = new ArrayList<Double>(daily.values());
+			} else {
+				System.out.print("Enter correct parameters");
+			}
+			obj.setData(valueList);
+			chart.add(obj);
+		}
+
+		value.setDatasets(chart);
+		labels = keyList;
+		value.setLabels(labels);
+
+		return value;
+	}
+	
+/////// 	MONTHLY 2. ONLY SECTORS
+	public ChartObjectCustom MonthlySectorObject(List<String> sectorList, String startDate, String endDate, String type)
+			throws ParseException {
+
+		Date sDate = converter.parse(startDate);
+		Date eDate = converter.parse(endDate);
+		int i = 50;
+		ChartObjectCustom value = new ChartObjectCustom();
+		List<ChartObject> chart = new ArrayList<>();
+		List<String>labels = new ArrayList<>();
+		List<Stock>stocknew = new ArrayList<>();
+		ArrayList<String>keyList = new ArrayList<>();
+		ArrayList<Double>valueList= new ArrayList<>();
+		
+		for(String sector:sectorList) {
+			
+			List<Company>company = getBySector(sector);
+			for(Company comp:company) {
+				List<Stock>stocks = comp.getStocks();
+				for(Stock stock: stocks) {
+					Date nDate = converter.parse(stock.getDate());
+					if (nDate.before(eDate) && nDate.after(sDate) || nDate.equals(sDate) || nDate.equals(eDate)) {
+						stocknew.add(stock);	
+					}	
+				}
+			}
+			
+			ChartObject obj = new ChartObject();
+			i--;
+			obj.setLabel(sector);
+			obj.setBackgroundColor(colour_array[i]);
+			obj.setBorderColor(colour_array[i]);
+			if (type.contentEquals("price")) {
+				Map<String, Double> daily = stocknew.stream()
+						.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getClose)))
+						.entrySet().stream().sorted(comparingByKey())
+						.collect(toMap(Map.Entry::getKey,Map.Entry::getValue,(e1,e2)->e1, LinkedHashMap::new));	
+				
+				keyList = new ArrayList<String>(daily.keySet());
+				valueList = new ArrayList<Double>(daily.values());
+			}
+
+			else if (type.contentEquals("volume")) {
+				Map<String, Double> daily = stocknew.stream()
+						.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getVolume)))
+						.entrySet().stream().sorted(comparingByKey())
+						.collect(toMap(Map.Entry::getKey,Map.Entry::getValue,(e1,e2)->e1, LinkedHashMap::new));
+				keyList = new ArrayList<String>(daily.keySet());
+				valueList = new ArrayList<Double>(daily.values());
+			}
+			else {
+				System.out.print("Enter correct parameters");
+			}
+			obj.setData(valueList);
+			chart.add(obj);
+			
+		}
+		
+		value.setDatasets(chart);
+		labels = keyList;
+		value.setLabels(labels);
+
+		return value;
+	}
+			
+////////////MONTHLY 3. COMPANY AND SECTOR RETURN MATCHED COMPANIES	
+	
+public ChartObjectCustom MonthlyCompanySectorObject(List<String>tickerList,List<String> sectorList, String startDate, String endDate, String type)
+	throws ParseException {
+
+List<String>tickerNew = new ArrayList<>();
+ChartObjectCustom value = new ChartObjectCustom();
+for(String ticker: tickerList) {
+	
+	Company company = getByTicker(ticker);
+	if(sectorList.contains(company.getSector()));
+	{
+		tickerNew.add(ticker);
+		
+	}
+}
+	value = MonthlyCompanyObject(tickerNew,startDate,endDate,type);		
+	return value;			
+}
+
+
+//////////// MONTHLY 4. COMPANY AND SECTOR RETURN MATCHED COMPANIES AND SECTORS	
+
+public ChartObjectCustom MonthlyAvgCompanySectorObject(List<String>tickerList,List<String> sectorList, String startDate, String endDate, String type)
+	throws ParseException {
+
+List<String>tickerNew = new ArrayList<>();
+List<String>sectorNew = new ArrayList<>();
+ChartObjectCustom value1 = new ChartObjectCustom();
+ChartObjectCustom value2 = new ChartObjectCustom();
+for(String ticker: tickerList) {
+	
+	Company company = getByTicker(ticker);
+	if(sectorList.contains(company.getSector()))
+	{
+		tickerNew.add(ticker);
+		sectorNew.add(company.getSector());
+		
+	}
+}
+	List<String>SectorNew = new ArrayList<>(new HashSet<String>(sectorNew));
+	value1 = MonthlyCompanyObject(tickerNew,startDate, endDate, type);
+	value2 = MonthlySectorObject(SectorNew,startDate, endDate, type);		
+	List<ChartObject>obj1 = value1.getDatasets();
+	List<ChartObject>obj2 = value2.getDatasets();
+	obj1.addAll(obj2);
+	value1.setDatasets(obj1);
+	return value1;
+}
+
+
+	
 }
