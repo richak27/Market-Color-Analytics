@@ -5,16 +5,16 @@ import java.util.List;
 public class ChartObjectCustom {
 	
 	private List<String>labels;
-	private List<ChartObject>objectList;
+	private List<ChartObject>Datasets;
 	
 	
 	public ChartObjectCustom() {}
 
 
-	public ChartObjectCustom(List<String> labels, List<ChartObject> objectList) {
+	public ChartObjectCustom(List<String> labels, List<ChartObject> Datasets) {
 		super();
 		this.labels = labels;
-		this.objectList = objectList;
+		this.Datasets = Datasets;
 	}
 
 
@@ -23,8 +23,8 @@ public class ChartObjectCustom {
 	}
 
 
-	public List<ChartObject> getObjectList() {
-		return objectList;
+	public List<ChartObject> getDatasets() {
+		return Datasets;
 	}
 
 
@@ -33,8 +33,8 @@ public class ChartObjectCustom {
 	}
 
 
-	public void setObjectList(List<ChartObject> objectList) {
-		this.objectList = objectList;
+	public void setDatasets(List<ChartObject> Datasets) {
+		this.Datasets = Datasets;
 	};
 
 	

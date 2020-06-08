@@ -5,14 +5,14 @@ public class Stock {
 	private String period;
 	private double close;
 	private double volume;
-	private String week;
+	private int week;
 	private String month;
 
 	public Stock() {
 		super();
 	}
 
-	public Stock(String date, String period, double close, double volume,String week,String month) {
+	public Stock(String date, String period, double close, double volume,int week,String month) {
 		super();
 		this.date = date;
 		this.period = period;
@@ -38,7 +38,7 @@ public class Stock {
 		return volume;
 	}
 	
-	public String getWeek()
+	public int getWeek()
 	{
 		return week;
 	}
@@ -64,7 +64,7 @@ public class Stock {
 		this.volume = volume;
 	}
 	
-	public void setWeek(String week) {
+	public void setWeek(int week) {
 		this.week = week ;
 	}
 

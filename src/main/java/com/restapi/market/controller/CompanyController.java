@@ -20,6 +20,7 @@ import com.restapi.market.model.ChartObjectCustom;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.DailyData;
 import com.restapi.market.model.PriceAverage;
+import com.restapi.market.model.ChartObjectCustom;
 import com.restapi.market.model.Stock;
 import com.restapi.market.model.VolumeAverage;
 import com.restapi.market.service.CompanyService;
@@ -37,6 +38,46 @@ public class CompanyController {
 
 	@Autowired
 	private CompanyService companyService;
+
+	@GetMapping("/weekly/sectorcompany/{tickers}/{sectors}/{type}/{startdate}/{enddate}")
+	public ChartObjectCustom weeklytest(@PathVariable("tickers") List<String> tickers,@PathVariable("sectors") List<String> sectorlist,@PathVariable("type") String type,@PathVariable("startdate") String startdate,@PathVariable("enddate") String enddate) throws ParseException{
+		return companyService. getChartCompanySectorWeekly(tickers,sectorlist,type,startdate,enddate);
+	}
+	
+
+	@GetMapping("/weekly/Avgsectorcompany/{tickers}/{sectors}/{type}/{startdate}/{enddate}")
+	public ChartObjectCustom weeklytestaverage(@PathVariable("tickers") List<String> tickers,@PathVariable("sectors") List<String> sectorlist,@PathVariable("type") String type,@PathVariable("startdate") String startdate,@PathVariable("enddate") String enddate) throws ParseException{
+		return companyService.getAvgChartCompanySectorWeekly(tickers,sectorlist,type,startdate,enddate);
+	}
+	
+	
+	@GetMapping("/weekly/sector/{sectors}/{type}/{startdate}/{enddate}")
+	public ChartObjectCustom weeklytestsector(@PathVariable("sectors") List<String> sectorlist,@PathVariable("type") String type,@PathVariable("startdate") String startdate,@PathVariable("enddate") String enddate) throws ParseException{
+		return companyService.getChartSectorWeekly(sectorlist,type,startdate,enddate);
+	}
+	
+	@GetMapping("/weekly/compoany/{tickers}/{type}/{startdate}/{enddate}")
+	public ChartObjectCustom weeklytestcompany(@PathVariable("tickers") List<String> tickers,@PathVariable("type") String type,@PathVariable("startdate") String startdate,@PathVariable("enddate") String enddate) throws ParseException{
+		return companyService.getChartCompanyWeekly(tickers,type,startdate,enddate);
+	}
+	
+	// Details of company based on the ticker
+	@GetMapping("/{ticker}")
+	public Company getCompany(@PathVariable("ticker") String ticker) throws ParseException {
+		return companyService.getByTicker(ticker);
+	}
+
+	// List of all tickers
+	@GetMapping("/tickers")
+	public List<String> getTickerList() {
+		return companyService.getAllTickers();
+	}
+
+	// List of all sectors
+	@GetMapping("/sectors")
+	public List<String> getSectorList() {
+		return companyService.getAllSectors();
+	}
 
 	// Add data according to the ticker
 	@GetMapping("/add/{ticker}")
