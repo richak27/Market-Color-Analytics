@@ -1301,7 +1301,7 @@ public class CompanyService {
 	public ChartObjectCustom MonthlyCompanyObject(List<String> tickerList, String startDate, String endDate, String type)
 			throws ParseException {
 
-		String[] monthList = {"","January","February","March","April","May","June","July","August","September","October","November","December"};
+		String[] monthList = {"December","January","February","March","April","May","June","July","August","September","October","November","December"};
 		Date sDate = converter.parse(startDate);
 		Date eDate = converter.parse(endDate);
 		int i = 0;
@@ -1356,7 +1356,9 @@ public class CompanyService {
 
 		value.setDatasets(chart);
 		for(int j = 0; j< keyList.size(); j++) {
-			labels.add(monthList[Integer.parseInt(keyList.get(j))]);
+			
+			int index = Integer.parseInt(keyList.get(j))%12;
+			labels.add(monthList[index]);
 		}
 		
 		value.setLabels(labels);
@@ -1368,7 +1370,7 @@ public class CompanyService {
 	public ChartObjectCustom MonthlySectorObject(List<String> sectorList, String startDate, String endDate, String type)
 			throws ParseException {
 
-		String[] monthList = {"","January","February","March","April","May","June","July","August","September","October","November","December"};
+		String[] monthList = {"December","January","February","March","April","May","June","July","August","September","October","November","December"};
 		Date sDate = converter.parse(startDate);
 		Date eDate = converter.parse(endDate);
 		int i = 50;
@@ -1425,7 +1427,9 @@ public class CompanyService {
 		
 		value.setDatasets(chart);
 		for(int j = 0; j< keyList.size(); j++) {
-			labels.add(monthList[Integer.parseInt(keyList.get(j))]);
+			
+			int index = Integer.parseInt(keyList.get(j))%12;
+			labels.add(monthList[index]);
 		}
 		
 		value.setLabels(labels);
