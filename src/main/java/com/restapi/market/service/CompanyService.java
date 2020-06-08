@@ -31,7 +31,7 @@ import com.restapi.market.model.Calculate;
 import com.restapi.market.model.ChartObject;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.DailyData;
-
+import com.restapi.market.model.ChartObjectCustom;
 import com.restapi.market.model.Stock;
 
 import com.restapi.market.repository.CompanyRepository;
@@ -657,6 +657,7 @@ public class CompanyService {
 				stocksnew.add(stock);
 			}
 		}
+		
 
 		if (type.contentEquals("price")) {
 			Map<String, Double> value = stocksnew.stream()
@@ -945,7 +946,7 @@ public class CompanyService {
 			"#FFA500", "#FF69B4", "#FFA500", "#9400D3", "#7CFC00", "#2E8B57", "#191970", "#CD853F", "#800000",
 			"#00FFFF", "#4682B4", "#00BFFF", "#4169E1", "#F4A460" };
 	
-	//ONLY COMPANIES
+	//ONLY COMPANIES (PRE POST)
 	
 	public List<ChartObject>getChartCompany(List<String>tickerList,String type){
 		int i=0;
@@ -969,7 +970,7 @@ public class CompanyService {
 	return chart;
 	}
 	
-	//COMPANIES WITH SECTOR, RETURN ONLY COMPANIES
+	//COMPANIES WITH SECTOR, RETURN ONLY COMPANIES(PRE POST)
 	public List<ChartObject> getChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
 
 		List<ChartObject> chart = new ArrayList<>();
@@ -994,7 +995,7 @@ public class CompanyService {
 		return chart;
 	}
 	
-	//COMPANIES WITH SECTOR, RETURN COMPANIES AND SECTORS
+	//COMPANIES WITH SECTOR, RETURN COMPANIES AND SECTORS (PRE POST)
 	public List<ChartObject> getAvgChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
 		int i=0;
 		List<ChartObject> chart = new ArrayList<>();
@@ -1034,7 +1035,7 @@ public class CompanyService {
 	}
 	
 	
-	//ONLY SECTORS
+	//ONLY SECTORS PRE POST
 	public List<ChartObject>getChartSector(List<String>sectorList,String type){
 		
 		List<ChartObject>chart = new ArrayList<>();
@@ -1055,5 +1056,159 @@ public class CompanyService {
 
 	return chart;
 	}
+	
 
+	
+	//ONLY COMPANIES (WEEKLY)
+	
+		public ChartObjectCustom getChartCompanyWeekly(List<String>tickerList,String type,String startDate,String endDate) throws ParseException{
+			int i=0;
+			ChartObjectCustom value = new ChartObjectCustom();
+			List<ChartObject> chart = new ArrayList<>();
+			List<String> labels = new ArrayList<>();
+			
+			for (String ticker : tickerList) {
+				i++;
+				Company company = getByTicker(ticker);
+				Map<String,Double> obj = WeeklyCompany(ticker, startDate,endDate,type);
+			    if(i==1)
+			    	labels = new ArrayList<String>(obj.keySet());
+			    List<Double> valueList = new ArrayList<Double>(obj.values());
+			    ChartObject object = new ChartObject(); 
+				 
+				object.setLabel(company.getName());
+				object.setBorderColor(colour_array[i]);
+				object.setBackgroundColor(colour_array[i]);
+				object.setData(valueList);
+				chart.add(object);
+				
+			
+		}
+		
+		    value.setLabels(labels);
+		    value.setObjectList(chart);
+
+		return value;
+		}
+		
+		
+		//COMPANIES WITH SECTOR, RETURN ONLY COMPANIES(WEEKLY)
+
+public ChartObjectCustom getChartCompanySectorWeekly(List<String> tickerList, List<String> sectorList, String type,String startDate,String endDate) throws ParseException {
+
+
+		ChartObjectCustom value = new ChartObjectCustom();
+		List<ChartObject> chart = new ArrayList<>();
+		List<String> labels = new ArrayList<>();
+		int i=0;
+			for (String ticker : tickerList) {
+				i++;
+				Company company = getByTicker(ticker);
+
+				if (sectorList.contains(company.getSector())) {
+					Map<String,Double> obj = WeeklyCompany(ticker, startDate,endDate,type);
+				    if(i==1)
+				    	labels = new ArrayList<String>(obj.keySet());
+				    
+				    List<Double> valueList = new ArrayList<Double>(obj.values());
+				    ChartObject object = new ChartObject(); 
+					 
+					object.setLabel(company.getName());
+					object.setBorderColor(colour_array[i]);
+					object.setBackgroundColor(colour_array[i]);
+					object.setData(valueList);
+					chart.add(object);
+			}
+			
+			    value.setLabels(labels);
+			    value.setObjectList(chart);
+			    
+			}
+
+			return value;
+					
+}
+
+		
+		
+		//COMPANIES WITH SECTOR, RETURN COMPANIES AND SECTORS (WEEKLY)
+		public ChartObjectCustom getAvgChartCompanySectorWeekly(List<String> tickerList, List<String> sectorList, String type,String startDate,String endDate) throws ParseException {
+			int i=0;
+			List<String> sectors = new ArrayList<>();
+			ChartObjectCustom value = new ChartObjectCustom();
+			List<ChartObject> chart = new ArrayList<>();
+			List<String> labels = new ArrayList<>();
+			
+			for (String ticker : tickerList) {
+				Company company = getByTicker(ticker);
+				if (sectorList.contains(company.getSector()))
+				{
+					i++;
+					sectors.add(company.getSector());
+					Map<String,Double> obj = WeeklyCompany(ticker, startDate,endDate,type);
+					if(i==1)
+						labels = new ArrayList<String>(obj.keySet());
+			    
+					List<Double> valueList = new ArrayList<Double>(obj.values());
+					ChartObject object = new ChartObject(); 
+				 
+					object.setLabel(company.getName());
+					object.setBorderColor(colour_array[i]);
+					object.setBackgroundColor(colour_array[i]);
+					object.setData(valueList);
+					chart.add(object);
+				
+				}
+			}
+			
+			List<String>Sectors = new ArrayList<>(new HashSet<String>(sectors));
+			for (String sector : sectorList) {
+				    i++;			
+					Map<String,Double> obj = WeeklySector(sector, startDate,endDate,type);
+					List<Double> valueList = new ArrayList<Double>(obj.values());
+					ChartObject object = new ChartObject(); 
+					object.setLabel(sector);
+					object.setBorderColor(colour_array[i]);
+					object.setBackgroundColor(colour_array[i]);
+					object.setData(valueList);
+				    chart.add(object);
+		}
+		
+		    value.setLabels(labels);
+		    value.setObjectList(chart);
+		   
+  return value;
+		
+}
+		
+		
+		//ONLY SECTORS (WEEKLY)
+		public ChartObjectCustom getChartSectorWeekly(List<String>sectorList,String type,String startDate,String endDate) throws ParseException{
+			
+			ChartObjectCustom value = new ChartObjectCustom();
+			List<ChartObject> chart = new ArrayList<>();
+			List<String> labels = new ArrayList<>();
+			int i=0;
+			for (String sector : sectorList) {
+				i++;			
+					Map<String,Double> obj = WeeklySector(sector, startDate,endDate,type);
+					if(i==1)
+						labels = new ArrayList<String>(obj.keySet());
+					
+					List<Double> valueList = new ArrayList<Double>(obj.values());
+					ChartObject object = new ChartObject(); 
+					object.setLabel(sector);
+					object.setBorderColor(colour_array[i]);
+					object.setBackgroundColor(colour_array[i]);
+					object.setData(valueList);
+				    chart.add(object);
+		}
+		
+		    value.setLabels(labels);
+		    value.setObjectList(chart);
+
+		return value;
+	
+}
+		
 }
