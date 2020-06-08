@@ -217,6 +217,10 @@ public class CompanyController {
 			return companyService.MonthlyAvgCompanySectorObject(tickerList, sectorList, startDate, endDate, type);
 		}
 		
+		
+		
+		
+		
 }
 
 
