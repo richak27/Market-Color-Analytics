@@ -1148,16 +1148,16 @@ public class CompanyService {
 					}
 
 					else {System.out.println("Incorrect Parameters");}
-					
-					if(i==1) {
-					labels.add(stock.getDate());}
+
+					labels.add(stock.getDate());
 				}			
 			}
 			obj.setData(values);
 			chart.add(obj);
 		}
 
-		value.setLabels(labels);
+		List<String>Labels = new ArrayList<>(new HashSet<String>(labels));
+		value.setLabels(Labels);
 		value.setObjectList(chart);
 		return value;
 	}	
