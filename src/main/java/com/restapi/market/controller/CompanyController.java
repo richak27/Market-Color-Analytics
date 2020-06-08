@@ -16,9 +16,11 @@ import org.springframework.web.client.RestTemplate;
 import com.restapi.market.model.AverageValues;
 import com.restapi.market.model.Calculate;
 import com.restapi.market.model.ChartObject;
+import com.restapi.market.model.ChartObjectCustom;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.DailyData;
 import com.restapi.market.model.PriceAverage;
+import com.restapi.market.model.Stock;
 import com.restapi.market.model.VolumeAverage;
 import com.restapi.market.service.CompanyService;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -228,15 +230,15 @@ public class CompanyController {
 		return companyService.chartCustomRange(tickerList, startDate, endDate, type, range);
 	}
 	
-	// Companies selected return companies as list of object	
+		// Companies selected return companies as list of object	
 	
-	@GetMapping("/chartCompanyObject/{tickerList}")
-	public List<ChartObject> getChartCompany(@PathVariable("tickerList") List<String> tickerList,
+		@GetMapping("/chartCompanyObject/{tickerList}")
+		public List<ChartObject> getChartCompany(@PathVariable("tickerList") List<String> tickerList,
 			@RequestParam("type") String type) {
 		return companyService.getChartCompany(tickerList, type);
-	}
+		}
 	
-	// Sector selected return sectors as list of object	
+		// Sector selected return sectors as list of object	
 	
 		@GetMapping("/chartSectorObject/{sectorList}")
 		public List<ChartObject> getChartSector(@PathVariable("sectorList") List<String> sectorList,
@@ -244,7 +246,7 @@ public class CompanyController {
 			return companyService.getChartSector(sectorList, type);
 		}
 		
-	//Companies and sectors matched, returns only companies
+		//Companies and sectors matched, returns only companies list of  object 
 		
 		@GetMapping("/chartCompanySectorObject/{tickerList}/{sectorList}")
 		public List<ChartObject> getChartCompanySector(@PathVariable("sectorList") List<String> sectorList,
@@ -252,11 +254,38 @@ public class CompanyController {
 			return companyService.getChartCompanySector(tickerList, sectorList, type);
 		}
 		
-		// Companies and sectors matched, returns companies and sectors
+		// Companies and sectors matched, returns companies and sectors list of object
 
 		@GetMapping("/chartAvgCompanySectorObject/{tickerList}/{sectorList}")
 		public List<ChartObject> getAvgChartCompanySector(@PathVariable("sectorList") List<String> sectorList,
 				@PathVariable("tickerList") List<String> tickerList, @RequestParam("type") String type) {
 			return companyService.getAvgChartCompanySector(tickerList, sectorList, type);
 		}
+		
+		
+		
+		////////    RETURNS DATE WISE DATA FOR COMPANIES ////////////
+		@GetMapping("/chartCDCompany/{tickerList}/{startDate}/{endDate}")
+		public ChartObjectCustom DailyCompanyObject(@PathVariable("tickerList") List<String> tickerList,
+				@PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate,
+				@RequestParam("type") String type) throws ParseException {
+			return companyService.DailyCompanyObject(tickerList, startDate, endDate, type);
+		}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

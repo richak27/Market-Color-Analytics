@@ -29,11 +29,12 @@ import org.springframework.web.client.RestTemplate;
 import com.restapi.market.model.AverageValues;
 import com.restapi.market.model.Calculate;
 import com.restapi.market.model.ChartObject;
+import com.restapi.market.model.ChartObjectCustom;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.DailyData;
 
 import com.restapi.market.model.Stock;
-
+import com.restapi.market.model.WeeklyData;
 import com.restapi.market.repository.CompanyRepository;
 
 @Service
@@ -873,15 +874,15 @@ public class CompanyService {
 	}
 
 	
-	public Map<String, Map<String,Double>>  chartCustomRange(List<String>tickerList, String startDate, String endDate, String type, String range) throws ParseException{		
-		Map<String, Map<String,Double>>chart = new HashMap<>();
-		for(String ticker: tickerList) {
+	public Map<String, Map<String, Double>> chartCustomRange(List<String> tickerList, String startDate, String endDate,
+			String type, String range) throws ParseException {
+		Map<String, Map<String, Double>> chart = new HashMap<>();
+		for (String ticker : tickerList) {
 			Company company = getByTicker(ticker);
-			chart.put(company.getName(), DataCompany(ticker,startDate,endDate,type,range));			
+			chart.put(company.getName(), DataCompany(ticker, startDate, endDate, type, range));
 		}
 		return chart;
 	}
-
 
 	public List<DailyData> getGridData(String startDate, String endDate, List<String> gotTickers,
 			List<String> gotSectors) throws ParseException {
@@ -944,6 +945,8 @@ public class CompanyService {
 			"#FF69B4", "#FF1493", "#C71585", "#DB7093", "#FFA07A", "#FF7F50", "#FF6347", "#FF4500", "#FF8C00",
 			"#FFA500", "#FF69B4", "#FFA500", "#9400D3", "#7CFC00", "#2E8B57", "#191970", "#CD853F", "#800000",
 			"#00FFFF", "#4682B4", "#00BFFF", "#4169E1", "#F4A460" };
+
+	
 	
 	//ONLY COMPANIES
 	
@@ -1056,4 +1059,106 @@ public class CompanyService {
 	return chart;
 	}
 
+	
+/////////////                              DAILY COMPANY  DATE WISE                         ////////////
+	/*public Map<String, Map<String, Double>> DailyCompanyObject(List<String> tickerList, String frdate, String todate,
+			String type) throws ParseException {
+
+		Date toDate = converter.parse(todate);
+		Date frDate = converter.parse(frdate);
+
+		List<DailyData> chart = new ArrayList<>();
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+
+			List<Stock> stocks = company.getStocks();
+			for (Stock stock : stocks) {
+
+				Date nDate = converter.parse(stock.getDate());
+				if (nDate.before(toDate) && nDate.after(frDate) || nDate.equals(toDate) || nDate.equals(frDate)) {
+
+					DailyData obj = new DailyData();
+
+					obj.setDate(stock.getDate());
+					obj.setPrice(stock.getClose());
+					obj.setVolume(stock.getVolume());
+					obj.setCompanyName(company.getName());
+					chart.add(obj);
+				}
+			}
+		}
+
+		if (type.contentEquals("price")) {
+			Map<String, Map<String, Double>> value = chart.stream().collect(Collectors.groupingBy(DailyData::getDate,
+					Collectors.toMap(DailyData::getCompanyName, DailyData::getPrice))).entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey,Map.Entry::getValue,(e1,e2)->e1, LinkedHashMap::new));
+
+			return value;
+
+		}
+
+		else if (type.contentEquals("volume")) {
+			Map<String, Map<String, Double>> value = chart.stream().collect(Collectors.groupingBy(DailyData::getDate,
+					Collectors.toMap(DailyData::getCompanyName, DailyData::getVolume))).entrySet().stream().sorted(comparingByKey())
+					.collect(toMap(Map.Entry::getKey,Map.Entry::getValue,(e1,e2)->e1, LinkedHashMap::new));
+
+
+			return value;
+
+		}
+
+		else {
+			return null;
+		}
+
+	}*/
+	
+	
+	public ChartObjectCustom DailyCompanyObject(List<String> tickerList, String startDate, String endDate, String type)
+			throws ParseException {
+
+		Date sDate = converter.parse(startDate);
+		Date eDate = converter.parse(endDate);
+		int i = 0;
+		ChartObjectCustom value = new ChartObjectCustom();
+		List<ChartObject> chart = new ArrayList<>();
+		List<String> labels = new ArrayList<>();
+		for (String ticker : tickerList) {
+			Company company = getByTicker(ticker);
+
+			ChartObject obj = new ChartObject();
+			i++;
+			obj.setLabel(company.getName());
+			obj.setBackgroundColor(colour_array[i]);
+			obj.setBorderColor(colour_array[i]);
+			List<Double> values = new ArrayList<>();
+			List<Stock> stocks = company.getStocks();
+			
+			for (Stock stock : stocks) {
+
+				Date nDate = converter.parse(stock.getDate());
+				if (nDate.before(eDate) && nDate.after(sDate) || nDate.equals(sDate) || nDate.equals(eDate)) {
+					
+					if(type.contentEquals("price")) {
+						values.add(stock.getClose());
+					}
+					
+					else if(type.contentEquals("volume")) {
+						values.add(stock.getVolume());
+					}
+
+					else {System.out.println("Incorrect Parameters");}
+					
+					if(i==1) {
+					labels.add(stock.getDate());}
+				}			
+			}
+			obj.setData(values);
+			chart.add(obj);
+		}
+
+		value.setLabels(labels);
+		value.setObjectList(chart);
+		return value;
+	}	
 }
