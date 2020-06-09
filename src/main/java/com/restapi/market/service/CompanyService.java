@@ -41,8 +41,7 @@ public class CompanyService {
 	@Value("${token}")
 	private String token;
 
-	@Value("${boundary.date}")
-	private String boundaryDate;
+	
 
 	private static String url1 = "https://sandbox.iexapis.com/stable/stock/";
 	private static String url2_initial = "/chart/ytd?chartCloseOnly=true&token=";
@@ -56,7 +55,8 @@ public class CompanyService {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
-	SimpleDateFormat converter = new SimpleDateFormat("yyyy-MM-dd");
+	SimpleDateFormat formatYMD = new SimpleDateFormat("yyyy-MM-dd");
+	SimpleDateFormat formatDMY = new SimpleDateFormat("dd-MM-yyyy");
 
 	Calendar cal = Calendar.getInstance();
 
@@ -85,18 +85,12 @@ public class CompanyService {
 		Company company = this.companyRepository.findByTicker(ticker);
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2_initial + token, Stock[].class);
 		for (Stock stock : stocks) {
-			Date nowDate = converter.parse(stock.getDate());
-			Date thresholdDate = converter.parse(boundaryDate);
+			Date nowDate = formatYMD.parse(stock.getDate());
+
 			cal.setTime(nowDate);
 			int week = cal.get(Calendar.WEEK_OF_YEAR);
 			stock.setWeek(week);
 			stock.setMonth(stock.getDate().substring(5, 7));
-
-			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
-				stock.setPeriod("pre");
-			} else {
-				stock.setPeriod("post");
-			}
 
 		}
 		company.setStocks(Arrays.asList(stocks));
@@ -111,7 +105,8 @@ public class CompanyService {
 			try {
 				addStocksByTicker(ticker);
 			} catch (Exception exception) {
-				System.out.println("Did not find " + ticker);
+				System.out.print("Did not find " + ticker + " ");
+				System.out.println(exception);
 			}
 		}
 		return "Seeding Successful!";
@@ -123,18 +118,11 @@ public class CompanyService {
 																										// object
 		for (Stock stock : stocks) {
 
-			Date nowDate = converter.parse(stock.getDate());
+			Date nowDate = formatYMD.parse(stock.getDate());
 			cal.setTime(nowDate);
 			int week = cal.get(Calendar.WEEK_OF_YEAR);
 			stock.setWeek(week);
 			stock.setMonth(stock.getDate().substring(5, 7));
-
-			Date thresholdDate = converter.parse(boundaryDate);
-			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
-				stock.setPeriod("pre");
-			} else {
-				stock.setPeriod("post");
-			}
 
 		}
 		mongoTemplate.updateFirst(new Query(Criteria.where("ticker").is(ticker)),
@@ -154,7 +142,9 @@ public class CompanyService {
 	}
 
 	// calculate average volume for a company by ticker
-	public AverageValues calAvgVolumeByCompany(String ticker) {
+	public AverageValues calAvgVolumeByCompany(String ticker, String boundaryDate) throws ParseException {
+		Date thresholdDate = formatYMD.parse(boundaryDate);
+
 		Company company = getByTicker(ticker);
 		AverageValues volumeAverage = new AverageValues();
 		double sum_volume_pre = 0;
@@ -162,12 +152,14 @@ public class CompanyService {
 		int sizeofpre = 0;
 		List<Stock> stocks = company.getStocks();
 		for (Stock stock : stocks) {
-			if (stock.getPeriod().contentEquals("pre")) {
+			Date nowDate = formatYMD.parse(stock.getDate());
+			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 				sizeofpre = sizeofpre + 1;
 				sum_volume_pre += stock.getVolume();
 			} else {
 				sum_volume_post += stock.getVolume();
 			}
+
 		}
 
 		volumeAverage.setPreCovidValue((sum_volume_pre) / (sizeofpre));
@@ -179,7 +171,8 @@ public class CompanyService {
 	}
 
 	// calculate average stock-price for a company by ticker
-	public AverageValues calAvgPriceByCompany(String ticker) {
+	public AverageValues calAvgPriceByCompany(String ticker, String boundaryDate) throws ParseException {
+		Date thresholdDate = formatYMD.parse(boundaryDate);
 		Company company = getByTicker(ticker);
 		AverageValues priceAverage = new AverageValues();
 		double sum_close_pre = 0;
@@ -190,7 +183,8 @@ public class CompanyService {
 
 		for (Stock stock : stocks) {
 
-			if (stock.getPeriod().contentEquals("pre")) {
+			Date nowDate = formatYMD.parse(stock.getDate());
+			if (nowDate.before(thresholdDate) || nowDate.equals(thresholdDate)) {
 
 				sum_close_pre += stock.getClose();
 				sizeofpre = sizeofpre + 1;
@@ -210,16 +204,16 @@ public class CompanyService {
 	}
 
 	// calculate average stock-price for a sector
-	public AverageValues calAvgPriceBySector(String sector) {
+	public AverageValues calAvgPriceBySector(String sector, String boundaryDate) throws ParseException {
 		List<Company> company = getBySector(sector);
 		AverageValues priceAverage = new AverageValues();
 		double pre_sum_price = 0, post_sum_price = 0;
 
 		for (Company comp : company) {
 
-			pre_sum_price = pre_sum_price + calAvgPriceByCompany(comp.getTicker()).getPreCovidValue();
+			pre_sum_price = pre_sum_price + calAvgPriceByCompany(comp.getTicker(), boundaryDate).getPreCovidValue();
 
-			post_sum_price = post_sum_price + calAvgPriceByCompany(comp.getTicker()).getPostCovidValue();
+			post_sum_price = post_sum_price + calAvgPriceByCompany(comp.getTicker(), boundaryDate).getPostCovidValue();
 
 		}
 
@@ -232,16 +226,17 @@ public class CompanyService {
 	}
 
 	// calculate average volume for a sector
-	public AverageValues calAvgVolumeBySector(String sector) {
+	public AverageValues calAvgVolumeBySector(String sector, String boundaryDate) throws ParseException {
 		List<Company> company = getBySector(sector);
 
 		AverageValues volumeAverage = new AverageValues();
 		double pre_sum_volume = 0, post_sum_volume = 0;
 
 		for (Company comp : company) {
-			pre_sum_volume = pre_sum_volume + calAvgVolumeByCompany(comp.getTicker()).getPreCovidValue();
+			pre_sum_volume = pre_sum_volume + calAvgVolumeByCompany(comp.getTicker(), boundaryDate).getPreCovidValue();
 
-			post_sum_volume = post_sum_volume + calAvgPriceByCompany(comp.getTicker()).getPostCovidValue();
+			post_sum_volume = post_sum_volume
+					+ calAvgPriceByCompany(comp.getTicker(), boundaryDate).getPostCovidValue();
 
 		}
 
@@ -254,16 +249,16 @@ public class CompanyService {
 	}
 
 	// Calculate average values for a company
-	public AverageValues CompanyAverage(String ticker, String type) {
+	public AverageValues CompanyAverage(String ticker, String type, String boundaryDate) throws ParseException {
 
 		if (type.contentEquals("price")) {
 
-			return calAvgPriceByCompany(ticker);
+			return calAvgPriceByCompany(ticker, boundaryDate);
 		}
 
 		else if (type.contentEquals("volume")) {
 
-			return calAvgVolumeByCompany(ticker);
+			return calAvgVolumeByCompany(ticker, boundaryDate);
 		}
 
 		else {
@@ -272,16 +267,16 @@ public class CompanyService {
 	}
 
 	// Calculate average values for a sector
-	public AverageValues SectorAverage(String sector, String type) {
+	public AverageValues SectorAverage(String sector, String type, String boundaryDate) throws ParseException {
 
 		if (type.contentEquals("price")) {
 
-			return calAvgPriceBySector(sector);
+			return calAvgPriceBySector(sector, boundaryDate);
 		}
 
 		else if (type.contentEquals("volume")) {
 
-			return calAvgVolumeBySector(sector);
+			return calAvgVolumeBySector(sector, boundaryDate);
 		}
 
 		else {
@@ -292,11 +287,11 @@ public class CompanyService {
 	// Sort Functions for Sector-wise Deviation:
 
 	// Sort Average Volume Deviation of Sectors
-	public Map<String, Double> getSectorVolumeDeviation() {
+	public Map<String, Double> getSectorVolumeDeviation(String boundaryDate) throws ParseException {
 		List<String> SectorList = getAllSectors();
 		Map<String, Double> Values = new HashMap<String, Double>();
 		for (String i : SectorList) {
-			AverageValues volumeAverage = calAvgVolumeBySector(i);
+			AverageValues volumeAverage = calAvgVolumeBySector(i, boundaryDate);
 			Values.put(i, volumeAverage.getDeviation());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
@@ -305,12 +300,12 @@ public class CompanyService {
 	}
 
 	// Sort Average stock-price Deviation of Sectors
-	public Map<String, Double> getSectorPriceDeviation() {
+	public Map<String, Double> getSectorPriceDeviation(String boundaryDate) throws ParseException {
 		List<String> SectorList = getAllSectors();
 		Map<String, Double> Values = new HashMap<String, Double>();
 		for (String i : SectorList) {
 
-			AverageValues priceAverage = calAvgPriceBySector(i);
+			AverageValues priceAverage = calAvgPriceBySector(i, boundaryDate);
 			Values.put(i, priceAverage.getDeviation());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
@@ -321,11 +316,11 @@ public class CompanyService {
 	// Sort Functions for Company-wise Deviation:
 
 	// Sort Average Volume Deviation of Company
-	public Map<String, Double> getCompanyVolumeDeviation() {
+	public Map<String, Double> getCompanyVolumeDeviation(String boundaryDate) throws ParseException {
 		List<String> TickerList = getAllTickers();
 		Map<String, Double> Values = new HashMap<String, Double>();
 		for (String i : TickerList) {
-			AverageValues volumeAverage = calAvgVolumeByCompany(i);
+			AverageValues volumeAverage = calAvgVolumeByCompany(i, boundaryDate);
 			Values.put(i, volumeAverage.getDeviation());
 		}
 		Map<String, Double> SortedValues = Values.entrySet().stream().sorted(comparingByValue())
@@ -334,12 +329,12 @@ public class CompanyService {
 	}
 
 	// Sort Average stock-price Deviation of Company
-	public Map<String, Double> getCompanyPriceDeviation() {
+	public Map<String, Double> getCompanyPriceDeviation(String boundaryDate) throws ParseException {
 		List<String> TickerList = getAllTickers();
 		Map<String, Double> Values = new HashMap<String, Double>();
 
 		for (String i : TickerList) {
-			AverageValues priceAverage = calAvgPriceByCompany(i);
+			AverageValues priceAverage = calAvgPriceByCompany(i, boundaryDate);
 			Values.put(i, priceAverage.getDeviation());
 		}
 
@@ -349,26 +344,26 @@ public class CompanyService {
 	}
 
 	// Sorted Deviation for Companies
-	public Map<String, Double> getDeviationCompany(String rank) {
+	public Map<String, Double> getDeviationCompany(String rank, String boundaryDate) throws ParseException {
 
 		if (rank.contentEquals("volume")) {
-			return getCompanyVolumeDeviation();
+			return getCompanyVolumeDeviation(boundaryDate);
 		}
 
 		else {
-			return getCompanyPriceDeviation();
+			return getCompanyPriceDeviation(boundaryDate);
 		}
 
 	}
 
 	// Sorted Deviation for Sectors
-	public Map<String, Double> getDeviationSector(String rank) {
+	public Map<String, Double> getDeviationSector(String rank, String boundaryDate) throws ParseException {
 		if (rank.contentEquals("volume")) {
-			return getSectorVolumeDeviation();
+			return getSectorVolumeDeviation(boundaryDate);
 		}
 
 		else if (rank.contentEquals("price")) {
-			return getSectorPriceDeviation();
+			return getSectorPriceDeviation(boundaryDate);
 		} else {
 			return null;
 		}
@@ -395,12 +390,12 @@ public class CompanyService {
 		Company company = getByTicker(ticker);
 		List<Stock> stocks = company.getStocks();
 		List<Stock> stocksnew = new ArrayList<>();
-		Date eDate = converter.parse(endDate);
-		Date sDate = converter.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
 		for (Stock stock : stocks) {
 
 			String nDate = stock.getDate();
-			Date nowDate = converter.parse(nDate);
+			Date nowDate = formatYMD.parse(nDate);
 			if (nowDate.before(eDate) && nowDate.after(sDate) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
 				stocksnew.add(stock);
 			}
@@ -413,15 +408,15 @@ public class CompanyService {
 	public Calculate getDataByRangeSector(String sector, String startDate, String endDate) throws ParseException {
 		List<Company> companies = getBySector(sector);
 		List<Stock> stocksnew = new ArrayList<>();
-		Date eDate = converter.parse(endDate);
-		Date sDate = converter.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
 		for (Company comp : companies) {
 
 			List<Stock> stocks = comp.getStocks();
 			for (Stock stock : stocks) {
 
 				String nDate = stock.getDate();
-				Date nowDate = converter.parse(nDate);
+				Date nowDate = formatYMD.parse(nDate);
 				if (nowDate.before(eDate) && nowDate.after(sDate) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
 					stocksnew.add(stock);
 				}
@@ -434,15 +429,15 @@ public class CompanyService {
 	public Map<String, Double> DailyCompany(String ticker, String frdate, String todate, String type)
 			throws ParseException {
 
-		Date toDate = converter.parse(todate);
-		Date frDate = converter.parse(frdate);
+		Date toDate = formatYMD.parse(todate);
+		Date frDate = formatYMD.parse(frdate);
 		Company company = getByTicker(ticker);
 		List<Stock> stocknew = new ArrayList<>();
 
 		List<Stock> stocks = company.getStocks();
 		for (Stock stock : stocks) {
 
-			Date nDate = converter.parse(stock.getDate());
+			Date nDate = formatYMD.parse(stock.getDate());
 			if (nDate.before(toDate) && nDate.after(frDate) || nDate.equals(toDate) || nDate.equals(frDate)) {
 				stocknew.add(stock);
 			}
@@ -479,15 +474,15 @@ public class CompanyService {
 			throws ParseException {
 
 		List<Company> company = getBySector(sector);
-		Date startDate = converter.parse(startdate);
-		Date endDate = converter.parse(enddate);
+		Date startDate = formatYMD.parse(startdate);
+		Date endDate = formatYMD.parse(enddate);
 		List<Stock> stocknew = new ArrayList<>();
 		for (Company comp : company) {
 
 			List<Stock> stocks = comp.getStocks();
 			for (Stock stock : stocks) {
 
-				Date nDate = converter.parse(stock.getDate());
+				Date nDate = formatYMD.parse(stock.getDate());
 				if (nDate.before(endDate) && nDate.after(startDate) || nDate.equals(startDate)
 						|| nDate.equals(endDate)) {
 					stocknew.add(stock);
@@ -527,10 +522,10 @@ public class CompanyService {
 		Company company = getByTicker(ticker);
 		List<Stock> stocks = company.getStocks();
 		List<Stock> stocksnew = new ArrayList<>();
-		Date sDate = converter.parse(startDate);
-		Date eDate = converter.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
 		for (Stock stock : stocks) {
-			Date nowDate = converter.parse(stock.getDate());
+			Date nowDate = formatYMD.parse(stock.getDate());
 			if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate))
 				stocksnew.add(stock);
 		}
@@ -568,10 +563,10 @@ public class CompanyService {
 		Company company = getByTicker(ticker);
 		List<Stock> stocks = company.getStocks();
 		List<Stock> stocksnew = new ArrayList<>();
-		Date sDate = converter.parse(startDate);
-		Date eDate = converter.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
 		for (Stock stock : stocks) {
-			Date nowDate = converter.parse(stock.getDate());
+			Date nowDate = formatYMD.parse(stock.getDate());
 			if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
 				stocksnew.add(stock);
 			}
@@ -610,10 +605,10 @@ public class CompanyService {
 			stocks.addAll(company.getStocks());
 		}
 		List<Stock> stocksnew = new ArrayList<>();
-		Date sDate = converter.parse(startDate);
-		Date eDate = converter.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
 		for (Stock stock : stocks) {
-			Date nowDate = converter.parse(stock.getDate());
+			Date nowDate = formatYMD.parse(stock.getDate());
 			if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
 				stocksnew.add(stock);
 			}
@@ -657,10 +652,10 @@ public class CompanyService {
 			stocks.addAll(company.getStocks());
 		}
 		List<Stock> stocksnew = new ArrayList<>();
-		Date sDate = converter.parse(startDate);
-		Date eDate = converter.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
 		for (Stock stock : stocks) {
-			Date nowDate = converter.parse(stock.getDate());
+			Date nowDate = formatYMD.parse(stock.getDate());
 			if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
 				stocksnew.add(stock);
 			}
@@ -740,12 +735,12 @@ public class CompanyService {
 		List<Stock> stocks = company.getStocks();
 		List<DailyData> objList = new ArrayList<>();
 
-		Date sDate = converter.parse(startDate);
-		Date eDate = converter.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
 
 		for (Stock stock : stocks) {
 
-			Date nowDate = converter.parse(stock.getDate());
+			Date nowDate = formatYMD.parse(stock.getDate());
 			if ((nowDate.after(sDate) && nowDate.before(eDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
 
 				DailyData dailyData = new DailyData();
@@ -772,14 +767,15 @@ public class CompanyService {
 	}
 
 	// Companies with sector selected, returns only companies----p
-	public Map<String, List<Double>> ChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
+	public Map<String, List<Double>> ChartCompanySector(List<String> tickerList, List<String> sectorList, String type,
+			String boundaryDate) throws ParseException {
 
 		Map<String, List<Double>> Map3 = new HashMap<>();
 		for (String ticker : tickerList) {
 			Company company = getByTicker(ticker);
 			if (sectorList.contains(company.getSector())) {
 
-				AverageValues obj = CompanyAverage(ticker, type);
+				AverageValues obj = CompanyAverage(ticker, type, boundaryDate);
 				Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 			}
 
@@ -791,7 +787,7 @@ public class CompanyService {
 	// Companies with sector selected, returns companies and avg values of
 	// sectors----------p
 	public Map<String, List<Double>> AvgChartCompanySector(List<String> tickerList, List<String> sectorList,
-			String type) {
+			String type, String boundaryDate) throws ParseException {
 
 		List<String> sectors = new ArrayList<>();
 
@@ -800,13 +796,13 @@ public class CompanyService {
 			Company company = getByTicker(ticker);
 			if (sectorList.contains(company.getSector())) {
 				sectors.add(company.getSector());
-				AverageValues obj = CompanyAverage(ticker, type);
+				AverageValues obj = CompanyAverage(ticker, type, boundaryDate);
 				Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 			}
 
 		}
 		for (String sector : sectors) {
-			AverageValues obj = SectorAverage(sector, type);
+			AverageValues obj = SectorAverage(sector, type, boundaryDate);
 			Map3.put(sector, Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 		}
 		return Map3;
@@ -814,11 +810,12 @@ public class CompanyService {
 
 	// Companies Selected return only companies-----p
 
-	public Map<String, List<Double>> ChartCompany(List<String> tickerList, String type) {
+	public Map<String, List<Double>> ChartCompany(List<String> tickerList, String type, String boundaryDate)
+			throws ParseException {
 		Map<String, List<Double>> Map3 = new HashMap<>();
 		for (String ticker : tickerList) {
 			Company company = getByTicker(ticker);
-			AverageValues obj = CompanyAverage(ticker, type);
+			AverageValues obj = CompanyAverage(ticker, type, boundaryDate);
 			Map3.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 		}
 		return Map3;
@@ -826,10 +823,11 @@ public class CompanyService {
 
 	// Sector Selected return only Avg values of sectors------p
 
-	public Map<String, List<Double>> ChartSector(List<String> sectorList, String type) {
+	public Map<String, List<Double>> ChartSector(List<String> sectorList, String type, String boundaryDate)
+			throws ParseException {
 		Map<String, List<Double>> Map3 = new HashMap<>();
 		for (String sector : sectorList) {
-			AverageValues obj = SectorAverage(sector, type);
+			AverageValues obj = SectorAverage(sector, type, boundaryDate);
 			Map3.put(sector, Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
 		}
 		return Map3;
@@ -846,8 +844,7 @@ public class CompanyService {
 			for (String ticker : gotTickers) {
 				allCompanies.addAll(gridCompany(ticker, startDate, endDate));
 			}
-			Collections.sort(allCompanies);
-			return allCompanies;
+
 		} else if (gotTickers.isEmpty()) {
 			for (String sector : gotSectors) {
 				List<Company> companies = getBySector(sector);
@@ -858,8 +855,7 @@ public class CompanyService {
 			for (String ticker : filteredTickers) {
 				allCompanies.addAll(gridCompany(ticker, startDate, endDate));
 			}
-			Collections.sort(allCompanies);
-			return allCompanies;
+
 		}
 
 		else if (gotTickers.size() != 0 && gotSectors.size() != 0) {
@@ -878,15 +874,22 @@ public class CompanyService {
 			for (String ticker : filteredTickers) {
 				allCompanies.addAll(gridCompany(ticker, startDate, endDate));
 			}
-			Collections.sort(allCompanies);
-			return allCompanies;
+
 		} else {
-			return null;
+			allCompanies = null;
 		}
+		Collections.sort(allCompanies);
+		Collections.reverse(allCompanies);
+		for (DailyData data : allCompanies) {
+			Date nowDate = formatYMD.parse(data.getDate());
+			data.setDate(formatDMY.format(nowDate));
+		}
+		return allCompanies;
 
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-----sab dh
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -----sab
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// dh
 
 	private String[] colour_array = { "#FFCDD2", "#F8BBD0", "#E1BEE7", "#D1C4E9", "#C5CAE9", "#B3E5FC", "#B2DFDB",
 			"#FFECB3", "#FFCCBC", "#D7CCC8", "#F06292", "#64B5F6", "#FFCA28", "#8BC34A", "#A1887F", "#B71C1C",
@@ -899,13 +902,14 @@ public class CompanyService {
 
 	// ONLY COMPANIES (PRE POST)
 
-	public List<ChartObject> getChartCompany(List<String> tickerList, String type) {
+	public List<ChartObject> getChartCompany(List<String> tickerList, String type, String boundaryDate)
+			throws ParseException {
 		int i = 0;
 		List<ChartObject> chart = new ArrayList<>();
 
 		for (String ticker : tickerList) {
 			Company company = getByTicker(ticker);
-			AverageValues obj = CompanyAverage(ticker, type);
+			AverageValues obj = CompanyAverage(ticker, type, boundaryDate);
 
 			ChartObject object = new ChartObject();
 			i++;
@@ -921,7 +925,8 @@ public class CompanyService {
 	}
 
 	// COMPANIES WITH SECTOR, RETURN ONLY COMPANIES(PRE POST)
-	public List<ChartObject> getChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
+	public List<ChartObject> getChartCompanySector(List<String> tickerList, List<String> sectorList, String type,
+			String boundaryDate) throws ParseException {
 
 		List<ChartObject> chart = new ArrayList<>();
 		int i = 0;
@@ -929,7 +934,7 @@ public class CompanyService {
 			Company company = getByTicker(ticker);
 
 			if (sectorList.contains(company.getSector())) {
-				AverageValues obj = CompanyAverage(ticker, type);
+				AverageValues obj = CompanyAverage(ticker, type, boundaryDate);
 
 				ChartObject object = new ChartObject();
 				i++;
@@ -946,7 +951,8 @@ public class CompanyService {
 	}
 
 	// COMPANIES WITH SECTOR, RETURN COMPANIES AND SECTORS (PRE POST)
-	public List<ChartObject> getAvgChartCompanySector(List<String> tickerList, List<String> sectorList, String type) {
+	public List<ChartObject> getAvgChartCompanySector(List<String> tickerList, List<String> sectorList, String type,
+			String boundaryDate) throws ParseException {
 		int i = 0;
 		List<ChartObject> chart = new ArrayList<>();
 		List<String> sectors = new ArrayList<>();
@@ -954,7 +960,7 @@ public class CompanyService {
 			Company company = getByTicker(ticker);
 
 			if (sectorList.contains(company.getSector())) {
-				AverageValues obj = CompanyAverage(ticker, type);
+				AverageValues obj = CompanyAverage(ticker, type, boundaryDate);
 				sectors.add(company.getSector());
 				ChartObject object = new ChartObject();
 				i++;
@@ -970,7 +976,7 @@ public class CompanyService {
 
 		List<String> Sectors = new ArrayList<>(new HashSet<String>(sectors));
 		for (String sector : Sectors) {
-			AverageValues obj = SectorAverage(sector, type);
+			AverageValues obj = SectorAverage(sector, type, boundaryDate);
 
 			ChartObject object = new ChartObject();
 			i++;
@@ -985,13 +991,13 @@ public class CompanyService {
 	}
 
 	// ONLY SECTORS PRE POST
-	public List<ChartObject> getChartSector(List<String> sectorList, String type) {
+	public List<ChartObject> getChartSector(List<String> sectorList, String type, String boundaryDate) throws ParseException {
 
 		List<ChartObject> chart = new ArrayList<>();
 		int i = 0;
 		for (String sector : sectorList) {
 
-			AverageValues obj = SectorAverage(sector, type);
+			AverageValues obj = SectorAverage(sector, type, boundaryDate);
 
 			ChartObject object = new ChartObject();
 			i++;
@@ -1170,14 +1176,12 @@ public class CompanyService {
 
 	}
 
-
-
 	/////// DAILY 1. ONLY COMPANIES
 	public ChartObjectCustom DailyCompanyObject(List<String> tickerList, String startDate, String endDate, String type)
 			throws ParseException {
 
-		Date sDate = converter.parse(startDate);
-		Date eDate = converter.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
 		int i = 0;
 		ChartObjectCustom value = new ChartObjectCustom();
 		List<ChartObject> chart = new ArrayList<>();
@@ -1192,7 +1196,7 @@ public class CompanyService {
 
 			for (Stock stock : stocks) {
 
-				Date nDate = converter.parse(stock.getDate());
+				Date nDate = formatYMD.parse(stock.getDate());
 				if (nDate.before(eDate) && nDate.after(sDate) || nDate.equals(sDate) || nDate.equals(eDate)) {
 					stocknew.add(stock);
 				}
@@ -1239,8 +1243,8 @@ public class CompanyService {
 	public ChartObjectCustom DailySectorObject(List<String> sectorList, String startDate, String endDate, String type)
 			throws ParseException {
 
-		Date sDate = converter.parse(startDate);
-		Date eDate = converter.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
 		int i = 50;
 		ChartObjectCustom value = new ChartObjectCustom();
 		List<ChartObject> chart = new ArrayList<>();
@@ -1255,7 +1259,7 @@ public class CompanyService {
 			for (Company comp : company) {
 				List<Stock> stocks = comp.getStocks();
 				for (Stock stock : stocks) {
-					Date nDate = converter.parse(stock.getDate());
+					Date nDate = formatYMD.parse(stock.getDate());
 					if (nDate.before(eDate) && nDate.after(sDate) || nDate.equals(sDate) || nDate.equals(eDate)) {
 						stocknew.add(stock);
 					}
@@ -1354,8 +1358,8 @@ public class CompanyService {
 
 		String[] monthList = { "December", "January", "February", "March", "April", "May", "June", "July", "August",
 				"September", "October", "November", "December" };
-		Date sDate = converter.parse(startDate);
-		Date eDate = converter.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
 		int i = 0;
 		ChartObjectCustom value = new ChartObjectCustom();
 		List<ChartObject> chart = new ArrayList<>();
@@ -1370,7 +1374,7 @@ public class CompanyService {
 
 			for (Stock stock : stocks) {
 
-				Date nDate = converter.parse(stock.getDate());
+				Date nDate = formatYMD.parse(stock.getDate());
 				if (nDate.before(eDate) && nDate.after(sDate) || nDate.equals(sDate) || nDate.equals(eDate)) {
 					stocknew.add(stock);
 				}
@@ -1424,8 +1428,8 @@ public class CompanyService {
 
 		String[] monthList = { "December", "January", "February", "March", "April", "May", "June", "July", "August",
 				"September", "October", "November", "December" };
-		Date sDate = converter.parse(startDate);
-		Date eDate = converter.parse(endDate);
+		Date sDate = formatYMD.parse(startDate);
+		Date eDate = formatYMD.parse(endDate);
 		int i = 50;
 		ChartObjectCustom value = new ChartObjectCustom();
 		List<ChartObject> chart = new ArrayList<>();
@@ -1440,7 +1444,7 @@ public class CompanyService {
 			for (Company comp : company) {
 				List<Stock> stocks = comp.getStocks();
 				for (Stock stock : stocks) {
-					Date nDate = converter.parse(stock.getDate());
+					Date nDate = formatYMD.parse(stock.getDate());
 					if (nDate.before(eDate) && nDate.after(sDate) || nDate.equals(sDate) || nDate.equals(eDate)) {
 						stocknew.add(stock);
 					}

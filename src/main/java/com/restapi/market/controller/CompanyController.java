@@ -47,14 +47,16 @@ public class CompanyController {
 
 	// Sorted values of Deviation Price or Volume for a company
 	@GetMapping("/sort/company")
-	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank) {
-		return companyService.getDeviationCompany(rank);
+	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank,
+			@RequestParam(defaultValue = "2020-02-09") String boundaryDate) throws ParseException {
+		return companyService.getDeviationCompany(rank, boundaryDate);
 	}
 
 	// Sorted values of Deviation Price or Volume for a Sector
 	@GetMapping("/sort/sector")
-	public Map<String, Double> getDeviationSector(@RequestParam("rank") String rank) {
-		return companyService.getDeviationSector(rank);
+	public Map<String, Double> getDeviationSector(@RequestParam("rank") String rank,
+			@RequestParam(defaultValue = "2020-02-09") String boundaryDate) throws ParseException {
+		return companyService.getDeviationSector(rank, boundaryDate);
 	}
 
 	// Daily, Weekly, Monthly Average Stock Price/Volume for a company----------P
@@ -86,24 +88,24 @@ public class CompanyController {
 
 	@GetMapping("/chartCompanyObject/{tickerList}")
 	public List<ChartObject> getChartCompany(@PathVariable("tickerList") List<String> tickerList,
-			@RequestParam("type") String type) {
-		return companyService.getChartCompany(tickerList, type);
+			@RequestParam("type") String type, @RequestParam(defaultValue = "2020-02-09") String boundaryDate) throws ParseException {
+		return companyService.getChartCompany(tickerList, type, boundaryDate);
 	}
 
 	// Sector selected return sectors as list of object----------D
 
 	@GetMapping("/chartSectorObject/{sectorList}")
 	public List<ChartObject> getChartSector(@PathVariable("sectorList") List<String> sectorList,
-			@RequestParam("type") String type) {
-		return companyService.getChartSector(sectorList, type);
+			@RequestParam("type") String type, @RequestParam(defaultValue = "2020-02-09") String boundaryDate) throws ParseException {
+		return companyService.getChartSector(sectorList, type, boundaryDate);
 	}
 
 	// Companies and sectors matched, returns only companies list of object--------D
 
 	@GetMapping("/chartCompanySectorObject/{tickerList}/{sectorList}")
 	public List<ChartObject> getChartCompanySector(@PathVariable("sectorList") List<String> sectorList,
-			@PathVariable("tickerList") List<String> tickerList, @RequestParam("type") String type) {
-		return companyService.getChartCompanySector(tickerList, sectorList, type);
+			@PathVariable("tickerList") List<String> tickerList, @RequestParam("type") String type, @RequestParam(defaultValue = "2020-02-09") String boundaryDate) throws ParseException {
+		return companyService.getChartCompanySector(tickerList, sectorList, type, boundaryDate);
 	}
 
 	// Companies and sectors matched, returns companies and sectors list of
@@ -111,8 +113,8 @@ public class CompanyController {
 
 	@GetMapping("/chartAvgCompanySectorObject/{tickerList}/{sectorList}")
 	public List<ChartObject> getAvgChartCompanySector(@PathVariable("sectorList") List<String> sectorList,
-			@PathVariable("tickerList") List<String> tickerList, @RequestParam("type") String type) {
-		return companyService.getAvgChartCompanySector(tickerList, sectorList, type);
+			@PathVariable("tickerList") List<String> tickerList, @RequestParam("type") String type, @RequestParam(defaultValue = "2020-02-09") String boundaryDate) throws ParseException {
+		return companyService.getAvgChartCompanySector(tickerList, sectorList, type, boundaryDate);
 	}
 
 	//////// RETURNS DATE WISE DATA FOR COMPANIES ////////////Dh
@@ -210,7 +212,5 @@ public class CompanyController {
 			@PathVariable("endDate") String endDate, @RequestParam("type") String type) throws ParseException {
 		return companyService.WeeklyAvgCompanySectorObject(tickerList, sectorList, startDate, endDate, type);
 	}
-
-	
 
 }
