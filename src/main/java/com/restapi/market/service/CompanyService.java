@@ -1,5 +1,6 @@
 package com.restapi.market.service;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,8 +56,9 @@ public class CompanyService {
 
 	SimpleDateFormat formatYMD = new SimpleDateFormat("yyyy-MM-dd");
 	SimpleDateFormat formatDMY = new SimpleDateFormat("dd-MM-yyyy");
-
 	Calendar cal = Calendar.getInstance();
+	
+	
 
 	// returns company object when ticker is passed
 	public Company getByTicker(String ticker) {
@@ -728,6 +730,8 @@ public class CompanyService {
 
 	// List of objects with daily data for a company grid grid grid
 	public List<DailyData> gridCompany(String ticker, String startDate, String endDate) throws ParseException {
+		NumberFormat formatNum = NumberFormat.getInstance();
+	    formatNum.setGroupingUsed(true);
 
 		Company company = getByTicker(ticker);
 		List<Stock> stocks = company.getStocks();
@@ -743,8 +747,8 @@ public class CompanyService {
 
 				DailyData dailyData = new DailyData();
 				dailyData.setDate(stock.getDate());
-				dailyData.setPrice(stock.getClose());
-				dailyData.setVolume(stock.getVolume());
+				dailyData.setPrice(formatNum.format(stock.getClose()));
+				dailyData.setVolume(formatNum.format(stock.getVolume()));
 				dailyData.setCompanyName(company.getName());
 				dailyData.setSector(company.getSector());
 				dailyData.setTicker(company.getTicker());
