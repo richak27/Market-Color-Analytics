@@ -1310,7 +1310,7 @@ public class CompanyService {
 
 			Company company = getByTicker(ticker);
 			if (sectorList.contains(company.getSector()))
-				;
+				
 			{
 				tickerNew.add(ticker);
 
@@ -1500,7 +1500,7 @@ public class CompanyService {
 
 			Company company = getByTicker(ticker);
 			if (sectorList.contains(company.getSector()))
-				;
+				
 			{
 				tickerNew.add(ticker);
 
