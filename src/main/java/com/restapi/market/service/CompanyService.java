@@ -41,8 +41,6 @@ public class CompanyService {
 	@Value("${token}")
 	private String token;
 
-	
-
 	private static String url1 = "https://sandbox.iexapis.com/stable/stock/";
 	private static String url2_initial = "/chart/ytd?chartCloseOnly=true&token=";
 	private static String url2_new = "/chart/ytd?chartLast=1&chartCloseOnly=true&token=";
@@ -991,7 +989,8 @@ public class CompanyService {
 	}
 
 	// ONLY SECTORS PRE POST
-	public List<ChartObject> getChartSector(List<String> sectorList, String type, String boundaryDate) throws ParseException {
+	public List<ChartObject> getChartSector(List<String> sectorList, String type, String boundaryDate)
+			throws ParseException {
 
 		List<ChartObject> chart = new ArrayList<>();
 		int i = 0;
@@ -1234,6 +1233,11 @@ public class CompanyService {
 
 		value.setDatasets(chart);
 		labels = keyList;
+		for (int k = 0; k < labels.size(); k++)
+		{
+			Date nowDate = formatYMD.parse(labels.get(k));
+		    labels.set(k, formatDMY.format(nowDate));
+		}		
 		value.setLabels(labels);
 
 		return value;
@@ -1298,6 +1302,11 @@ public class CompanyService {
 
 		value.setDatasets(chart);
 		labels = keyList;
+		for (int k = 0; k < labels.size(); k++)
+		{
+			Date nowDate = formatYMD.parse(labels.get(k));
+		    labels.set(k, formatDMY.format(nowDate));
+		}	
 		value.setLabels(labels);
 
 		return value;
@@ -1313,9 +1322,7 @@ public class CompanyService {
 		for (String ticker : tickerList) {
 
 			Company company = getByTicker(ticker);
-			if (sectorList.contains(company.getSector()))
-				;
-			{
+			if (sectorList.contains(company.getSector())) {
 				tickerNew.add(ticker);
 
 			}
@@ -1503,9 +1510,7 @@ public class CompanyService {
 		for (String ticker : tickerList) {
 
 			Company company = getByTicker(ticker);
-			if (sectorList.contains(company.getSector()))
-				;
-			{
+			if (sectorList.contains(company.getSector())) {
 				tickerNew.add(ticker);
 
 			}
