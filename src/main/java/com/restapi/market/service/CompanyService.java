@@ -38,7 +38,7 @@ import com.restapi.market.repository.CompanyRepository;
 
 @Service
 public class CompanyService {
-
+	
 	@Value("${token}")
 	private String token;
 
