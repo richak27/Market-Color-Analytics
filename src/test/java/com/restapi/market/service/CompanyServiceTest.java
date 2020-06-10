@@ -104,12 +104,12 @@ class CompanyServiceTest {
 		assertEquals(-15, priceAverage.getDeviation());
 	}
 	
-	/*
+	
 	@Test
 	void testcalAvgVolumeBySector() throws ParseException {
 		
 		when(companyRepository.findBySector(anyString())).thenReturn(tech_sector);
-		AverageValues volumeAverage = companyService.calAvgPriceByCompany("Technology","2020-02-09");
+		AverageValues volumeAverage = companyService.calAvgPriceBySector("Technology","2020-02-09");
 		assertEquals(45, volumeAverage.getPreCovidValue());
 		assertEquals(67.5, volumeAverage.getPostCovidValue());
 		assertEquals(-27.5, volumeAverage.getDeviation());
@@ -120,12 +120,12 @@ class CompanyServiceTest {
 	void testcalAvgPriceBySector() throws ParseException {
 		
 		when(companyRepository.findBySector(anyString())).thenReturn(tech_sector);
-		AverageValues volumeAverage = companyService.calAvgPriceByCompany("Technology","2020-02-09");
-		assertEquals(117.5, volumeAverage.getPreCovidValue());
-		assertEquals(86.25, volumeAverage.getPostCovidValue());
-		assertEquals(-31.25, volumeAverage.getDeviation());
+		AverageValues priceAverage = companyService.calAvgPriceBySector("Technology","2020-02-09");
+		assertEquals(117.5, priceAverage.getPreCovidValue());
+		assertEquals(86.25, priceAverage.getPostCovidValue());
+		assertEquals(-31.25, priceAverage.getDeviation());
 	}
-	*/
+	
 
 	@Test
 	void testMonthlyCompany() throws ParseException {
