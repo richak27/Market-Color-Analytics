@@ -16,10 +16,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.restapi.market.model.AverageValues;
 import com.restapi.market.model.Company;
-import com.restapi.market.model.PriceAverage;
 import com.restapi.market.model.Stock;
-import com.restapi.market.model.VolumeAverage;
 import com.restapi.market.repository.CompanyRepository;
 
 class CompanyServiceTest {
@@ -30,39 +29,51 @@ class CompanyServiceTest {
 	@Mock
 	CompanyRepository companyRepository;
 	
-	Company company1, company2, company3, company4;
+	Company company1, company2, company3, company4,company5,company6,company7,company8;
+	List<Company> tech_sector =new ArrayList<Company>();
+
 
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		List<Stock> stocks1 = new ArrayList<Stock>();
-		stocks1.add(new Stock("2020-02-06", "pre", 100, 50, "01", "02"));
-		stocks1.add(new Stock("2020-02-07", "pre", 120, 40, "01", "02"));
-		stocks1.add(new Stock("2020-03-10", "post", 80, 70, "11", "03"));
-		stocks1.add(new Stock("2020-03-11", "post", 100, 60, "11", "03"));
+		stocks1.add(new Stock("2020-02-06",  100, 50, 01, "02"));
+		stocks1.add(new Stock("2020-02-07",  120, 40, 01, "02"));
+		stocks1.add(new Stock("2020-03-10",  80, 70, 11, "03"));
+		stocks1.add(new Stock("2020-03-11",  100, 60, 11, "03"));
 		
 		List<Stock> stocks2 = new ArrayList<Stock>();
-		stocks2.add(new Stock("2020-02-06", "pre", 80, 40, "01", "02"));
-		stocks2.add(new Stock("2020-02-07", "pre", 130, 40, "01", "02"));
-		stocks2.add(new Stock("2020-03-10", "post", 80, 70, "11", "03"));
-		stocks2.add(new Stock("2020-03-11", "post", 100, 60, "11", "03"));
+		stocks2.add(new Stock("2020-02-06", 80, 40, 01, "02"));
+		stocks2.add(new Stock("2020-02-07",  130, 40, 01, "02"));
+		stocks2.add(new Stock("2020-03-10",  80, 70, 11, "03"));
+		stocks2.add(new Stock("2020-03-11",  100, 60, 11, "03"));
 		
 		List<Stock> stocks3 = new ArrayList<Stock>();
-		stocks3.add(new Stock("2020-02-06", "pre", 120, 60, "01", "02"));
-		stocks3.add(new Stock("2020-02-07", "pre", 100, 40, "01", "02"));
-		stocks3.add(new Stock("2020-03-10", "post", 80, 90, "11", "03"));
-		stocks3.add(new Stock("2020-03-11", "post", 100, 60, "11", "03"));
+		stocks3.add(new Stock("2020-02-06", 120, 60, 01, "02"));
+		stocks3.add(new Stock("2020-02-07",  100, 40, 01, "02"));
+		stocks3.add(new Stock("2020-03-10", 80, 90, 11, "03"));
+		stocks3.add(new Stock("2020-03-11",  100, 60, 11, "03"));
 		
 		List<Stock> stocks4 = new ArrayList<Stock>();
-		stocks4.add(new Stock("2020-02-06", "pre", 110, 50, "01", "02"));
-		stocks4.add(new Stock("2020-02-07", "pre", 180, 40, "01", "02"));
-		stocks4.add(new Stock("2020-03-10", "post", 80, 70, "11", "03"));
-		stocks4.add(new Stock("2020-03-11", "post", 70, 60, "11", "03"));
+		stocks4.add(new Stock("2020-02-06", 110, 50, 01, "02"));
+		stocks4.add(new Stock("2020-02-07", 180, 40, 01, "02"));
+		stocks4.add(new Stock("2020-03-10", 80, 70, 11, "03"));
+		stocks4.add(new Stock("2020-03-11", 70, 60, 11, "03"));
 		
 		company1 = new Company("id1", "DMart", "DMT", "Retail", stocks1);
 		company2 = new Company("id2", "Future Grp", "BBZ", "Retail", stocks2);
 		company3 = new Company("id3", "Blue Dart", "BDT", "Courier", stocks3);
 		company4 = new Company("id4", "DHL", "DH", "Courier", stocks4);	
+
+		company5 = new Company("id5", "APPLE INC", "AAPL", "Technology", stocks1);
+		company6 = new Company("id6", "ADVANCED MICRO DEVICES", "AMD", "Technology", stocks2);
+		company7 = new Company("id7", "GROUPON INC", "GRPN", "Technology", stocks3);
+		company8 = new Company("id8", "GRUBHUB INC", "GRUB", "Technology", stocks4);	
+		
+		tech_sector.add(company5);
+		tech_sector.add(company6);
+		tech_sector.add(company7);
+		tech_sector.add(company8);
 		
 		List<Company> retail = new ArrayList<Company>();
 		retail.add(company1);
@@ -74,24 +85,47 @@ class CompanyServiceTest {
 		
 	}
 
-	@Test
-	void testCalAvgVolByCompany() {
-		//when(companyRepository.findByTicker(anyString())).thenReturn(company1);
-		//VolumeAverage volumeAverage = companyService.calAvgVolumeByCompany("DMT");
-		//assertEquals(45, volumeAverage.getPreCovidVolume());
-		//assertEquals(65, volumeAverage.getPostCovidVolume());
-		//assertEquals(20, volumeAverage.getDeviationVolume());
+	@Test  
+	void testcalAvgVolumeByCompany() throws ParseException {
+		when(companyRepository.findByTicker(anyString())).thenReturn(company1);
+		AverageValues volumeAverage = companyService.calAvgVolumeByCompany("DMT","2020-02-09");
+		assertEquals(45, volumeAverage.getPreCovidValue());
+		assertEquals(65, volumeAverage.getPostCovidValue());
+		assertEquals(20, volumeAverage.getDeviation());
 	}
 
 	@Test
-	void testCalAvgPriceByCompany() {
+	void testcalAvgPriceByCompany() throws ParseException {
 		
-		//when(companyRepository.findByTicker(anyString())).thenReturn(company2);
-		//PriceAverage priceAverage = companyService.calAvgPriceByCompany("BBZ");
-		//assertEquals(105, priceAverage.getPreCovidPrice());
-		//assertEquals(90, priceAverage.getPostCovidPrice());
-		//assertEquals(-15, priceAverage.getDeviationPrice());
+		when(companyRepository.findByTicker(anyString())).thenReturn(company2);
+		AverageValues priceAverage = companyService.calAvgPriceByCompany("BBZ","2020-02-09");
+		assertEquals(105, priceAverage.getPreCovidValue());
+		assertEquals(90, priceAverage.getPostCovidValue());
+		assertEquals(-15, priceAverage.getDeviation());
 	}
+	
+	/*
+	@Test
+	void testcalAvgVolumeBySector() throws ParseException {
+		
+		when(companyRepository.findBySector(anyString())).thenReturn(tech_sector);
+		AverageValues volumeAverage = companyService.calAvgPriceByCompany("Technology","2020-02-09");
+		assertEquals(45, volumeAverage.getPreCovidValue());
+		assertEquals(67.5, volumeAverage.getPostCovidValue());
+		assertEquals(-27.5, volumeAverage.getDeviation());
+	}
+	
+
+	@Test
+	void testcalAvgPriceBySector() throws ParseException {
+		
+		when(companyRepository.findBySector(anyString())).thenReturn(tech_sector);
+		AverageValues volumeAverage = companyService.calAvgPriceByCompany("Technology","2020-02-09");
+		assertEquals(117.5, volumeAverage.getPreCovidValue());
+		assertEquals(86.25, volumeAverage.getPostCovidValue());
+		assertEquals(-31.25, volumeAverage.getDeviation());
+	}
+	*/
 
 	@Test
 	void testMonthlyCompany() throws ParseException {
@@ -100,23 +134,11 @@ class CompanyServiceTest {
 		assertEquals(110, avgMap.get("02"));
 		assertEquals(90, avgMap.get("03"));
 		avgMap = companyService.MonthlyCompany("DMT", "2020-01-02", "2020-06-01", "volume");
-		assertEquals(45, avgMap.get("02"));
+		assertEquals(45, avgMap.get("02"),"fail");
 		assertEquals(65, avgMap.get("03"));
 		avgMap = companyService.MonthlyCompany("DMT", "2020-01-02", "2020-06-01", "stonks");		
 		assertEquals(null, avgMap);		
 	}
 	
-	@Test
-	void testWeeklyCompany() throws ParseException {
-		when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
-		Map<String, Double> avgMap = companyService.WeeklyCompany("BBZ", "2020-01-02", "2020-06-01", "price");
-		assertEquals(105, avgMap.get("01"));
-		assertEquals(90, avgMap.get("11"));
-		avgMap = companyService.WeeklyCompany("BBZ", "2020-01-02", "2020-06-01", "volume");
-		assertEquals(40, avgMap.get("01"));
-		assertEquals(65, avgMap.get("11"));
-		avgMap = companyService.WeeklyCompany("BBZ", "2020-01-02", "2020-06-01", "stonks");		
-		assertEquals(null, avgMap);		
-	}
 
 }
