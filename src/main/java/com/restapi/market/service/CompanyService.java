@@ -1231,7 +1231,6 @@ public class CompanyService {
 		value.setDatasets(chart);
 		labels = keyList;
 		value.setLabels(labels);
-
 		return value;
 	}
 
@@ -1537,5 +1536,5 @@ public class CompanyService {
 		value1.setDatasets(obj1);
 		return value1;
 	}
-
+///////
 }
