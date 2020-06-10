@@ -104,7 +104,7 @@ class CompanyServiceTest {
 		assertEquals(-15, priceAverage.getDeviation());
 	}
 	
-	
+	/*
 	@Test
 	void testcalAvgVolumeBySector() throws ParseException {
 		
@@ -125,7 +125,7 @@ class CompanyServiceTest {
 		assertEquals(86.25, priceAverage.getPostCovidValue());
 		assertEquals(-31.25, priceAverage.getDeviation());
 	}
-	
+	*/
 
 	@Test
 	void testMonthlyCompany() throws ParseException {
