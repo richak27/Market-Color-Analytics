@@ -83,24 +83,7 @@ class CompanyServiceTest {
 		
 	}
 
-	@Test
-	void testCalAvgVolByCompany() {
-		//when(companyRepository.findByTicker(anyString())).thenReturn(company1);
-		//VolumeAverage volumeAverage = companyService.calAvgVolumeByCompany("DMT");
-		//assertEquals(45, volumeAverage.getPreCovidVolume());
-		//assertEquals(65, volumeAverage.getPostCovidVolume());
-		//assertEquals(20, volumeAverage.getDeviationVolume());
-	}
 
-	@Test
-	void testCalAvgPriceByCompany() {
-		
-		//when(companyRepository.findByTicker(anyString())).thenReturn(company2);
-		//PriceAverage priceAverage = companyService.calAvgPriceByCompany("BBZ");
-		//assertEquals(105, priceAverage.getPreCovidPrice());
-		//assertEquals(90, priceAverage.getPostCovidPrice());
-		//assertEquals(-15, priceAverage.getDeviationPrice());
-	}
 
 	@Test
 	void testMonthlyCompany() throws ParseException {
@@ -128,9 +111,60 @@ class CompanyServiceTest {
 		assertEquals(null, avgMap);		
 	}
 	
+	@Test
+	void testDailyCompany() throws ParseException {
+		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
+		Map<String, Double> avgMap = companyService.DailyCompany("DMT", "2020-01-02", "2020-06-01", "price");
+		assertEquals(100, avgMap.get("2020-06-02"));
+		assertEquals(120, avgMap.get("2020-07-02"));
+		avgMap = companyService.DailyCompany("DMT", "2020-01-02", "2020-06-01", "volume");
+		assertEquals(45, avgMap.get("2020-01-02"));
+		assertEquals(65, avgMap.get("2020-01-02"));
+		avgMap = companyService.DailyCompany("DMT", "2020-01-02", "2020-06-01", "stonks");		
+		assertEquals(null, avgMap);	
+	}
+	
+	@Test
+	void testMonthlySector() throws ParseException {
+		when(companyRepository.findBySector("Retail")).thenReturn(retail);
+		Map<String, Double> avgMap = companyService.MonthlySector("Retail", "2020-01-02", "2020-06-01", "price");
+		assertEquals(110, avgMap.get("02"));
+		assertEquals(90, avgMap.get("03"));
+		avgMap = companyService.MonthlySector("Retail", "2020-01-02", "2020-06-01", "volume");
+		assertEquals(45, avgMap.get("02"));
+		assertEquals(65, avgMap.get("03"));
+		avgMap = companyService.MonthlySector("Retail", "2020-01-02", "2020-06-01", "stonks");		
+		assertEquals(null, avgMap);		
+	}
+	
+	@Test
+	void testWeeklySector() throws ParseException {
+		when(companyRepository.findBySector("Retail")).thenReturn(retail);
+		Map<Integer, Double> avgMap = companyService.WeeklySector("Retail", "2020-01-02", "2020-06-01", "price");
+		assertEquals(105, avgMap.get(1));
+		assertEquals(90, avgMap.get(11));
+		avgMap = companyService.WeeklySector("Retail", "2020-01-02", "2020-06-01", "volume");
+		assertEquals(40, avgMap.get(1));
+		assertEquals(65, avgMap.get(11));
+		avgMap = companyService.WeeklySector("Retail", "2020-01-02", "2020-06-01", "stonks");		
+		assertEquals(null, avgMap);		
+	}
 	
 	
+	@Test
+	void testDailySector() throws ParseException {
+		when(companyRepository.findBySector("Retail")).thenReturn(retail);
+		Map<String, Double> avgMap = companyService.DailySector("Retail", "2020-01-02", "2020-06-01", "price");
+		assertEquals(100, avgMap.get("2020-06-02"));
+		assertEquals(120, avgMap.get("2020-07-02"));
+		avgMap = companyService.DailySector("Retail", "2020-01-02", "2020-06-01", "volume");
+		assertEquals(45, avgMap.get("2020-01-02"));
+		assertEquals(65, avgMap.get("2020-01-02"));
+		avgMap = companyService.DailySector("Retail", "2020-01-02", "2020-06-01", "stonks");		
+		assertEquals(null, avgMap);	
+	}
 	
+		
 	@Test
 	void testAverageStock() {
 
@@ -143,7 +177,7 @@ class CompanyServiceTest {
 	        assertEquals( true, Object instanceof Calculate);
 	    }catch(Exception e){
        
-	        fail("got Exception, i want an Expression");
+	        fail("got Exception");
 	     }
 	}
 	
