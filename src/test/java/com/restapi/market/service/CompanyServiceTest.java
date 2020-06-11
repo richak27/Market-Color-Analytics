@@ -217,7 +217,7 @@ class CompanyServiceTest {
 		}
 		
 		
-		// 7. Pre-Post Covid Deviation for Average Volume Sector
+		// 7. Pre-Post Covid Deviation for Average Volume Sector  // Test case with error
 		@Test
 		void testgetSectorVolumeDeviation() throws ParseException{
 			
@@ -240,7 +240,7 @@ class CompanyServiceTest {
 		}
 		
 		
-		// 8. Pre-Post Covid Deviation for Average Price Sector
+		// 8. Pre-Post Covid Deviation for Average Price Sector  // Test case with error
 		@Test
 		void testgetSectorPriceDeviation() throws ParseException{
 			
@@ -263,7 +263,7 @@ class CompanyServiceTest {
 		}
 		
 		
-		// 9. Pre-Post Covid Deviation for Average Volume Company
+		// 9. Pre-Post Covid Deviation for Average Volume Company  // Test case with error
 		@Test
 		void testgetCompanyVolumeDeviation()throws ParseException{
 			
@@ -276,7 +276,7 @@ class CompanyServiceTest {
 			assertEquals(VolSortedCompany, sorted_volume_company);
 		}
 		
-		// 10. Pre-Post Covid Deviation for Average Price Company
+		// 10. Pre-Post Covid Deviation for Average Price Company    // Test case with error
 		@Test
 		void testgetCompanyPriceDeviation()throws ParseException{
 			
@@ -330,6 +330,13 @@ class CompanyServiceTest {
 		     }
 		}
 		
+		// 13. Function to add stocks by ticker              // Test case with error
+		@Test    
+		void testAddStocksByTicker() throws ParseException {
+			when(companyRepository.findByTicker("DMT")).thenReturn(company1);		
+			String ans = companyService.addStocksByTicker("DMT");
+			assertEquals(ans,"DMT information added to DB");
+		}
 		
 	////////// SECTORS 
 		
@@ -465,18 +472,6 @@ class CompanyServiceTest {
 		assertEquals(obj3,value.get(2));	
 	
 	}
-
-	
- 	/*	@Test
-	void testAddStocksByTicker() throws ParseException {
-		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
-		
-		String ans = companyService.addStocksByTicker("DMT");
-		assertEquals(ans,"DMT information added to DB");
-	}
-	 */
-
-
 	
 	/////////////////////////////// CHARTS DAILY WEEKLY MONTHLY ////////////////////////////
 	
