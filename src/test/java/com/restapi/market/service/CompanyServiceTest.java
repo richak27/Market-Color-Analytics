@@ -364,6 +364,10 @@ class CompanyServiceTest {
 	
 	@Test
 	void testGetChartCompany() throws ParseException {
+
+		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
+		when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
+		
 		List<String> tickerlist = new ArrayList<String>();
 		tickerlist.add("DMT");
 		tickerlist.add("BBZ");
@@ -415,14 +419,17 @@ class CompanyServiceTest {
 	@Test
 	void testDailySectorObject() {
 		
+		
 		when(companyRepository.findBySector("Retail")).thenReturn(retail);
 		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
 		when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
+	
 		
 		List<String> sectorlist = new ArrayList<String>();
 		sectorlist.add("Retail");
+		
 		try{
-	        ChartObjectCustom Object =companyService.DailyCompanyObject(sectorlist,"2020-02-19","2020-04-12","price");
+	        ChartObjectCustom Object =companyService.DailySectorObject(sectorlist,"2020-02-19","2020-04-12","price");
 	        assertNotNull(Object);//check if the object is != null
 	        
 	        assertEquals( true, Object instanceof ChartObjectCustom);
@@ -430,76 +437,10 @@ class CompanyServiceTest {
        
 	    	fail("got Exception");
 	     }
+		
+	
 	}
 
-/////// 	DAILY 2. ONLY SECTORS
-	public ChartObjectCustom DailySectorObject(List<String> sectorList, String startDate, String endDate, String type)
-			throws ParseException {
-
-		Date sDate = formatYMD.parse(startDate);
-		Date eDate = formatYMD.parse(endDate);
-		int i = 50;
-		ChartObjectCustom value = new ChartObjectCustom();
-		List<ChartObject> chart = new ArrayList<>();
-		List<String> labels = new ArrayList<>();
-		List<Stock> stocknew = new ArrayList<>();
-		ArrayList<String> keyList = new ArrayList<>();
-		ArrayList<Double> valueList = new ArrayList<>();
-
-		for (String sector : sectorList) {
-
-			List<Company> company = getBySector(sector);
-			for (Company comp : company) {
-				List<Stock> stocks = comp.getStocks();
-				for (Stock stock : stocks) {
-					Date nDate = formatYMD.parse(stock.getDate());
-					if (nDate.before(eDate) && nDate.after(sDate) || nDate.equals(sDate) || nDate.equals(eDate)) {
-						stocknew.add(stock);
-					}
-				}
-			}
-
-			ChartObject obj = new ChartObject();
-			i--;
-			obj.setLabel(sector);
-			obj.setBackgroundColor(colour_array[i]);
-			obj.setBorderColor(colour_array[i]);
-			if (type.contentEquals("price")) {
-				Map<String, Double> daily = stocknew.stream()
-						.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getClose)))
-						.entrySet().stream().sorted(comparingByKey())
-						.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-
-				keyList = new ArrayList<String>(daily.keySet());
-				valueList = new ArrayList<Double>(daily.values());
-			}
-
-			else if (type.contentEquals("volume")) {
-				Map<String, Double> daily = stocknew.stream()
-						.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)))
-						.entrySet().stream().sorted(comparingByKey())
-						.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-				keyList = new ArrayList<String>(daily.keySet());
-				valueList = new ArrayList<Double>(daily.values());
-			} else {
-				System.out.print("Enter correct parameters");
-			}
-			obj.setData(valueList);
-			chart.add(obj);
-
-		}
-
-		value.setDatasets(chart);
-		labels = keyList;
-		for (int k = 0; k < labels.size(); k++)
-		{
-			Date nowDate = formatYMD.parse(labels.get(k));
-		    labels.set(k, formatDMY.format(nowDate));
-		}	
-		value.setLabels(labels);
-
-		return value;
-	}
 	
 	@Test
 	void testDailyCompanySectorObject() {
@@ -573,11 +514,13 @@ class CompanyServiceTest {
 		when(companyRepository.findBySector("Retail")).thenReturn(retail);
 		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
 		when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
-
+	
+		
 		List<String> sectorlist = new ArrayList<String>();
 		sectorlist.add("Retail");
+		
 		try{
-	        ChartObjectCustom Object =companyService.MonthlyCompanyObject(sectorlist,"2020-02-19","2020-04-12","price");
+	        ChartObjectCustom Object =companyService.WeeklySectorObject(sectorlist,"2020-02-19","2020-04-12","price");
 	        assertNotNull(Object);//check if the object is != null
 	        
 	        assertEquals( true, Object instanceof ChartObjectCustom);
@@ -585,6 +528,7 @@ class CompanyServiceTest {
        
 	    	fail("got Exception");
 	     }
+
 	}
 	
 	@Test
