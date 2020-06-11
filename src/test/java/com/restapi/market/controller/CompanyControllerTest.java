@@ -8,10 +8,13 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import com.restapi.market.service.CompanyService;
 
 public class CompanyControllerTest{
 	
@@ -21,21 +24,18 @@ public class CompanyControllerTest{
 	@InjectMocks
 	CompanyController companyController;
 	
+	
+	@Mock
+	CompanyService companyService;
+	
+	
 	@BeforeEach
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
-		mockMvc = MockMvcBuilders.standaloneSetup(companyController).build();
+		
 	}
 	
-	@Test
-	public void testDailyCompanyObject() throws Exception {
-		
-		mockMvc.perform(get("/data/chartCDCompany/{tickerList}/{startDate}/{endDate}")
-		.accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk())
-		.andExpect(jsonPath("$.*",Matchers.hasSize(2)));
-		
-	}
+	
 	
 	
 	
