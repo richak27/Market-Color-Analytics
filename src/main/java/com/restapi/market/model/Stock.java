@@ -2,7 +2,6 @@ package com.restapi.market.model;
 
 public class Stock {
 	private String date;
-	private String period;
 	private double close;
 	private double volume;
 	private int week;
@@ -12,10 +11,9 @@ public class Stock {
 		super();
 	}
 
-	public Stock(String date, String period, double close, double volume,int week,String month) {
+	public Stock(String date, double close, double volume,int week,String month) {
 		super();
 		this.date = date;
-		this.period = period;
 		this.close = close;
 		this.volume = volume;
 		this.week=week;
@@ -26,9 +24,7 @@ public class Stock {
 		return date;
 	}
 
-	public String getPeriod() {
-		return period;
-	}
+	
 
 	public double getClose() {
 		return close;
@@ -52,9 +48,7 @@ public class Stock {
 		this.date = date;
 	}
 
-	public void setPeriod(String period) {
-		this.period = period;
-	}
+	
 
 	public void setClose(double close) {
 		this.close = close;

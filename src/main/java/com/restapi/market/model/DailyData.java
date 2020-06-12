@@ -2,7 +2,7 @@ package com.restapi.market.model;
 
 public class DailyData implements Comparable<DailyData>{
 	
-	public DailyData(String companyName, String sector, String ticker, double price, double volume, String date) {
+	public DailyData(String companyName, String sector, String ticker, String price, String volume, String date) {
 		super();
 		this.companyName = companyName;
 		this.sector = sector;
@@ -18,24 +18,24 @@ public class DailyData implements Comparable<DailyData>{
 	private String companyName;
 	private String sector;
 	private String ticker;
-	private double price;
-	private double volume;
+	private String price;
+	private String volume;
 	private String date;
 	
 	
-	public double getPrice() {
+	public String getPrice() {
 		return price;
 	}
-	public double getVolume() {
+	public String getVolume() {
 		return volume;
 	}
 	public String getDate() {
 		return date;
 	}
-	public void setPrice(double price) {
+	public void setPrice(String price) {
 		this.price = price;
 	}
-	public void setVolume(double volume) {
+	public void setVolume(String volume) {
 		this.volume = volume;
 	}
 	public void setDate(String date) {

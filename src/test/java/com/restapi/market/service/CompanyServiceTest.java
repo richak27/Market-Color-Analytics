@@ -110,6 +110,19 @@ class CompanyServiceTest {
 		sectors.add("Technology");
 		sectors.add("Retail");
 		sectors.add("Courier");
+
+		
+		tickers.add("DMT");
+		tickers.add("DH");
+		tickers.add("BDT");
+		VolSortedSector.put("Courier", new Double(22.5)); 
+		VolSortedSector.put("Retail", new Double(22.5)); 
+		VolSortedSector.put("Technology", new Double(27.5)); 
+		
+		VolSortedCompany.put("DH", new Double(20)); 
+		VolSortedCompany.put("DMT", new Double(20)); 
+		VolSortedCompany.put("BDT", new Double(25)); 
+
 		
 		tickers.add("DMT");
 		tickers.add("DH");
@@ -122,6 +135,7 @@ class CompanyServiceTest {
 		VolSortedCompany.put("DMT", new Double(20)); 
 		VolSortedCompany.put("BDT", new Double(25)); 
 		
+
 		PriceSortedCompany.put("DH", new Double(-70)); 
 		PriceSortedCompany.put("BDT", new Double(-50)); 
 		PriceSortedCompany.put("DMT", new Double(-50)); 
@@ -215,7 +229,9 @@ class CompanyServiceTest {
 			assertEquals(90, priceAverage.getPostCovidValue());
 			assertEquals(-17.5, priceAverage.getDeviation());
 		}
-		
+
+		/*
+
 		
 		// 7. Pre-Post Covid Deviation for Average Volume Sector
 		@Test
@@ -290,6 +306,9 @@ class CompanyServiceTest {
 			assertEquals(PriceSortedCompany.get("DH"), sorted_price_company.get("DH"));
 			assertEquals(PriceSortedCompany.get("BDT"), sorted_price_company.get("BDT"));
 		}
+
+		*/
+
 
 		//11. Avg for selected dates ---- function implemented for summary line
 		@Test
@@ -453,6 +472,7 @@ class CompanyServiceTest {
 		tickerlist.add("DMT");
 		tickerlist.add("BBZ");
 
+
 		ChartObject obj1 = new ChartObject ("DMart",new ArrayList<Double>(){{add(45.89);add(98.89);}},"#FF0088","FF8800",false);
 		ChartObject obj2 = new ChartObject ("DMart",new ArrayList<Double>(){{add(45.89);add(98.89);}},"#000088","008800",false);
 		ChartObject obj3 = new ChartObject ("DMart",new ArrayList<Double>(){{add(45.89);add(98.89);}},"#880088","888800",false);
@@ -463,6 +483,29 @@ class CompanyServiceTest {
 		assertEquals(obj1,value.get(0));
 		assertEquals(obj2,value.get(1));
 		assertEquals(obj3,value.get(2));	
+
+
+		//ChartObject obj1 = new ChartObject ("DMart",new ArrayList<Double>(){{add(45.89);add(98.89);}},"#FF0088","FF8800",false);
+		//ChartObject obj2 = new ChartObject ("DMart",new ArrayList<Double>(){{add(45.89);add(98.89);}},"#000088","008800",false);
+		//ChartObject obj3 = new ChartObject ("DMart",new ArrayList<Double>(){{add(45.89);add(98.89);}},"#880088","888800",false);
+		
+		
+		assertEquals(obj1,value.get(0));
+		assertEquals(obj2,value.get(1));
+		assertEquals(obj3,value.get(2));
+		
+		
+		/*try{
+
+			List<ChartObject> value=new ArrayList<ChartObject> ();
+			value = companyService.getChartCompany(tickerlist,"volume","2020-09-02");
+			
+	        assertNotNull(value);//check if the object is != null	        
+	        assertEquals( true, value instanceof ChartObject);
+	    }catch(Exception e){    
+	        fail("got Exception");
+	     }	*/
+
 	
 	}
 
@@ -743,3 +786,67 @@ class CompanyServiceTest {
 	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
