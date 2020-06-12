@@ -169,8 +169,7 @@ class CompanyServiceTest {
 			assertEquals(90, priceAverage.getPostCovidValue());
 			assertEquals(-15, priceAverage.getDeviation());
 		}
-		
-		
+				
 		//3. Average Volume for a Sector
 		@Test
 		void testcalAvgVolumeBySector() throws ParseException {
@@ -519,8 +518,6 @@ class CompanyServiceTest {
 	}
 	 */
 
-
-	
 	/////////////////////////////// CHARTS DAILY WEEKLY MONTHLY ////////////////////////////
 	
 	///// A.	DAILY
