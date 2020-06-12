@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.OngoingStubbing;
 
+import com.mongodb.client.model.Field;
 import com.restapi.market.model.AverageValues;
 import com.restapi.market.model.Calculate;
 import com.restapi.market.model.ChartObject;
@@ -752,6 +753,7 @@ class CompanyServiceTest {
 	        assertNotNull(Object);//check if the object is != null        
 	        assertEquals( true, Object instanceof ChartObjectCustom);	   	
 	}
+
 
 }
 
