@@ -5,7 +5,9 @@ public class Calculate {
 	double price;
 	double volume;
 	
-	public Calculate() {};
+	public Calculate() {
+		super();
+	}
 	
 	public Calculate(double price, double volume) {
 		super();
