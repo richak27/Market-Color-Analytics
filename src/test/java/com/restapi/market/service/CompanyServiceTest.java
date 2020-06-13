@@ -2,6 +2,7 @@ package com.restapi.market.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -103,7 +104,6 @@ class CompanyServiceTest {
 		sectors.add("Retail");
 		sectors.add("Courier");
 
-		
 		tickers.add("DMT");
 		tickers.add("DH");
 		tickers.add("BDT");
@@ -114,7 +114,6 @@ class CompanyServiceTest {
 		VolSortedCompany.put("DH", new Double(20)); 
 		VolSortedCompany.put("DMT", new Double(20)); 
 		VolSortedCompany.put("BDT", new Double(25)); 
-
 
 		PriceSortedCompany.put("DH", new Double(-70)); 
 		PriceSortedCompany.put("BDT", new Double(-50)); 
@@ -188,7 +187,7 @@ class CompanyServiceTest {
 	    void testCompanyAverage() throws ParseException{
 			
 	    	when(companyRepository.findByTicker(anyString())).thenReturn(company3);
-			AverageValues volumeAverage = companyService.CompanyAverage("BDT","volume","2020-02-09");
+			AverageValues volumeAverage = companyService.companyAverage("BDT","volume","2020-02-09");
 			assertEquals(50, volumeAverage.getPreCovidValue());
 			assertEquals(75, volumeAverage.getPostCovidValue());
 			assertEquals(25, volumeAverage.getDeviation());
@@ -203,11 +202,168 @@ class CompanyServiceTest {
 			when(companyRepository.findByTicker(company1.getTicker())).thenReturn(company1);
 			when(companyRepository.findByTicker(company2.getTicker())).thenReturn(company2);
 			
-			AverageValues priceAverage = companyService.SectorAverage("Retail","price","2020-02-09");
+			AverageValues priceAverage = companyService.sectorAverage("Retail","price","2020-02-09");
 			assertEquals(107.5, priceAverage.getPreCovidValue());
 			assertEquals(90, priceAverage.getPostCovidValue());
 			assertEquals(-17.5, priceAverage.getDeviation());
 		}
+		
+		
+		@Test
+		void testgridCompany() throws ParseException {
+			
+			when(companyRepository.findByTicker(anyString())).thenReturn(company1);
+			
+			List<DailyData> obj=new ArrayList<>();
+			DailyData dataobj=new DailyData();
+			dataobj.setTicker("DMT");
+			dataobj.setCompanyName("DMart");
+			dataobj.setDate("2020-02-06");
+			dataobj.setPrice("100");
+			dataobj.setSector("Retail");
+			dataobj.setVolume("50");
+			
+			obj.add(dataobj);
+		
+			obj=companyService.gridCompany("DMT", "2020-02-06","2020-02-06");
+			assertEquals(dataobj.getCompanyName(), obj.get(0).getCompanyName());
+			assertEquals(dataobj.getDate(), obj.get(0).getDate());
+			assertEquals(dataobj.getVolume(), obj.get(0).getVolume());
+			assertEquals(dataobj.getPrice(), obj.get(0).getPrice());
+
+			
+		}
+		
+
+		@Test
+		void testgridSector() throws ParseException {
+			
+			when(companyRepository.findBySector(anyString())).thenReturn(retail);
+			when(companyRepository.findByTicker(company2.getTicker())).thenReturn(company1);
+			when(companyRepository.findByTicker(company2.getTicker())).thenReturn(company2);
+
+			List<List<DailyData>> nestedlist=new ArrayList<>();
+	        ArrayList<DailyData> obj= new ArrayList<>(); 
+
+			DailyData dataobj=new DailyData();
+			dataobj.setTicker("DMT");
+			dataobj.setCompanyName("DMart");
+			dataobj.setDate("2020-02-06");
+			dataobj.setPrice("100");
+			dataobj.setSector("Retail");
+			dataobj.setVolume("50");
+			
+			obj.add(dataobj);
+			nestedlist.add(obj);
+		
+			List<List<DailyData>> result = new ArrayList<>();
+
+			result=companyService.gridSector("Retail", "2020-02-06","2020-02-06");
+			assertEquals(nestedlist.get(0).get(0).getCompanyName(), result.get(0).get(0).getCompanyName());
+			
+		}
+		
+
+		@Test
+		void testgetdataCompany() throws ParseException {
+		
+		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
+		when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
+		when(companyRepository.findBySector("Retail")).thenReturn(retail);
+		
+		List<String> tickerlist = new ArrayList<String>();
+		tickerlist.add("DMT");
+		tickerlist.add("BBZ");
+		
+		try{
+	        ChartObjectCustom Object =companyService.getDataCompany(tickerlist,"2020-02-19","2020-04-12","price","daily","2020-02-09");
+	        assertNotNull(Object);//check if the object is != null
+	        
+	        assertEquals( true, Object instanceof ChartObjectCustom);
+	    }catch(Exception e){
+       
+	    	fail("got Exception");
+	     }
+		
+	}
+		
+		@Test
+		void testgetDataSector() {
+			when(companyRepository.findByTicker("DMT")).thenReturn(company1);
+			when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
+			when(companyRepository.findBySector("Retail")).thenReturn(retail);
+			
+			List<String> sectorlist = new ArrayList<String>();
+			sectorlist.add("Retail");
+			
+			try{
+		        ChartObjectCustom Object =companyService.getDataSector(sectorlist,"2020-02-19","2020-04-12","price","daily","2020-02-09");
+		        assertNotNull(Object);//check if the object is != null
+		        
+		        assertEquals( true, Object instanceof ChartObjectCustom);
+		    }catch(Exception e){
+	       
+		    	fail("got Exception");
+		     }
+			
+		}
+		
+		@Test
+		void testgetChart() throws ParseException {
+			
+			when(companyRepository.findByTicker("DMT")).thenReturn(company1);
+			when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
+			when(companyRepository.findBySector("Retail")).thenReturn(retail);
+			
+			List<String> tickerlist = new ArrayList<String>();
+			tickerlist.add("DMT");
+			tickerlist.add("BBZ");	
+			
+			List<String> sectorlist = new ArrayList<String>();
+			sectorlist.add("Retail");	
+					        
+		    try{
+			        ChartObjectCustom Object =companyService.getChart(tickerlist,sectorlist,"2020-02-19","2020-04-12","price","daily","both","2020-02-09");
+			        assertNotNull(Object);//check if the object is != null
+			        
+			        assertEquals( true, Object instanceof ChartObjectCustom);
+			    }catch(Exception e){
+		       
+			    	fail("got Exception");
+			     }
+				
+		}
+		
+		
+		@Test
+		void testchartCompanySector() throws ParseException {
+			
+			when(companyRepository.findByTicker("DMT")).thenReturn(company1);
+			when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
+			when(companyRepository.findBySector("Retail")).thenReturn(retail);
+			
+			List<String> tickerlist = new ArrayList<String>();
+			tickerlist.add("DMT");
+			tickerlist.add("BBZ");	
+			
+			List<String> sectorlist = new ArrayList<String>();
+			sectorlist.add("Retail");
+			
+			Map<String, List<Double>> dataMap = new HashMap<>();
+			dataMap=companyService.chartCompanySector(tickerlist, sectorlist, "volume", "2020-02-09");
+
+			
+			 for (Map.Entry<String,List<Double>> entry : dataMap.entrySet())  
+		            System.out.println("Key = " + entry.getKey() + 
+		                             ", Value = " + entry.getValue()); 
+			 
+			 
+
+			
+		}
+
+		
+
 
 		/*
 
@@ -329,21 +485,6 @@ class CompanyServiceTest {
 		}
 		
 		
-	////////// SECTORS 
-		
-		@Test
-		void testMonthlySector() throws ParseException {
-			when(companyRepository.findBySector("Retail")).thenReturn(retail);
-			Map<String, Double> avgMap = companyService.MonthlySector("Retail", "2020-01-02", "2020-06-01", "price");
-			assertEquals(107.5, avgMap.get("02"));
-			assertEquals(90, avgMap.get("03"));
-			avgMap = companyService.MonthlySector("Retail", "2020-01-02", "2020-06-01", "volume");
-			assertEquals(42.5, avgMap.get("02"));
-			assertEquals(65, avgMap.get("03"));
-			avgMap = companyService.MonthlySector("Retail", "2020-01-02", "2020-06-01", "stonks");		
-			assertEquals(null, avgMap);		
-		}
-		
 		@Test
 		void testWeeklySector() throws ParseException {
 			when(companyRepository.findBySector("Retail")).thenReturn(retail);	
@@ -357,47 +498,9 @@ class CompanyServiceTest {
 		}
 		
 		
-		@Test
-		void testDailySector() throws ParseException {
-			when(companyRepository.findBySector("Retail")).thenReturn(retail);
-			Map<String, Double> avgMap = companyService.DailySector("Retail", "2020-01-02", "2020-06-01", "price");
-			assertEquals(90, avgMap.get("2020-02-06"));
-			assertEquals(80, avgMap.get("2020-03-10"));
-			avgMap = companyService.DailySector("Retail", "2020-01-02", "2020-06-01", "volume");
-			assertEquals(45, avgMap.get("2020-02-06"));
-			assertEquals(70, avgMap.get("2020-03-10"));
-			avgMap = companyService.DailySector("Retail", "2020-01-02", "2020-06-01", "stonks");		
-			assertEquals(null, avgMap);	
-		}
 		
-		
-	/////////// COMPANY 	
-				
-	@Test
-	void testMonthlyCompany() throws ParseException {
-		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
-		Map<String, Double> avgMap = companyService.MonthlyCompany("DMT", "2020-01-02", "2020-06-01", "price");
-		assertEquals(110, avgMap.get("02"));
-		assertEquals(90, avgMap.get("03"));
-		avgMap = companyService.MonthlyCompany("DMT", "2020-01-02", "2020-06-01", "volume");
-		assertEquals(45, avgMap.get("02"));
-		assertEquals(65, avgMap.get("03"));
-		avgMap = companyService.MonthlyCompany("DMT", "2020-01-02", "2020-06-01", "stonks");		
-		assertEquals(null, avgMap);		
-	}
 	
-	@Test
-	void testWeeklyCompany() throws ParseException {
-		when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
-		Map<Integer, Double> avgMap = companyService.WeeklyCompany("BBZ", "2020-01-02", "2020-06-01", "price");
-		assertEquals(105, avgMap.get(1));
-		assertEquals(90, avgMap.get(11));
-		avgMap = companyService.WeeklyCompany("BBZ", "2020-01-02", "2020-06-01", "volume");
-		assertEquals(40, avgMap.get(1));
-		assertEquals(65, avgMap.get(11));
-		avgMap = companyService.WeeklyCompany("BBZ", "2020-01-02", "2020-06-01", "stonks");		
-		assertEquals(null, avgMap);		
-	}
+	
 	
 	@Test
 	void testDailyCompany() throws ParseException {
@@ -498,28 +601,6 @@ class CompanyServiceTest {
 	}
 	 */
 
-	/////////////////////////////// CHARTS DAILY WEEKLY MONTHLY ////////////////////////////
-	
-	///// A.	DAILY
-	//1. ONLY COMPANY 
-	@Test
-	void testDailyCompanyObject() {
-		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
-		when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
-		when(companyRepository.findBySector("Retail")).thenReturn(retail);
-		List<String> tickerlist = new ArrayList<String>();
-		tickerlist.add("DMT");
-		tickerlist.add("BBZ");		
-		List<String> sectorlist = new ArrayList<String>();
-		sectorlist.add("Retail");	
-		try{
-	        ChartObjectCustom Object =companyService.DailyCompanyObject(tickerlist,"2020-02-19","2020-04-12","price");
-	        assertNotNull(Object);//check if the object is != null	        
-	        assertEquals( true, Object instanceof ChartObjectCustom);
-	    }catch(Exception e){    
-	        fail("got Exception");
-	     }	
-	}	
 	
 	// 2. ONLY SECTOR
 	@Test
@@ -587,47 +668,6 @@ class CompanyServiceTest {
 	    }	
 	}
 	
-	
-	///// B. MONTHLY
-	
-	// 1. ONLY COMPANY
-	
-	@Test
-	void testMonthlyCompanyObject() {
-		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
-		when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
-		List<String> tickerlist = new ArrayList<String>();
-		tickerlist.add("DMT");
-		tickerlist.add("BBZ");		
-		List<String> sectorlist = new ArrayList<String>();
-		sectorlist.add("Retail");	
-		try{
-	        ChartObjectCustom Object =companyService.MonthlyCompanyObject(tickerlist,"2020-02-19","2020-04-12","price");
-	        assertNotNull(Object);//check if the object is != null	        
-	        assertEquals( true, Object instanceof ChartObjectCustom);
-	    }catch(Exception e){    
-	    	fail("got Exception");
-	     }	
-	}	
-	
-	// 2. ONLY SECTOR 
-	@Test
-	void testMonthlySectorObject() {
-		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
-		when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
-		when(companyRepository.findBySector("Retail")).thenReturn(retail);
-		List<String> sectorlist = new ArrayList<String>();
-		sectorlist.add("Retail");
-		try{
-	        ChartObjectCustom Object =companyService.MonthlyCompanyObject(sectorlist,"2020-02-19","2020-04-12","price");
-	        assertNotNull(Object);//check if the object is != null
-	        
-	        assertEquals( true, Object instanceof ChartObjectCustom);
-	    }catch(Exception e){
-       
-	    	System.out.print("Object not found");
-	     }
-	}
 	
 	
 	// 3. COMPANY-SECTOR RETURN ONLY COMPANY
@@ -734,7 +774,7 @@ class CompanyServiceTest {
 		sectorlist.add("Retail");
 		
 		try{
-	        ChartObjectCustom Object =companyService.WeeklyCompanySectorObject(tickerlist,sectorlist,"2020-02-19","2020-04-12","price");
+	        ChartObjectCustom Object =companyService.weeklyCompanySectorObject(tickerlist,sectorlist,"2020-02-19","2020-04-12","price");
 	        assertNotNull(Object);//check if the object is != null
 	        
 	        assertEquals( true, Object instanceof ChartObjectCustom);
@@ -757,7 +797,7 @@ class CompanyServiceTest {
 		List<String> sectorlist = new ArrayList<String>();
 		sectorlist.add("Retail");	
 		
-	        ChartObjectCustom Object =companyService.WeeklyAvgCompanySectorObject(tickerlist,sectorlist,"2020-02-19","2020-04-12","price");
+	        ChartObjectCustom Object =companyService.weeklyAvgCompanySectorObject(tickerlist,sectorlist,"2020-02-19","2020-04-12","price");
 	        assertNotNull(Object);//check if the object is != null        
 	        assertEquals( true, Object instanceof ChartObjectCustom);	   	
 	}
