@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.restapi.market.model.ChartObject;
 import com.restapi.market.model.ChartObjectCustom;
 import com.restapi.market.model.DailyData;
 
@@ -32,13 +31,7 @@ public class CompanyController {
 
 	@Autowired
 	private CompanyService companyService;
-
-	// Populate Database
-	@GetMapping("/seed")
-	public String populateDb() {
-		return companyService.seedDb();
-	}
-
+	
 	// Sorted values of Deviation Price or Volume for a company
 	@GetMapping("/sort/company")
 	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank,
