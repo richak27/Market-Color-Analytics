@@ -11,9 +11,11 @@ public class ChartObject {
 	private String borderColor;
 	private boolean fill;
 	
-	public ChartObject() {};
+	public ChartObject() {
+		super();
+	}
 
-	public ChartObject(String label, ArrayList<Double> data, String backgroundColor, String borderColor, boolean fill) {
+	public ChartObject(String label, List<Double> data, String backgroundColor, String borderColor, boolean fill) {
 		super();
 		this.label = label;
 		this.data = data;
@@ -58,7 +60,7 @@ public class ChartObject {
 		this.borderColor = borderColor;
 	}
 
-	public void setFill(boolean fill) {
+	public void setFill() {
 		this.fill = false;
 	}
 	
