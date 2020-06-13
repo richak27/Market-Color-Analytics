@@ -2,6 +2,8 @@ package com.restapi.market.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 public class CompanyTest {
@@ -21,6 +23,52 @@ public class CompanyTest {
         assertEquals( result, "1");
     }
 	 
+    
+    @Test
+    public void testgetName() throws NoSuchFieldException, IllegalAccessException {
+        //given
+        final Company obj = new Company();
+        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("name");
+        field.setAccessible(true);
+        field.set(obj, "Abbott Laboratories");
+
+        //when
+        final String result = obj.getName();
+
+        //then
+        assertEquals( result,"Abbott Laboratories");
+    }
+    
+    @Test
+    public void testgetTicker() throws NoSuchFieldException, IllegalAccessException {
+        //given
+        final Company obj = new Company();
+        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("ticker");
+        field.setAccessible(true);
+        field.set(obj, "ABT");
+
+        //when
+        final String result = obj.getTicker();
+
+        //then
+        assertEquals( result,"ABT");
+    }
+    
+    @Test
+    public void testgetSector() throws NoSuchFieldException, IllegalAccessException {
+        //given
+        final Company obj = new Company();
+        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("sector");
+        field.setAccessible(true);
+        field.set(obj, "Health Care");
+
+        //when
+        final String result = obj.getSector();
+
+        //then
+        assertEquals( result,"Health Care");
+    }
+        
 	 @Test
 	    public void testsetName() throws NoSuchFieldException, IllegalAccessException {
 	        //given
@@ -37,7 +85,7 @@ public class CompanyTest {
 	 
 	 
 	 @Test
-	    public void testseSector() throws NoSuchFieldException, IllegalAccessException {
+	    public void testsetSector() throws NoSuchFieldException, IllegalAccessException {
 	        //given
 	        final Company obj = new Company();
 
@@ -80,6 +128,5 @@ public class CompanyTest {
 	        assertEquals( field.get(obj), "1");
 	    }
 	 
-
 	
 }
