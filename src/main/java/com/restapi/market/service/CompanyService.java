@@ -668,7 +668,7 @@ public class CompanyService {
 		
 		else if(group.contentEquals("monthly")){
 			String[] monthList = { "December", "January", "February", "March", "April", "May", "June", "July",
-					"August", "September", "October", "November", "December" };			
+					"August", "September", "October", "November"};			
 			monthlabel = new ArrayList<>(new HashSet<>(monthLabel));
 			for(String index: monthlabel) {
 				int ind = (Integer.parseInt(index))%12;
@@ -840,7 +840,7 @@ public class CompanyService {
 		
 		else if(group.contentEquals("monthly")){
 			String[] monthList = { "December", "January", "February", "March", "April", "May", "June", "July",
-					"August", "September", "October", "November", "December" };			
+					"August", "September", "October", "November"};			
 			monthlabel = new ArrayList<>(new HashSet<>(monthLabel));
 			for(String index: monthlabel) {
 				int ind = (Integer.parseInt(index))%12;
