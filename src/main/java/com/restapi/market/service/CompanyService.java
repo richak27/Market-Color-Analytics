@@ -851,7 +851,7 @@ public class CompanyService {
 			}
 			
 			else if(group.contentEquals("covid")) {
-					AverageValues val = companyAverage(sector, type, boundaryDate);
+					AverageValues val = sectorAverage(sector, type, boundaryDate);
 					obj.setData(Arrays.asList(val.getPreCovidValue(), val.getPostCovidValue()));
 					chart.add(obj);
 
