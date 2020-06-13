@@ -78,15 +78,6 @@ class CompanyServiceTest {
 		stocks4.add(new Stock("2020-03-10", 80, 70, 11, "03"));
 		stocks4.add(new Stock("2020-03-11", 70, 60, 11, "03"));
 		
-		List<Stock> stocks5 = new ArrayList<Stock>();
-		stocks5.add(new Stock("2020-02-05", 110, 50, 01, "02"));
-		stocks5.add(new Stock("2020-02-06", 180, 40, 01, "02"));
-		stocks5.add(new Stock("2020-02-07", 80, 70, 11, "03"));
-		stocks5.add(new Stock("2020-03-11", 70, 60, 11, "03"));
-		stocks5.add(new Stock("2020-03-13", 110, 50, 01, "02"));
-		stocks5.add(new Stock("2020-04-14", 180, 40, 01, "02"));
-		stocks5.add(new Stock("2020-04-15", 80, 70, 11, "03"));
-		stocks5.add(new Stock("2020-04-16", 70, 60, 11, "03"));
 		
 		company1 = new Company("id1", "DMart", "DMT", "Retail", stocks1);
 		company2 = new Company("id2", "Future Grp", "BBZ", "Retail", stocks2);
@@ -96,7 +87,7 @@ class CompanyServiceTest {
 		company6 = new Company("id6", "ADVANCED MICRO DEVICES", "AMD", "Technology", stocks2);
 		company7 = new Company("id7", "GROUPON INC", "GRPN", "Technology", stocks3);
 		company8 = new Company("id8", "GRUBHUB INC", "GRUB", "Technology", stocks4);
-		company9 = new Company("id8", "ALIBABA GROUP HOLDING LTD", "BABA", "Miscellaneous", stocks5);	
+		
 		tech_sector.add(company5);
 		tech_sector.add(company6);
 		tech_sector.add(company7);
@@ -123,18 +114,6 @@ class CompanyServiceTest {
 		VolSortedCompany.put("DMT", new Double(20)); 
 		VolSortedCompany.put("BDT", new Double(25)); 
 
-		
-		tickers.add("DMT");
-		tickers.add("DH");
-		tickers.add("BDT");
-		VolSortedSector.put("Courier", new Double(22.5)); 
-		VolSortedSector.put("Retail", new Double(22.5)); 
-		VolSortedSector.put("Technology", new Double(27.5)); 
-		
-		VolSortedCompany.put("DH", new Double(20)); 
-		VolSortedCompany.put("DMT", new Double(20)); 
-		VolSortedCompany.put("BDT", new Double(25)); 
-		
 
 		PriceSortedCompany.put("DH", new Double(-70)); 
 		PriceSortedCompany.put("BDT", new Double(-50)); 
@@ -783,67 +762,5 @@ class CompanyServiceTest {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
