@@ -7,7 +7,10 @@ public class AverageValues {
 	private double postCovidValue;
 	private double deviation;
 	
-	public AverageValues() {};
+	public AverageValues() {
+		super();
+
+	}
 	
 	
 	public AverageValues(double preCovidValue, double postCovidValue, double deviation) {
