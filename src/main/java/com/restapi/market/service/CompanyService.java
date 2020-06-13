@@ -453,35 +453,6 @@ public class CompanyService {
 		return objList;
 	}
 
-	// List of objects with daily data for a sector
-	public List<List<DailyData>> gridSector(String sector, String startDate, String endDate) throws ParseException {
-		List<Company> companies = getBySector(sector);
-		List<List<DailyData>> nestedList = new ArrayList<>();
-		for (Company company : companies) {
-			nestedList.add(gridCompany(company.getTicker(), startDate, endDate));
-		}
-		return nestedList;
-	}
-
-	// Companies with sector selected, returns only companies----p
-	public Map<String, List<Double>> chartCompanySector(List<String> tickerList, List<String> sectorList, String type,
-			String boundaryDate) throws ParseException {
-
-		Map<String, List<Double>> dataMap = new HashMap<>();
-		for (String ticker : tickerList) {
-			Company company = getByTicker(ticker);
-			if (sectorList.contains(company.getSector())) {
-
-				AverageValues obj = companyAverage(ticker, type, boundaryDate);
-				dataMap.put(company.getName(), Arrays.asList(obj.getPreCovidValue(), obj.getPostCovidValue()));
-			}
-
-		}
-
-		return dataMap;
-	}
-
-
 
 	// grid grid grid main
 	public List<DailyData> getGridData(String startDate, String endDate, List<String> gotTickers,
@@ -697,7 +668,7 @@ public class CompanyService {
 		
 		else if(group.contentEquals("monthly")){
 			String[] monthList = { "December", "January", "February", "March", "April", "May", "June", "July",
-					"August", "September", "October", "November", "December" };			
+					"August", "September", "October", "November"};			
 			monthlabel = new ArrayList<>(new HashSet<>(monthLabel));
 			for(String index: monthlabel) {
 				int ind = (Integer.parseInt(index))%12;
@@ -869,7 +840,7 @@ public class CompanyService {
 		
 		else if(group.contentEquals("monthly")){
 			String[] monthList = { "December", "January", "February", "March", "April", "May", "June", "July",
-					"August", "September", "October", "November", "December" };			
+					"August", "September", "October", "November"};			
 			monthlabel = new ArrayList<>(new HashSet<>(monthLabel));
 			for(String index: monthlabel) {
 				int ind = (Integer.parseInt(index))%12;
