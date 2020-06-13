@@ -37,7 +37,7 @@ public class ChartObjectCustom {
 
 	public void setDatasets(List<ChartObject> datasets) {
 		this.datasets = datasets;
-	};
+	}
 
 	
 

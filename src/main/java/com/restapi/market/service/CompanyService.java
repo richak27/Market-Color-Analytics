@@ -86,7 +86,7 @@ public class CompanyService  {
 	}
 
 	// seed database on company basis	
-	public String addStocksByTicker(String ticker) throws ParseException {
+	public void addStocksByTicker(String ticker) throws ParseException {
 		Company company = this.companyRepository.findByTicker(ticker);
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2Initial + token, Stock[].class);
 		for (Stock stock : stocks) {
@@ -100,7 +100,7 @@ public class CompanyService  {
 		}
 		company.setStocks(Arrays.asList(stocks));
 		this.companyRepository.save(company);
-		return ticker + "information added to DB";
+		
 	}
 
 	// seed database with data of all companies
@@ -112,7 +112,7 @@ public class CompanyService  {
 			try {
 				addStocksByTicker(ticker);
 			} catch (Exception exception) {
-				logger.error("Could not add " + ticker + " due to");
+				logger.error("Could not add %s due to", ticker);
 				logger.error(exception.toString());
 			}
 		}
@@ -145,7 +145,7 @@ public class CompanyService  {
 			try {
 				updateByTicker(ticker);
 			} catch (Exception exception) {
-				logger.error("Could not update " + ticker + " due to");
+				logger.error("Could not update %s due to", ticker);
 				logger.error(exception.toString());
 			}
 		}
@@ -172,7 +172,7 @@ public class CompanyService  {
 			}
 
 		}
-		if (stocks.size() == 0) {
+		if (stocks.isEmpty()) {
 			volumeAverage.setPreCovidValue(0);
 			volumeAverage.setPostCovidValue(0);
 		} else if (sizeOfPre == 0) {
@@ -217,7 +217,7 @@ public class CompanyService  {
 			}
 		}
 
-		if (stocks.size() == 0) {
+		if (stocks.isEmpty()) {
 			priceAverage.setPreCovidValue(0);
 			priceAverage.setPostCovidValue(0);
 		} else if (sizeOfPre == 0) {
@@ -251,7 +251,7 @@ public class CompanyService  {
 
 		}
 
-		if (company.size() == 0) {
+		if (company.isEmpty()) {
 			priceAverage.setPreCovidValue(0);
 			priceAverage.setPostCovidValue(0);
 		} else {
@@ -280,7 +280,7 @@ public class CompanyService  {
 
 		}
 
-		if (company.size() == 0) {
+		if (company.isEmpty()) {
 			volumeAverage.setPreCovidValue(0);
 			volumeAverage.setPostCovidValue(0);
 		} else {
@@ -374,7 +374,7 @@ public class CompanyService  {
 	// Sort Average stock-price Deviation of Company
 	public Map<String, Double> getCompanyPriceDeviation(String boundaryDate) throws ParseException {
 		List<String> tickerList = getAllTickers();
-		Map<String, Double> values = new HashMap<String, Double>();
+		Map<String, Double> values = new HashMap<>();
 
 		for (String i : tickerList) {
 			AverageValues priceAverage = calAvgPriceByCompany(i, boundaryDate);
@@ -422,7 +422,7 @@ public class CompanyService  {
 			closeSum += stock.getClose();
 			volumeSum += stock.getVolume();
 		}
-		if (stocks.size() == 0) {
+		if (stocks.isEmpty()) {
 			calc.setPrice(0);
 			calc.setVolume(0);
 		} else {
@@ -774,8 +774,8 @@ public class CompanyService  {
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
-					dayLabel = new ArrayList<String>(daily.keySet());
-					valueList = new ArrayList<Double>(daily.values());
+					dayLabel = new ArrayList<>(daily.keySet());
+					valueList = new ArrayList<>(daily.values());
 				}
 
 				else if (type.contentEquals("volume")) {
@@ -784,8 +784,8 @@ public class CompanyService  {
 									Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)))
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-					dayLabel = new ArrayList<String>(daily.keySet());
-					valueList = new ArrayList<Double>(daily.values());
+					dayLabel = new ArrayList<>(daily.keySet());
+					valueList = new ArrayList<>(daily.values());
 				} else {
 					logger.error("Incorrect parameters entered");
 				}
@@ -815,7 +815,7 @@ public class CompanyService  {
 					weekLabel = new ArrayList<>(weekly.keySet());
 					valueList = new ArrayList<>(weekly.values());
 				} else {
-					System.out.print("Enter correct parameters");
+					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
 				chart.add(obj);
@@ -827,25 +827,23 @@ public class CompanyService  {
 				if (type.contentEquals("price")) {
 
 					Map<String, Double> monthly = stocknew.stream()
-							.collect(
-									Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getClose)))
+							.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getClose)))
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
-					monthLabel = new ArrayList<String>(monthly.keySet());
-					valueList = new ArrayList<Double>(monthly.values());
+					monthLabel = new ArrayList<>(monthly.keySet());
+					valueList = new ArrayList<>(monthly.values());
 				}
 
 				else if (type.contentEquals("volume")) {
 					Map<String, Double> monthly = stocknew.stream()
-							.collect(Collectors.groupingBy(Stock::getMonth,
-									Collectors.averagingDouble(Stock::getVolume)))
+							.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getVolume)))
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-					monthLabel = new ArrayList<String>(monthly.keySet());
-					valueList = new ArrayList<Double>(monthly.values());
+					monthLabel = new ArrayList<>(monthly.keySet());
+					valueList = new ArrayList<>(monthly.values());
 				} else {
-					System.out.print("Enter correct parameters");
+					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
 				chart.add(obj);
@@ -939,9 +937,9 @@ public class CompanyService  {
 
 				}
 			}
-			List<String> SectorNew = new ArrayList<>(new HashSet<String>(sectorNew));
+			List<String> newSector = new ArrayList<>(new HashSet<String>(sectorNew));
 			value1 = getDataCompany(tickerNew, startDate, endDate, type, group, boundaryDate);
-			value2 = getDataSector(SectorNew, startDate, endDate, type, group, boundaryDate);
+			value2 = getDataSector(newSector, startDate, endDate, type, group, boundaryDate);
 			List<ChartObject> obj1 = value1.getDatasets();
 			List<ChartObject> obj2 = value2.getDatasets();
 			obj1.addAll(obj2);
