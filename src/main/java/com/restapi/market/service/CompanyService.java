@@ -591,7 +591,6 @@ public class CompanyService {
 
 			if (group.contentEquals("daily")) {
 				
-
 				if (type.contentEquals("price")) {
 					Map<String, Double> daily = stocknew.stream()
 							.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getClose)))
@@ -708,6 +707,7 @@ public class CompanyService {
 		
 		else if(group.contentEquals("daily")) {
 			daylabel = new ArrayList<>(new HashSet<>(dayLabel));
+			Collections.sort(daylabel);
 			for (int k = 0; k < daylabel.size(); k++) {
 				Date nowDate = formatYMD.parse(daylabel.get(k));
 				labels.add(formatDMY.format(nowDate));
@@ -763,7 +763,6 @@ public class CompanyService {
 			i--;
 			
 			if (group.contentEquals("daily")) {
-				ArrayList<String> keyList = new ArrayList<>();
 
 				if (type.contentEquals("price")) {
 					Map<String, Double> daily = stocknew.stream()
@@ -851,7 +850,7 @@ public class CompanyService {
 			}
 			
 			else if(group.contentEquals("covid")) {
-					AverageValues val = companyAverage(sector, type, boundaryDate);
+					AverageValues val = sectorAverage(sector, type, boundaryDate);
 					obj.setData(Arrays.asList(val.getPreCovidValue(), val.getPostCovidValue()));
 					chart.add(obj);
 
@@ -880,6 +879,7 @@ public class CompanyService {
 		
 		else if(group.contentEquals("daily")) {
 			daylabel = new ArrayList<>(new HashSet<>(dayLabel));
+			Collections.sort(daylabel);
 			for (int k = 0; k < daylabel.size(); k++) {
 				Date nowDate = formatYMD.parse(daylabel.get(k));
 				labels.add(formatDMY.format(nowDate));
