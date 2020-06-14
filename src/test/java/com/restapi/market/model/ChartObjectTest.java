@@ -98,7 +98,7 @@ public class ChartObjectTest {
 	    	final ChartObject obj = new ChartObject();
 
 	        //when
-	        obj.setFill(false);
+	        obj.setFill();
 
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("fill");
