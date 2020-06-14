@@ -18,7 +18,7 @@ public class StockTest {
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("volume");
 	        field.setAccessible(true);
-	        assertEquals( field.get(obj), Double.valueOf(50));
+	        assertEquals( Double.valueOf(50),field.get(obj));
 	    }
 	 
 	 @Test
@@ -32,7 +32,7 @@ public class StockTest {
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("close");
 	        field.setAccessible(true);
-	        assertEquals( field.get(obj), Double.valueOf(50));
+	        assertEquals( Double.valueOf(50),field.get(obj));
 	    }
 	 
 	 @Test
@@ -46,7 +46,7 @@ public class StockTest {
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("week");
 	        field.setAccessible(true);
-	        assertEquals( field.get(obj), Integer.valueOf(5));
+	        assertEquals(Integer.valueOf(5),field.get(obj));
 	    }
 	 
 	 @Test
@@ -60,7 +60,7 @@ public class StockTest {
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("month");
 	        field.setAccessible(true);
-	        assertEquals( field.get(obj), "Feb");
+	        assertEquals("Feb",field.get(obj));
 	    }
 	 
 	 @Test
@@ -74,7 +74,7 @@ public class StockTest {
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("date");
 	        field.setAccessible(true);
-	        assertEquals( field.get(obj), "2020-02-02");
+	        assertEquals("2020-02-02",field.get(obj));
 	    }
 	 
 }
