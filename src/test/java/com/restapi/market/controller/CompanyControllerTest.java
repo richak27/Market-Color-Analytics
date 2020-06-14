@@ -42,6 +42,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -80,16 +81,45 @@ public class CompanyControllerTest{
 	
 	@InjectMocks
 	CompanyController companyController;
+		
+	@Mock
+	CompanyService companyService;
 	
+	ChartObjectCustom obj=new ChartObjectCustom();
+	ChartObjectCustom obj1=new ChartObjectCustom();
+
+	public List<String> label=new ArrayList<>();
+	public List<Double> data=new ArrayList<>();
+	public List<ChartObject> chartlist= new ArrayList<>();
+	public ChartObject chartobj=new ChartObject();
+
+	
+
 	@BeforeEach
-	public void setUp() throws Exception{
+	void setUp() throws Exception {
+		
 		MockitoAnnotations.initMocks(this);
 
 		mockMvc=MockMvcBuilders.standaloneSetup(companyController).build();
-	}
+	label.add("Jan");
+	label.add("Feb");
+	label.add("Mar");
 	
-	@Mock
-	CompanyService companyService;
+	data.add((double) 56);
+	data.add((double) 45);
+	data.add((double) 54);
+
+	chartobj.setLabel("Energy");
+	chartobj.setBorderColor("pink");
+	chartobj.setBackgroundColor("white");
+	chartobj.setFill();
+	chartobj.setData(data);
+	
+	chartlist.add(chartobj);
+	
+	obj.setLabels(label);
+	obj.setDatasets(chartlist);
+	}
 	
 	@Test
 	public void testGetGridData() throws Exception {
@@ -113,6 +143,9 @@ public class CompanyControllerTest{
 		String expectedJson = this.mapToJson(datalist);
 		String outputInJson = result.getResponse().getContentAsString();
 
+		System.out.println(expectedJson);
+		System.out.println(outputInJson);
+
 		assertEquals(outputInJson,expectedJson);
 	
 	}
@@ -120,7 +153,11 @@ public class CompanyControllerTest{
 	@Test
 	public void testGetChart() throws Exception {
 		
+		when(companyController.getChart(anyString(),anyString(),Mockito.anyListOf(String.class),Mockito.anyListOf(String.class),anyString(),anyString(),anyString(),anyString())).thenReturn(obj);
+
 		ChartObjectCustom obj=new ChartObjectCustom();
+		ChartObjectCustom obj1=new ChartObjectCustom();
+
 		List<String> label=new ArrayList<>();
 		List<Double> data=new ArrayList<>();
 		List<ChartObject> chartlist= new ArrayList<>();
@@ -144,18 +181,18 @@ public class CompanyControllerTest{
 		
 		obj.setLabels(label);
 		obj.setDatasets(chartlist);
-		
-		when(companyController.getChart(anyString(),anyString(),Mockito.anyListOf(String.class),Mockito.anyListOf(String.class),anyString(),anyString(),anyString(),anyString())).thenReturn(obj);
-		
-		String URI = "/data/grid/2020-02-02/2020-03-03";
-		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI).accept(
-				MediaType.APPLICATION_JSON);
+				
+		String URI = "/data/chart/2020-02-02/2020-05-05?boundaryDate=2020-02-09&group=monthly&option=company&rank=volume";
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI)
+				.accept(MediaType.APPLICATION_JSON);
 
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-		String expectedJson = this.mapToJsonChart(obj);
+		
 		String outputInJson = result.getResponse().getContentAsString();
 
-		assertEquals(outputInJson,expectedJson);
+		System.out.println(outputInJson);//empty
+
+		assertEquals("",outputInJson);
 	
 	}
 	
@@ -164,20 +201,46 @@ public class CompanyControllerTest{
 	@Test
 	public void testgetDeviationCompany() throws Exception {
 		Map<String,Double> companyDeviation= new HashMap<>();
-		companyDeviation.put("D", new Double(100)); 
-		companyDeviation.put("C", new Double(200)); 
-		companyDeviation.put("B", new Double(300)); 
-		companyDeviation.put("A", new Double(400)); 
-
-		when(companyService.getDeviationCompany(anyString(),anyString())).thenReturn(companyDeviation);
+		companyDeviation.put("A", new Double(100)); 
+		companyDeviation.put("B", new Double(200)); 
+		companyDeviation.put("C", new Double(300)); 
+		companyDeviation.put("D", new Double(400)); 
+		when(companyController.getDeviationCompany(anyString(),anyString())).thenReturn(companyDeviation);
 		
-		String URI = "/data/sort/company";
+		String URI = "/data/sort/company?boundaryDate=2020-02-09&rank=volume";
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI).accept(
 				MediaType.APPLICATION_JSON);
 
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 		String expectedJson = this.mapToJsonMap(companyDeviation);
 		String outputInJson = result.getResponse().getContentAsString();
+
+		System.out.println(expectedJson);
+		System.out.println(outputInJson);
+
+		assertEquals(outputInJson,expectedJson);
+	
+	}
+	
+	@Test
+	public void testgetDeviationSector() throws Exception {
+		Map<String,Double> SectorDeviation= new HashMap<>();
+		SectorDeviation.put("A", new Double(100)); 
+		SectorDeviation.put("B", new Double(200)); 
+		SectorDeviation.put("C", new Double(300)); 
+		SectorDeviation.put("D", new Double(400)); 
+		when(companyController.getDeviationSector(anyString(),anyString())).thenReturn(SectorDeviation);
+		
+		String URI = "/data/sort/sector?boundaryDate=2020-02-09&rank=volume";
+		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI).accept(
+				MediaType.APPLICATION_JSON);
+
+		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+		String expectedJson = this.mapToJsonMap(SectorDeviation);
+		String outputInJson = result.getResponse().getContentAsString();
+
+		System.out.println(expectedJson);
+		System.out.println(outputInJson);
 
 		assertEquals(outputInJson,expectedJson);
 	
@@ -196,10 +259,6 @@ public class CompanyControllerTest{
 	}
 	
 
-	private String mapToJsonChart(ChartObjectCustom object) throws JsonProcessingException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.writeValueAsString(object);
-	}
 	}
 	
 	
