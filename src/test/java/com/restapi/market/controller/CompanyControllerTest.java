@@ -83,7 +83,7 @@ public class CompanyControllerTest{
 		String expectedJson = this.mapToJson(datalist);
 		String outputInJson = result.getResponse().getContentAsString();
 
-		assertEquals(outputInJson,expectedJson);
+		assertEquals(expectedJson,outputInJson);
 	
 	}
 	
@@ -170,7 +170,7 @@ public class CompanyControllerTest{
 		String outputInJson1 = result1.getResponse().getContentAsString();
 
 
-		assertEquals(outputInJson1,expectedJson1);
+		assertEquals(expectedJson1,outputInJson1);
 		
 		Map<String,Double> companyDeviation= new HashMap<>();
 		companyDeviation.put("A", new Double(100)); 
@@ -187,7 +187,7 @@ public class CompanyControllerTest{
 		String expectedJson2 = this.mapToJsonMap(companyDeviation);
 		String outputInJson2 = result2.getResponse().getContentAsString();
 
-		assertEquals(outputInJson2,expectedJson2);
+		assertEquals(expectedJson2,outputInJson2);
 
 	
 	}
