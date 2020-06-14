@@ -385,27 +385,6 @@ public class CompanyService  {
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 	}
 
-	/*// Sorted Deviation for Companies
-	public Map<String, Double> getDeviationCompany(String rank, String boundaryDate) throws ParseException {
-		if (rank.contentEquals("volume")) {
-			return getCompanyVolumeDeviation(boundaryDate);
-		}
-		else {
-			return getCompanyPriceDeviation(boundaryDate);
-		}
-	}
-	// Sorted Deviation for Sectors
-	public Map<String, Double> getDeviationSector(String rank, String boundaryDate) throws ParseException {
-		if (rank.contentEquals("volume")) {
-			return getSectorVolumeDeviation(boundaryDate);
-		}
-		else if (rank.contentEquals("price")) {
-			return getSectorPriceDeviation(boundaryDate);
-		} else {
-			return null;
-		}
-	}*/
-	
 	
 	//Sorted Deviation
 	
@@ -588,7 +567,7 @@ public class CompanyService  {
 
 	private String[] colorArray = {
 			// 5th
-			"#EF5350","#EC407A","#AB47BC","#FF7043","#FFA726","#7E57C2","#FFCA28","#5C6BC0","#FFEE58 ",
+			"#EF5350","#EC407A","#AB47BC","#FF7043","#FFA726","#7E57C2","#FFCA28","#5C6BC0",
 			"#42A5F5","#D4E157","#29B6F6","#9CCC65","#26C6DA","#26A69A","#66BB6A",
 			// 6th
 			"#F44336","#E91E63","#9C27B0","#FF5722","#FF9800","#FFC107","#673AB7","#FFEB3B","#3F51B5","#CDDC39",
