@@ -4,9 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,19 +35,16 @@ class CompanyServiceTest {
 	
 	List<Company> tech_sector =new ArrayList<Company>();
 	List<Company> retail = new ArrayList<Company>();
-	List<Stock> stocks1 = new ArrayList<Stock>();
+	List<Company> courier = new ArrayList<Company>();
+
 	List<String> sectors=new ArrayList<String>();
 	List<String> tickers=new ArrayList<String>();
-	Map<String,Double> VolSortedSector=new HashMap< String,Double>(); 
-	Map<String,Double> PriceSortedSectors=new HashMap< String,Double>(); 
-	Map<String,Double> VolSortedCompany=new HashMap< String,Double>(); 
-	Map<String,Double> PriceSortedCompany=new HashMap< String,Double>(); 
-	
-	List<Company> courier = new ArrayList<Company>();
 	
 		@BeforeEach
 		void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
+
+		List<Stock> stocks1 = new ArrayList<Stock>();
 		stocks1.add(new Stock("2020-02-06",  100, 50, 01, "02"));
 		stocks1.add(new Stock("2020-02-07",  120, 40, 01, "02"));
 		stocks1.add(new Stock("2020-03-10",  80, 70, 11, "03"));
@@ -90,6 +85,7 @@ class CompanyServiceTest {
 		
 		retail.add(company1);
 		retail.add(company2);
+		
 		courier.add(company3);
 		courier.add(company4);
 		
@@ -100,21 +96,7 @@ class CompanyServiceTest {
 		tickers.add("DMT");
 		tickers.add("DH");
 		tickers.add("BDT");
-		VolSortedSector.put("Courier", new Double(22.5)); 
-		VolSortedSector.put("Retail", new Double(22.5)); 
-		VolSortedSector.put("Technology", new Double(27.5)); 
-		
-		VolSortedCompany.put("DH", new Double(20)); 
-		VolSortedCompany.put("DMT", new Double(20)); 
-		VolSortedCompany.put("BDT", new Double(25)); 
 
-		PriceSortedCompany.put("DH", new Double(-70)); 
-		PriceSortedCompany.put("BDT", new Double(-50)); 
-		PriceSortedCompany.put("DMT", new Double(-50)); 
-		
-		PriceSortedCompany.put("Courier", new Double(-45)); 
-		PriceSortedCompany.put("Technology", new Double(-31.25)); 
-		PriceSortedCompany.put("Retail", new Double(72.5)); 				
 	}
 
 		
@@ -124,7 +106,9 @@ class CompanyServiceTest {
 		void testcalAvgVolumeByCompany() throws ParseException {
 			
 			when(companyRepository.findByTicker(anyString())).thenReturn(company1);
+			
 			AverageValues volumeAverage = companyService.calAvgVolumeByCompany("DMT","2020-02-09");
+			
 			assertEquals(45, volumeAverage.getPreCovidValue());
 			assertEquals(65, volumeAverage.getPostCovidValue());
 			assertEquals(20, volumeAverage.getDeviation());
@@ -136,7 +120,9 @@ class CompanyServiceTest {
 		void testcalAvgPriceByCompany() throws ParseException {
 			
 			when(companyRepository.findByTicker(anyString())).thenReturn(company2);
+			
 			AverageValues priceAverage = companyService.calAvgPriceByCompany("BBZ","2020-02-09");
+			
 			assertEquals(105, priceAverage.getPreCovidValue());
 			assertEquals(90, priceAverage.getPostCovidValue());
 			assertEquals(-15, priceAverage.getDeviation());
@@ -151,10 +137,12 @@ class CompanyServiceTest {
 			when(companyRepository.findByTicker(company6.getTicker())).thenReturn(company6);
 			when(companyRepository.findByTicker(company7.getTicker())).thenReturn(company7);
 			when(companyRepository.findByTicker(company8.getTicker())).thenReturn(company8);
+			
 			AverageValues volumeAverage = companyService.calAvgVolumeBySector("Technology","2020-02-09");
+			
 			assertEquals(45, volumeAverage.getPreCovidValue());
-			//assertEquals(67.5, volumeAverage.getPostCovidValue());
-			//assertEquals(22.5, volumeAverage.getDeviation());
+			assertEquals(67.5, volumeAverage.getPostCovidValue());
+			assertEquals(22.5, volumeAverage.getDeviation());
 		}
 		
 		
@@ -169,6 +157,7 @@ class CompanyServiceTest {
 			when(companyRepository.findByTicker(company8.getTicker())).thenReturn(company8);
 			
 			AverageValues priceAverage = companyService.calAvgPriceBySector("Technology","2020-02-09");
+			
 			assertEquals(117.5, priceAverage.getPreCovidValue());
 			assertEquals(86.25, priceAverage.getPostCovidValue());
 			assertEquals(-31.25, priceAverage.getDeviation());
@@ -180,12 +169,12 @@ class CompanyServiceTest {
 	    void testCompanyAverage() throws ParseException{
 			
 	    	when(companyRepository.findByTicker(anyString())).thenReturn(company3);
-			AverageValues volumeAverage = companyService.companyAverage("BDT","volume","2020-02-09");
+			
+	    	AverageValues volumeAverage = companyService.companyAverage("BDT","volume","2020-02-09");
 			
 			assertEquals(50, volumeAverage.getPreCovidValue());
 			assertEquals(75, volumeAverage.getPostCovidValue());
 			assertEquals(25, volumeAverage.getDeviation());
-			
 			
 			AverageValues priceAverage = companyService.companyAverage("BDT","price","2020-02-09");
 
@@ -210,6 +199,12 @@ class CompanyServiceTest {
 			assertEquals(107.5, priceAverage.getPreCovidValue());
 			assertEquals(90, priceAverage.getPostCovidValue());
 			assertEquals(-17.5, priceAverage.getDeviation());
+			
+
+			AverageValues volumeAverage = companyService.sectorAverage("Retail","volume","2020-02-09");
+			assertEquals(42.5, volumeAverage.getPreCovidValue());
+			assertEquals(65, volumeAverage.getPostCovidValue());
+			assertEquals(22.5, volumeAverage.getDeviation());
 		}
 		
 		
@@ -354,8 +349,6 @@ class CompanyServiceTest {
 			when(companyRepository.findBySector("Retail")).thenReturn(retail);
 			
 			List<String> tickerlist = new ArrayList<String>();
-
-			
 			List<String> sectorlist = new ArrayList<String>();
 					        
 		    try{
@@ -459,10 +452,7 @@ class CompanyServiceTest {
 			    	fail("got Exception");
 			     }
 		    
-	        
-	        
-				
-		}
+	  }
 		
 		
 
