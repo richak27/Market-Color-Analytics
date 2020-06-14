@@ -26,7 +26,7 @@ public class ChartObjectCustomTest {
 	        final List<String> result = obj.getLabels();
 	        
 	        //then
-	        assertEquals( result, val);
+	        assertEquals(val,result);
 	    }
 		 
 	
