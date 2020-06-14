@@ -230,10 +230,10 @@ class CompanyServiceTest {
 			obj.add(dataobj);
 		
 			obj=companyService.gridCompany("DMT", "2020-02-06","2020-02-06");
-			assertEquals( obj.get(0).getCompanyName(),dataobj.getCompanyName());
-			assertEquals(obj.get(0).getDate(),dataobj.getDate());
-			assertEquals( obj.get(0).getVolume(),dataobj.getVolume());
-			assertEquals( obj.get(0).getPrice(),dataobj.getPrice());
+			assertEquals(dataobj.getCompanyName(), obj.get(0).getCompanyName());
+			assertEquals(dataobj.getDate(),obj.get(0).getDate());
+			assertEquals(dataobj.getVolume(),obj.get(0).getVolume());
+			assertEquals(dataobj.getPrice(),obj.get(0).getPrice());
 
 			
 		}
