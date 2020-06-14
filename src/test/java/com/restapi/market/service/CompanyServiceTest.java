@@ -247,7 +247,7 @@ class CompanyServiceTest {
 
 			
 		}
-		
+		/*
 
 		@Test
 		void testgridSector() throws ParseException {
@@ -276,6 +276,7 @@ class CompanyServiceTest {
 			assertEquals(nestedlist.get(0).get(0).getCompanyName(), result.get(0).get(0).getCompanyName());
 			
 		}
+		*/
 		
 
 		@Test
@@ -524,7 +525,7 @@ class CompanyServiceTest {
 			assertEquals(65.0,dataMap.get("DMart").get(1));
 			
 		}
-		
+		/*
 		@Test
 		void testgetSectorVolumeDeviation() throws ParseException {
 			
@@ -550,42 +551,13 @@ class CompanyServiceTest {
 		                             ", Value = " + entry.getValue()); 
 			 
 			 
-		/*	assertEquals(45.0,dataMap.get("DMart").get(0));
+			assertEquals(45.0,dataMap.get("DMart").get(0));
 			assertEquals(65.0,dataMap.get("DMart").get(1));
-			*/
+			
 			
 		}
 		
-		
-		@Test
-		void testaddStocksByTicker() throws ParseException {
-			
-
-			when(companyRepository.findByTicker(anyString())).thenReturn(company1);
-			
-			String result=companyService.addStocksByTicker("DMT");
-
-			assertEquals("DMT information added to DB",result);
-
-			
-		}
-		
-		
-
-		
-		@Test
-		void testSeed() throws ParseException {
-			
-
-			
-			String result=companyService.seedDb();
-
-			assertEquals( "Seeding Successful!",result);
-
-			
-		}
-		
-	
+	*/
 		@Test
 		void testgetDataByRangeCompany() throws ParseException{
 			 Calculate cal=new Calculate();
@@ -605,28 +577,6 @@ class CompanyServiceTest {
 			assertEquals(101.875,cal.getPrice());
 		}
 		
-		// 13. Avg calculation for list of stocks
-		
-		
-		@Test
-		void testAverageStock() {
-
-			when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
-			List<Stock>stocks = company2.getStocks();
-			try{
-		        Calculate Object =companyService.averagestock(stocks);
-		        assertNotNull(Object);//check if the object is != null
-		        
-		        assertEquals( true, Object instanceof Calculate);
-		    }catch(Exception e){
-	       
-		        fail("got Exception");
-		     }
-		}
-		
-		
-	
-	
 	
 	@Test
 	void testGetGridData() throws ParseException {
