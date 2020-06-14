@@ -19,7 +19,7 @@ import com.restapi.market.model.DailyData;
 import com.restapi.market.service.CompanyService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-@CrossOrigin(origins = "http://localhost:51535")
+@CrossOrigin
 @RestController
 @RequestMapping("/data")
 public class CompanyController {
