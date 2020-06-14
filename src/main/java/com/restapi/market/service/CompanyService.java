@@ -16,8 +16,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
 import static java.util.stream.Collectors.*;
 import static java.util.Map.Entry.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -37,7 +42,9 @@ import com.restapi.market.model.Stock;
 import com.restapi.market.repository.CompanyRepository;
 
 @Service
-public class CompanyService {
+public class CompanyService  {
+
+	Logger logger = LoggerFactory.getLogger(CompanyService.class);
 
 	@Value("${token}")
 	private String token;
@@ -78,8 +85,8 @@ public class CompanyService {
 		return mongoTemplate.query(Company.class).distinct("sector").as(String.class).all();
 	}
 
-	// seed database on company basis
-	public String addStocksByTicker(String ticker) throws ParseException {
+	// seed database on company basis	
+	public void addStocksByTicker(String ticker) throws ParseException {
 		Company company = this.companyRepository.findByTicker(ticker);
 		Stock[] stocks = restTemplate.getForObject(url1 + ticker + url2Initial + token, Stock[].class);
 		for (Stock stock : stocks) {
@@ -93,22 +100,26 @@ public class CompanyService {
 		}
 		company.setStocks(Arrays.asList(stocks));
 		this.companyRepository.save(company);
-		return ticker + "information added to DB";
+		
 	}
 
 	// seed database with data of all companies
-	public String seedDb() {
+	@PostConstruct
+	public void seedDb() {
+		logger.info("Seeding Initiated");
 		List<String> tickers = mongoTemplate.query(Company.class).distinct("ticker").as(String.class).all();
 		for (String ticker : tickers) {
 			try {
 				addStocksByTicker(ticker);
 			} catch (Exception exception) {
-				System.out.print("Did not find " + ticker + " ");
-				System.out.println(exception);
+				logger.error("Could not add %s due to", ticker);
+				logger.error(exception.toString());
 			}
 		}
-		return "Seeding Successful!";
+		logger.info("Seeding Successful!");
 	}
+	
+	
 
 	// daily update of stocks data of company whose ticker is passed
 	public void updateByTicker(String ticker) throws ParseException {
@@ -134,9 +145,11 @@ public class CompanyService {
 			try {
 				updateByTicker(ticker);
 			} catch (Exception exception) {
-				System.out.println(exception);
+				logger.error("Could not update %s due to", ticker);
+				logger.error(exception.toString());
 			}
 		}
+		logger.info("Updated database");
 	}
 
 	// calculate average volume for a company by ticker
@@ -159,9 +172,20 @@ public class CompanyService {
 			}
 
 		}
+		if (stocks.isEmpty()) {
+			volumeAverage.setPreCovidValue(0);
+			volumeAverage.setPostCovidValue(0);
+		} else if (sizeOfPre == 0) {
+			volumeAverage.setPreCovidValue(0);
+			volumeAverage.setPostCovidValue((postVolumeSum) / (stocks.size() - sizeOfPre));
+		} else if (sizeOfPre == stocks.size()) {
+			volumeAverage.setPreCovidValue((preVolumeSum) / (sizeOfPre));
+			volumeAverage.setPostCovidValue(0);
+		} else {
+			volumeAverage.setPreCovidValue((preVolumeSum) / (sizeOfPre));
+			volumeAverage.setPostCovidValue((postVolumeSum) / (stocks.size() - sizeOfPre));
+		}
 
-		volumeAverage.setPreCovidValue((preVolumeSum) / (sizeOfPre));
-		volumeAverage.setPostCovidValue((postVolumeSum) / (stocks.size() - sizeOfPre));
 		volumeAverage.setDeviation(volumeAverage.getPostCovidValue() - volumeAverage.getPreCovidValue());
 
 		return volumeAverage;
@@ -193,8 +217,19 @@ public class CompanyService {
 			}
 		}
 
-		priceAverage.setPreCovidValue((preCloseSum) / (sizeOfPre));
-		priceAverage.setPostCovidValue((postCloseSum) / (stocks.size() - sizeOfPre));
+		if (stocks.isEmpty()) {
+			priceAverage.setPreCovidValue(0);
+			priceAverage.setPostCovidValue(0);
+		} else if (sizeOfPre == 0) {
+			priceAverage.setPreCovidValue(0);
+			priceAverage.setPostCovidValue((postCloseSum) / (stocks.size() - sizeOfPre));
+		} else if (sizeOfPre == stocks.size()) {
+			priceAverage.setPreCovidValue((preCloseSum) / (sizeOfPre));
+			priceAverage.setPostCovidValue(0);
+		} else {
+			priceAverage.setPreCovidValue((preCloseSum) / (sizeOfPre));
+			priceAverage.setPostCovidValue((postCloseSum) / (stocks.size() - sizeOfPre));
+		}
 		priceAverage.setDeviation(priceAverage.getPostCovidValue() - priceAverage.getPreCovidValue());
 
 		return priceAverage;
@@ -216,8 +251,14 @@ public class CompanyService {
 
 		}
 
-		priceAverage.setPreCovidValue((preCloseSum) / (company.size()));
-		priceAverage.setPostCovidValue((postCloseSum) / (company.size()));
+		if (company.isEmpty()) {
+			priceAverage.setPreCovidValue(0);
+			priceAverage.setPostCovidValue(0);
+		} else {
+			priceAverage.setPreCovidValue((preCloseSum) / (company.size()));
+			priceAverage.setPostCovidValue((postCloseSum) / (company.size()));
+		}
+
 		priceAverage.setDeviation(priceAverage.getPostCovidValue() - priceAverage.getPreCovidValue());
 
 		return priceAverage;
@@ -239,8 +280,13 @@ public class CompanyService {
 
 		}
 
-		volumeAverage.setPreCovidValue((preVolumeSum) / (company.size()));
-		volumeAverage.setPostCovidValue((postVolumeSum) / (company.size()));
+		if (company.isEmpty()) {
+			volumeAverage.setPreCovidValue(0);
+			volumeAverage.setPostCovidValue(0);
+		} else {
+			volumeAverage.setPreCovidValue((preVolumeSum) / (company.size()));
+			volumeAverage.setPostCovidValue((postVolumeSum) / (company.size()));
+		}
 		volumeAverage.setDeviation(volumeAverage.getPostCovidValue() - volumeAverage.getPreCovidValue());
 
 		return volumeAverage;
@@ -328,7 +374,7 @@ public class CompanyService {
 	// Sort Average stock-price Deviation of Company
 	public Map<String, Double> getCompanyPriceDeviation(String boundaryDate) throws ParseException {
 		List<String> tickerList = getAllTickers();
-		Map<String, Double> values = new HashMap<String, Double>();
+		Map<String, Double> values = new HashMap<>();
 
 		for (String i : tickerList) {
 			AverageValues priceAverage = calAvgPriceByCompany(i, boundaryDate);
@@ -376,8 +422,13 @@ public class CompanyService {
 			closeSum += stock.getClose();
 			volumeSum += stock.getVolume();
 		}
-		calc.setPrice(closeSum / stocks.size());
-		calc.setVolume(volumeSum / stocks.size());
+		if (stocks.isEmpty()) {
+			calc.setPrice(0);
+			calc.setVolume(0);
+		} else {
+			calc.setPrice(closeSum / stocks.size());
+			calc.setVolume(volumeSum / stocks.size());
+		}
 		return calc;
 	}
 
@@ -392,7 +443,7 @@ public class CompanyService {
 
 			String nDate = stock.getDate();
 			Date nowDate = formatYMD.parse(nDate);
-			if (nowDate.before(eDate) && nowDate.after(sDate) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
+			if ((nowDate.before(eDate) && nowDate.after(sDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
 				stocksnew.add(stock);
 			}
 		}
@@ -401,6 +452,7 @@ public class CompanyService {
 
 	// Calculate for Average date range by sector public Calculate--------summary
 	// line
+
 	public Calculate getDataByRangeSector(String sector, String startDate, String endDate) throws ParseException {
 		List<Company> companies = getBySector(sector);
 		List<Stock> stocksnew = new ArrayList<>();
@@ -413,7 +465,7 @@ public class CompanyService {
 
 				String nDate = stock.getDate();
 				Date nowDate = formatYMD.parse(nDate);
-				if (nowDate.before(eDate) && nowDate.after(sDate) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
+				if ((nowDate.before(eDate) && nowDate.after(sDate)) || nowDate.equals(sDate) || nowDate.equals(eDate)) {
 					stocksnew.add(stock);
 				}
 			}
@@ -421,9 +473,7 @@ public class CompanyService {
 		return averagestock(stocksnew);
 	}
 
-
-
-	// List of objects with daily data for a company grid grid grid
+	// List of objects with daily data for a company (required for grid function)
 	public List<DailyData> gridCompany(String ticker, String startDate, String endDate) throws ParseException {
 		NumberFormat formatNum = NumberFormat.getInstance();
 		formatNum.setGroupingUsed(true);
@@ -453,13 +503,11 @@ public class CompanyService {
 		return objList;
 	}
 
-
-	// grid grid grid main
+	// for displaying data on the grid
 	public List<DailyData> getGridData(String startDate, String endDate, List<String> gotTickers,
 			List<String> gotSectors) throws ParseException {
 
 		List<DailyData> allCompanies = new ArrayList<>();
-		Set<String> filteredTickers = new HashSet<>();
 		Set<String> filteredSectors = new HashSet<>();
 		if (gotSectors.isEmpty()) {
 			for (String ticker : gotTickers) {
@@ -470,11 +518,8 @@ public class CompanyService {
 			for (String sector : gotSectors) {
 				List<Company> companies = getBySector(sector);
 				for (Company company : companies) {
-					filteredTickers.add(company.getTicker());
+					allCompanies.addAll(gridCompany(company.getTicker(), startDate, endDate));
 				}
-			}
-			for (String ticker : filteredTickers) {
-				allCompanies.addAll(gridCompany(ticker, startDate, endDate));
 			}
 
 		}
@@ -489,11 +534,8 @@ public class CompanyService {
 			for (String sector : filteredSectors) {
 				List<Company> companies = getBySector(sector);
 				for (Company company : companies) {
-					filteredTickers.add(company.getTicker());
+					allCompanies.addAll(gridCompany(company.getTicker(), startDate, endDate));
 				}
-			}
-			for (String ticker : filteredTickers) {
-				allCompanies.addAll(gridCompany(ticker, startDate, endDate));
 			}
 
 		} else {
@@ -514,16 +556,15 @@ public class CompanyService {
 
 	private String[] colorArray = { "#FFCDD2", "#F8BBD0", "#E1BEE7", "#D1C4E9", "#C5CAE9", "#B3E5FC", "#B2DFDB",
 			"#FFECB3", "#FFCCBC", "#D7CCC8", "#F06292", "#64B5F6", "#FFCA28", "#8BC34A", "#A1887F", "#B71C1C",
-			"#4A148C", "#CD5C5C", "#EC407A", "#7CB342", "#9CCC65", "#F08080", "#808080", "#000080",
-			"#FF00FF", "#800080", "#00FFFF", "#008000", "#FFFF00", "#800000", "#FFC0CB", "#CD5C5C", "#F08080",
-			"#FA8072", "#E9967A", "#FFA07A", "#DC143C", "#FF0000", "#B22222", "#8B0000", "#FFC0CB", "#FFB6C1",
-			"#FF69B4", "#FF1493", "#C71585", "#DB7093", "#FF7F50", "#FF6347", "#FF4500", "#FF8C00",
-			"#FFA500", "#FF69B4", "#FFA500", "#9400D3", "#7CFC00", "#2E8B57", "#191970", "#CD853F", "#800000",
-			"#00FFFF", "#4682B4", "#00BFFF", "#4169E1", "#F4A460" };
+			"#4A148C", "#CD5C5C", "#EC407A", "#7CB342", "#9CCC65", "#F08080", "#808080", "#000080", "#FF00FF",
+			"#800080", "#00FFFF", "#008000", "#FFFF00", "#800000", "#FFC0CB", "#CD5C5C", "#F08080", "#FA8072",
+			"#E9967A", "#FFA07A", "#DC143C", "#FF0000", "#B22222", "#8B0000", "#FFC0CB", "#FFB6C1", "#FF69B4",
+			"#FF1493", "#C71585", "#DB7093", "#FF7F50", "#FF6347", "#FF4500", "#FF8C00", "#FFA500", "#FF69B4",
+			"#FFA500", "#9400D3", "#7CFC00", "#2E8B57", "#191970", "#CD853F", "#800000", "#00FFFF", "#4682B4",
+			"#00BFFF", "#4169E1", "#F4A460" };
 
-	
 	public ChartObjectCustom getDataCompany(List<String> tickerList, String startDate, String endDate, String type,
-			String group,String boundaryDate) throws ParseException {
+			String group, String boundaryDate) throws ParseException {
 
 		Date sDate = formatYMD.parse(startDate);
 		Date eDate = formatYMD.parse(endDate);
@@ -531,10 +572,10 @@ public class CompanyService {
 		ChartObjectCustom value = new ChartObjectCustom();
 		List<ChartObject> chart = new ArrayList<>();
 		List<String> labels = new ArrayList<>();
-		List<String>monthLabel = new ArrayList<>();
-		List<String>monthlabel = new ArrayList<>();
-		List<String>dayLabel = new ArrayList<>();
-		List<String>daylabel = new ArrayList<>();
+		List<String> monthLabel = new ArrayList<>();
+		List<String> monthlabel = new ArrayList<>();
+		List<String> dayLabel = new ArrayList<>();
+		List<String> daylabel = new ArrayList<>();
 		List<Stock> stocknew = new ArrayList<>();
 		ArrayList<Double> valueList = new ArrayList<>();
 		List<Integer> weekLabel = new ArrayList<>();
@@ -554,14 +595,14 @@ public class CompanyService {
 			}
 
 			ChartObject obj = new ChartObject();
-			
+
 			obj.setLabel(company.getName());
 			obj.setBackgroundColor(colorArray[i]);
 			obj.setBorderColor(colorArray[i]);
 			i++;
 
 			if (group.contentEquals("daily")) {
-				
+
 				if (type.contentEquals("price")) {
 					Map<String, Double> daily = stocknew.stream()
 							.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getClose)))
@@ -574,18 +615,17 @@ public class CompanyService {
 
 				else if (type.contentEquals("volume")) {
 					Map<String, Double> daily = stocknew.stream()
-							.collect(
-									Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)))
+							.collect(Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)))
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 					dayLabel = new ArrayList<>(daily.keySet());
 					valueList = new ArrayList<>(daily.values());
 				} else {
-					System.out.print("Enter correct parameters");
+					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
 				chart.add(obj);
-				
+
 			}
 
 			else if (group.contentEquals("weekly")) {
@@ -602,28 +642,25 @@ public class CompanyService {
 
 				else if (type.contentEquals("volume")) {
 					Map<Integer, Double> weekly = stocknew.stream()
-							.collect(
-									Collectors.groupingBy(Stock::getWeek, Collectors.averagingDouble(Stock::getVolume)))
+							.collect(Collectors.groupingBy(Stock::getWeek, Collectors.averagingDouble(Stock::getVolume)))
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 					weekLabel = new ArrayList<>(weekly.keySet());
 					valueList = new ArrayList<>(weekly.values());
 				} else {
-					System.out.print("Enter correct parameters");
+					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
 				chart.add(obj);
-				
 
 			}
 
-			else if (group.contentEquals("monthly")) {				
+			else if (group.contentEquals("monthly")) {
 
 				if (type.contentEquals("price")) {
 
 					Map<String, Double> monthly = stocknew.stream()
-							.collect(
-									Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getClose)))
+							.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getClose)))
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
@@ -640,43 +677,40 @@ public class CompanyService {
 					monthLabel = new ArrayList<>(monthly.keySet());
 					valueList = new ArrayList<>(monthly.values());
 				} else {
-					System.out.print("Enter correct parameters");
+					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
 				chart.add(obj);
-				
-				
+
 			}
-			
-			else if(group.contentEquals("covid")) {
+
+			else if (group.contentEquals("covid")) {
 				AverageValues val = companyAverage(ticker, type, boundaryDate);
 				obj.setData(Arrays.asList(val.getPreCovidValue(), val.getPostCovidValue()));
-				chart.add(obj);				
+				chart.add(obj);
 			}
 		}
-		
-		
 
-		if(group.contentEquals("weekly")) {
-			
+		if (group.contentEquals("weekly")) {
+
 			weeklabel = new ArrayList<>(new HashSet<>(weekLabel));
 			for (int n : weeklabel) {
 				labels.add("Week" + n);
 			}
-			
+
 		}
-		
-		else if(group.contentEquals("monthly")){
-			String[] monthList = { "December", "January", "February", "March", "April", "May", "June", "July",
-					"August", "September", "October", "November"};			
+
+		else if (group.contentEquals("monthly")) {
+			String[] monthList = { "December", "January", "February", "March", "April", "May", "June", "July", "August",
+					"September", "October", "November" };
 			monthlabel = new ArrayList<>(new HashSet<>(monthLabel));
-			for(String index: monthlabel) {
-				int ind = (Integer.parseInt(index))%12;
-				labels.add(monthList[ind]);	
-			}			
+			for (String index : monthlabel) {
+				int ind = (Integer.parseInt(index)) % 12;
+				labels.add(monthList[ind]);
+			}
 		}
-		
-		else if(group.contentEquals("daily")) {
+
+		else if (group.contentEquals("daily")) {
 			daylabel = new ArrayList<>(new HashSet<>(dayLabel));
 			Collections.sort(daylabel);
 			for (int k = 0; k < daylabel.size(); k++) {
@@ -684,7 +718,7 @@ public class CompanyService {
 				labels.add(formatDMY.format(nowDate));
 			}
 		}
-		
+
 		else if (group.contentEquals("covid")) {
 			labels.add("Pre-COVID");
 			labels.add("Post-COVID");
@@ -695,26 +729,25 @@ public class CompanyService {
 		return value;
 
 	}
-	
-	
-	public ChartObjectCustom getDataSector( List<String> sectorList,
-			String startDate, String endDate, String type, String group, String boundaryDate) throws ParseException {
-		
+
+	public ChartObjectCustom getDataSector(List<String> sectorList, String startDate, String endDate, String type,
+			String group, String boundaryDate) throws ParseException {
+
 		Date sDate = formatYMD.parse(startDate);
 		Date eDate = formatYMD.parse(endDate);
 		int i = 50;
 		ChartObjectCustom value = new ChartObjectCustom();
 		List<ChartObject> chart = new ArrayList<>();
-		List<String>monthLabel = new ArrayList<>();
-		List<String>monthlabel = new ArrayList<>();
+		List<String> monthLabel = new ArrayList<>();
+		List<String> monthlabel = new ArrayList<>();
 		List<String> labels = new ArrayList<>();
-		List<String>dayLabel = new ArrayList<>();
-		List<String>daylabel = new ArrayList<>();
+		List<String> dayLabel = new ArrayList<>();
+		List<String> daylabel = new ArrayList<>();
 		List<Stock> stocknew = new ArrayList<>();
 		ArrayList<Double> valueList = new ArrayList<>();
 		List<Integer> weekLabel = new ArrayList<>();
 		List<Integer> weeklabel = new ArrayList<>();
-		
+
 		for (String sector : sectorList) {
 			List<Company> company = getBySector(sector);
 			for (Company comp : company) {
@@ -732,7 +765,7 @@ public class CompanyService {
 			obj.setBackgroundColor(colorArray[i]);
 			obj.setBorderColor(colorArray[i]);
 			i--;
-			
+
 			if (group.contentEquals("daily")) {
 
 				if (type.contentEquals("price")) {
@@ -741,8 +774,8 @@ public class CompanyService {
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
-					dayLabel = new ArrayList<String>(daily.keySet());
-					valueList = new ArrayList<Double>(daily.values());
+					dayLabel = new ArrayList<>(daily.keySet());
+					valueList = new ArrayList<>(daily.values());
 				}
 
 				else if (type.contentEquals("volume")) {
@@ -751,10 +784,10 @@ public class CompanyService {
 									Collectors.groupingBy(Stock::getDate, Collectors.averagingDouble(Stock::getVolume)))
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-					dayLabel = new ArrayList<String>(daily.keySet());
-					valueList = new ArrayList<Double>(daily.values());
+					dayLabel = new ArrayList<>(daily.keySet());
+					valueList = new ArrayList<>(daily.values());
 				} else {
-					System.out.print("Enter correct parameters");
+					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
 				chart.add(obj);
@@ -782,7 +815,7 @@ public class CompanyService {
 					weekLabel = new ArrayList<>(weekly.keySet());
 					valueList = new ArrayList<>(weekly.values());
 				} else {
-					System.out.print("Enter correct parameters");
+					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
 				chart.add(obj);
@@ -790,65 +823,61 @@ public class CompanyService {
 			}
 
 			else if (group.contentEquals("monthly")) {
-				
+
 				if (type.contentEquals("price")) {
 
 					Map<String, Double> monthly = stocknew.stream()
-							.collect(
-									Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getClose)))
+							.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getClose)))
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
-					monthLabel = new ArrayList<String>(monthly.keySet());
-					valueList = new ArrayList<Double>(monthly.values());
+					monthLabel = new ArrayList<>(monthly.keySet());
+					valueList = new ArrayList<>(monthly.values());
 				}
 
 				else if (type.contentEquals("volume")) {
 					Map<String, Double> monthly = stocknew.stream()
-							.collect(Collectors.groupingBy(Stock::getMonth,
-									Collectors.averagingDouble(Stock::getVolume)))
+							.collect(Collectors.groupingBy(Stock::getMonth, Collectors.averagingDouble(Stock::getVolume)))
 							.entrySet().stream().sorted(comparingByKey())
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-					monthLabel  = new ArrayList<String>(monthly.keySet());
-					valueList = new ArrayList<Double>(monthly.values());
+					monthLabel = new ArrayList<>(monthly.keySet());
+					valueList = new ArrayList<>(monthly.values());
 				} else {
-					System.out.print("Enter correct parameters");
+					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
 				chart.add(obj);
 
+			}
+
+			else if (group.contentEquals("covid")) {
+				AverageValues val = sectorAverage(sector, type, boundaryDate);
+				obj.setData(Arrays.asList(val.getPreCovidValue(), val.getPostCovidValue()));
+				chart.add(obj);
 
 			}
-			
-			else if(group.contentEquals("covid")) {
-					AverageValues val = sectorAverage(sector, type, boundaryDate);
-					obj.setData(Arrays.asList(val.getPreCovidValue(), val.getPostCovidValue()));
-					chart.add(obj);
-
-					
-				}
-			}
-		
-			if (group.contentEquals("weekly")) {
-
-				weeklabel = new ArrayList<>(new HashSet<>(weekLabel));
-				for (int n : weeklabel) {
-					labels.add("Week" + n);
-				}
-
-			}
-		
-		else if(group.contentEquals("monthly")){
-			String[] monthList = { "December", "January", "February", "March", "April", "May", "June", "July",
-					"August", "September", "October", "November"};			
-			monthlabel = new ArrayList<>(new HashSet<>(monthLabel));
-			for(String index: monthlabel) {
-				int ind = (Integer.parseInt(index))%12;
-				labels.add(monthList[ind]);	
-			}			
 		}
-		
-		else if(group.contentEquals("daily")) {
+
+		if (group.contentEquals("weekly")) {
+
+			weeklabel = new ArrayList<>(new HashSet<>(weekLabel));
+			for (int n : weeklabel) {
+				labels.add("Week" + n);
+			}
+
+		}
+
+		else if (group.contentEquals("monthly")) {
+			String[] monthList = { "December", "January", "February", "March", "April", "May", "June", "July", "August",
+					"September", "October", "November" };
+			monthlabel = new ArrayList<>(new HashSet<>(monthLabel));
+			for (String index : monthlabel) {
+				int ind = (Integer.parseInt(index)) % 12;
+				labels.add(monthList[ind]);
+			}
+		}
+
+		else if (group.contentEquals("daily")) {
 			daylabel = new ArrayList<>(new HashSet<>(dayLabel));
 			Collections.sort(daylabel);
 			for (int k = 0; k < daylabel.size(); k++) {
@@ -856,7 +885,7 @@ public class CompanyService {
 				labels.add(formatDMY.format(nowDate));
 			}
 		}
-		
+
 		else if (group.contentEquals("covid")) {
 			labels.add("Pre-COVID");
 			labels.add("Post-COVID");
@@ -866,22 +895,21 @@ public class CompanyService {
 		value.setDatasets(chart);
 		return value;
 
-}	
+	}
 
-	public ChartObjectCustom getChart(List<String>tickerList,List<String>sectorList,String startDate, String endDate,
-			String type, String group, String option,String boundaryDate) throws ParseException {
-		
+	public ChartObjectCustom getChart(List<String> tickerList, List<String> sectorList, String startDate,
+			String endDate, String type, String group, String option, String boundaryDate) throws ParseException {
 
-		if(sectorList.isEmpty()) {
-			return getDataCompany(tickerList, startDate, endDate, type,group,boundaryDate);
+		if (sectorList.isEmpty()) {
+			return getDataCompany(tickerList, startDate, endDate, type, group, boundaryDate);
 		}
-		
-		else if (tickerList.isEmpty()) {			
-			return getDataSector(sectorList, startDate, endDate, type,group,boundaryDate);			
+
+		else if (tickerList.isEmpty()) {
+			return getDataSector(sectorList, startDate, endDate, type, group, boundaryDate);
 		}
-		
-		else if(option.contentEquals("company")) {
-			List<String>tickerNew = new ArrayList<>();
+
+		else if (option.contentEquals("company")) {
+			List<String> tickerNew = new ArrayList<>();
 			for (String ticker : tickerList) {
 
 				Company company = getByTicker(ticker);
@@ -889,14 +917,13 @@ public class CompanyService {
 					tickerNew.add(ticker);
 				}
 			}
-			
-			return	getDataCompany(tickerNew, startDate, endDate, type,group,boundaryDate);
+
+			return getDataCompany(tickerNew, startDate, endDate, type, group, boundaryDate);
 
 		}
-		
-		else if(option.contentEquals("both")) {
-			
-			
+
+		else if (option.contentEquals("both")) {
+
 			List<String> tickerNew = new ArrayList<>();
 			List<String> sectorNew = new ArrayList<>();
 			ChartObjectCustom value1 = new ChartObjectCustom();
@@ -910,20 +937,22 @@ public class CompanyService {
 
 				}
 			}
-			List<String> SectorNew = new ArrayList<>(new HashSet<String>(sectorNew));
-			value1 = getDataCompany(tickerNew, startDate, endDate, type,group,boundaryDate);
-			value2 = getDataSector(SectorNew, startDate, endDate, type,group,boundaryDate);
+			List<String> newSector = new ArrayList<>(new HashSet<String>(sectorNew));
+			value1 = getDataCompany(tickerNew, startDate, endDate, type, group, boundaryDate);
+			value2 = getDataSector(newSector, startDate, endDate, type, group, boundaryDate);
 			List<ChartObject> obj1 = value1.getDatasets();
 			List<ChartObject> obj2 = value2.getDatasets();
 			obj1.addAll(obj2);
 			value1.setDatasets(obj1);
 			return value1;
-	
+
 		}
-		
+
 		else {
 			return null;
 		}
-	
+
 	}
+
+	
 }

@@ -31,13 +31,7 @@ public class CompanyController {
 
 	@Autowired
 	private CompanyService companyService;
-
-	// Populate Database
-	@GetMapping("/seed")
-	public String populateDb() {
-		return companyService.seedDb();
-	}
-
+	
 	// Sorted values of Deviation Price or Volume for a company
 	@GetMapping("/sort/company")
 	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank,
