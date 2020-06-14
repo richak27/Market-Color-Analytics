@@ -101,24 +101,6 @@ public class CompanyControllerTest{
 		MockitoAnnotations.initMocks(this);
 
 		mockMvc=MockMvcBuilders.standaloneSetup(companyController).build();
-	label.add("Jan");
-	label.add("Feb");
-	label.add("Mar");
-	
-	data.add((double) 56);
-	data.add((double) 45);
-	data.add((double) 54);
-
-	chartobj.setLabel("Energy");
-	chartobj.setBorderColor("pink");
-	chartobj.setBackgroundColor("white");
-	chartobj.setFill();
-	chartobj.setData(data);
-	
-	chartlist.add(chartobj);
-	
-	obj.setLabels(label);
-	obj.setDatasets(chartlist);
 	}
 	
 	@Test
@@ -143,15 +125,31 @@ public class CompanyControllerTest{
 		String expectedJson = this.mapToJson(datalist);
 		String outputInJson = result.getResponse().getContentAsString();
 
-		System.out.println(expectedJson);
-		System.out.println(outputInJson);
-
 		assertEquals(outputInJson,expectedJson);
 	
 	}
 	
 	@Test
 	public void testGetChart() throws Exception {
+		
+		label.add("Jan");
+		label.add("Feb");
+		label.add("Mar");
+		
+		data.add((double) 56);
+		data.add((double) 45);
+		data.add((double) 54);
+
+		chartobj.setLabel("Energy");
+		chartobj.setBorderColor("pink");
+		chartobj.setBackgroundColor("white");
+		chartobj.setFill();
+		chartobj.setData(data);
+		
+		chartlist.add(chartobj);
+		
+		obj.setLabels(label);
+		obj.setDatasets(chartlist);
 		
 		when(companyController.getChart(anyString(),anyString(),Mockito.anyListOf(String.class),Mockito.anyListOf(String.class),anyString(),anyString(),anyString(),anyString())).thenReturn(obj);
 
@@ -190,7 +188,6 @@ public class CompanyControllerTest{
 		
 		String outputInJson = result.getResponse().getContentAsString();
 
-		System.out.println(outputInJson);//empty
 
 		assertEquals("",outputInJson);
 	
@@ -215,9 +212,6 @@ public class CompanyControllerTest{
 		String expectedJson = this.mapToJsonMap(companyDeviation);
 		String outputInJson = result.getResponse().getContentAsString();
 
-		System.out.println(expectedJson);
-		System.out.println(outputInJson);
-
 		assertEquals(outputInJson,expectedJson);
 	
 	}
@@ -239,8 +233,6 @@ public class CompanyControllerTest{
 		String expectedJson = this.mapToJsonMap(SectorDeviation);
 		String outputInJson = result.getResponse().getContentAsString();
 
-		System.out.println(expectedJson);
-		System.out.println(outputInJson);
 
 		assertEquals(outputInJson,expectedJson);
 	
