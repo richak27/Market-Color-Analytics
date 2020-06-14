@@ -276,7 +276,7 @@ public class CompanyService  {
 		for (Company comp : company) {
 			preVolumeSum = preVolumeSum + calAvgVolumeByCompany(comp.getTicker(), boundaryDate).getPreCovidValue();
 
-			postVolumeSum = postVolumeSum + calAvgPriceByCompany(comp.getTicker(), boundaryDate).getPostCovidValue();
+			postVolumeSum = postVolumeSum + calAvgVolumeByCompany(comp.getTicker(), boundaryDate).getPostCovidValue();
 
 		}
 
@@ -385,7 +385,7 @@ public class CompanyService  {
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 	}
 
-	// Sorted Deviation for Companies
+	/*// Sorted Deviation for Companies
 	public Map<String, Double> getDeviationCompany(String rank, String boundaryDate) throws ParseException {
 
 		if (rank.contentEquals("volume")) {
@@ -410,7 +410,44 @@ public class CompanyService  {
 			return null;
 		}
 
+	}*/
+	
+	
+	//Sorted Deviation
+	
+	public Map<String, Double> getDeviation(String type, String value, String boundaryDate)
+			throws ParseException {
+
+		if (value.contentEquals("company")) {
+			if (type.contentEquals("volume")) {
+				return getCompanyVolumeDeviation(boundaryDate);
+			}
+
+			else if (type.contentEquals("price")) {
+				return getCompanyPriceDeviation(boundaryDate);
+			} else {
+				return null;
+			}
+		}
+
+		else if (value.contentEquals("sector")) {
+			if (type.contentEquals("volume")) {
+				return getSectorVolumeDeviation(boundaryDate);
+			}
+
+			else if (type.contentEquals("price")) {
+				return getSectorPriceDeviation(boundaryDate);
+			} else {
+				return null;
+			}
+		}
+
+		else {
+			return null;
+		}
+
 	}
+	
 
 	// Calculate Average Stock Price and Volume
 	public Calculate averagestock(List<Stock> stocks) {
@@ -551,17 +588,42 @@ public class CompanyService  {
 
 	}
 
+	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -----sab
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// dh
 
-	private String[] colorArray = { "#FFCDD2", "#F8BBD0", "#E1BEE7", "#D1C4E9", "#C5CAE9", "#B3E5FC", "#B2DFDB",
-			"#FFECB3", "#FFCCBC", "#D7CCC8", "#F06292", "#64B5F6", "#FFCA28", "#8BC34A", "#A1887F", "#B71C1C",
-			"#4A148C", "#CD5C5C", "#EC407A", "#7CB342", "#9CCC65", "#F08080", "#808080", "#000080", "#FF00FF",
-			"#800080", "#00FFFF", "#008000", "#FFFF00", "#800000", "#FFC0CB", "#CD5C5C", "#F08080", "#FA8072",
-			"#E9967A", "#FFA07A", "#DC143C", "#FF0000", "#B22222", "#8B0000", "#FFC0CB", "#FFB6C1", "#FF69B4",
-			"#FF1493", "#C71585", "#DB7093", "#FF7F50", "#FF6347", "#FF4500", "#FF8C00", "#FFA500", "#FF69B4",
-			"#FFA500", "#9400D3", "#7CFC00", "#2E8B57", "#191970", "#CD853F", "#800000", "#00FFFF", "#4682B4",
-			"#00BFFF", "#4169E1", "#F4A460" };
+	private String[] colorArray = {
+			// 5th
+			"#EF5350","#EC407A","#AB47BC","#FF7043","#FFA726","#7E57C2","#FFCA28","#5C6BC0","#FFEE58 ",
+			"#42A5F5","#D4E157","#29B6F6","#9CCC65","#26C6DA","#26A69A","#66BB6A",
+			// 6th
+			"#F44336","#E91E63","#9C27B0","#FF5722","#FF9800","#FFC107","#673AB7","#FFEB3B","#3F51B5","#CDDC39",
+			"#2196F3","#8BC34A","#03A9F4","#00BCD4","#4CAF50",
+			
+			// 4th
+			"#E57373","#FF8A65","#F06292","#FFB74D","#BA68C8","#FFD54F","#9575CD","#FFF176","#7986CB","#DCE775",
+			"#64B5F6","#AED581","#4DD0E1","#81C784","#4DB6AC",
+			
+			// 8th
+			"#D32F2F","#E64A19","#C2185B","#F57C00","#7B1FA2","#FFA000","#512DA8","#FBC02D","#303F9F","#AFB42B",
+			"#1976D2","#689F38","#0288D1","#FBC02D","#0097A7","#00796B",
+			
+			//2nd
+			"#FFCDD2","#FFCCBC","#FFCDD2","#FFE0B2","#E1BEE7","#FFECB3","#D1C4E9","#FFF9C4","#C5CAE9","#F0F4C3",
+			"#BBDEFB","#F0F4C3","#B3E5FC","#DCEDC8","#B2EBF2","#B2DFDB",
+			
+			//last
+			"#B71C1C","#BF360C","#880E4F","#E65100","#4A148C","#FF6F00","#311B92","#F57F17","#1A237E","#827717",
+			"#0D47A1","#33691E","#01579B","#1B5E20","#006064","#006064",
+			
+			//3rd
+			"#EF9A9A","#FFAB91","#F48FB1","#FFCC80","#CE93D8","#FFE082","#B39DDB","#FFF59D","#9FA8DA","#E6EE9C",
+			"#90CAF9","#C5E1A5","#81D4FA","#C5E1A5","#80DEEA","#80CBC4",
+			
+			//9th
+			"#AD1457","#D84315","#AD1457","#EF6C00","#6A1B9A","#FF8F00","#4527A0","#F9A825","#283593","#9E9D24",
+			"#1565C0","#558B2F","#0277BD","#2E7D32"};
+			
 
 	public ChartObjectCustom getDataCompany(List<String> tickerList, String startDate, String endDate, String type,
 			String group, String boundaryDate) throws ParseException {
@@ -735,7 +797,7 @@ public class CompanyService  {
 
 		Date sDate = formatYMD.parse(startDate);
 		Date eDate = formatYMD.parse(endDate);
-		int i = 50;
+		int i = 124;
 		ChartObjectCustom value = new ChartObjectCustom();
 		List<ChartObject> chart = new ArrayList<>();
 		List<String> monthLabel = new ArrayList<>();
@@ -954,5 +1016,4 @@ public class CompanyService  {
 
 	}
 
-	
 }
