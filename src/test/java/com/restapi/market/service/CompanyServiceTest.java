@@ -504,27 +504,7 @@ class CompanyServiceTest {
 		}
 		
 		
-		@Test
-		void testchartCompanySector() throws ParseException {
-			
-			when(companyRepository.findByTicker("DMT")).thenReturn(company1);
-			when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
-			when(companyRepository.findBySector("Retail")).thenReturn(retail);
-			
-			List<String> tickerlist = new ArrayList<String>();
-			tickerlist.add("DMT");
-			tickerlist.add("BBZ");	
-			
-			List<String> sectorlist = new ArrayList<String>();
-			sectorlist.add("Retail");
-			
-			Map<String, List<Double>> dataMap = new HashMap<>();
-			dataMap=companyService.chartCompanySector(tickerlist, sectorlist, "volume", "2020-02-09");
- 			 
-			assertEquals(45.0,dataMap.get("DMart").get(0));
-			assertEquals(65.0,dataMap.get("DMart").get(1));
-			
-		}
+		
 		/*
 		@Test
 		void testgetSectorVolumeDeviation() throws ParseException {
