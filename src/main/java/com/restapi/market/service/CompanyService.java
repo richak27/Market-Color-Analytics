@@ -276,7 +276,7 @@ public class CompanyService  {
 		for (Company comp : company) {
 			preVolumeSum = preVolumeSum + calAvgVolumeByCompany(comp.getTicker(), boundaryDate).getPreCovidValue();
 
-			postVolumeSum = postVolumeSum + calAvgPriceByCompany(comp.getTicker(), boundaryDate).getPostCovidValue();
+			postVolumeSum = postVolumeSum + calAvgVolumeByCompany(comp.getTicker(), boundaryDate).getPostCovidValue();
 
 		}
 
@@ -385,32 +385,63 @@ public class CompanyService  {
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 	}
 
-	// Sorted Deviation for Companies
+	/*// Sorted Deviation for Companies
 	public Map<String, Double> getDeviationCompany(String rank, String boundaryDate) throws ParseException {
-
 		if (rank.contentEquals("volume")) {
 			return getCompanyVolumeDeviation(boundaryDate);
 		}
-
 		else {
 			return getCompanyPriceDeviation(boundaryDate);
 		}
-
 	}
-
 	// Sorted Deviation for Sectors
 	public Map<String, Double> getDeviationSector(String rank, String boundaryDate) throws ParseException {
 		if (rank.contentEquals("volume")) {
 			return getSectorVolumeDeviation(boundaryDate);
 		}
-
 		else if (rank.contentEquals("price")) {
 			return getSectorPriceDeviation(boundaryDate);
 		} else {
 			return null;
 		}
+	}*/
+	
+	
+	//Sorted Deviation
+	
+	public Map<String, Double> getDeviation(String type, String value, String boundaryDate)
+			throws ParseException {
+
+		if (value.contentEquals("company")) {
+			if (type.contentEquals("volume")) {
+				return getCompanyVolumeDeviation(boundaryDate);
+			}
+
+			else if (type.contentEquals("price")) {
+				return getCompanyPriceDeviation(boundaryDate);
+			} else {
+				return null;
+			}
+		}
+
+		else if (value.contentEquals("sector")) {
+			if (type.contentEquals("volume")) {
+				return getSectorVolumeDeviation(boundaryDate);
+			}
+
+			else if (type.contentEquals("price")) {
+				return getSectorPriceDeviation(boundaryDate);
+			} else {
+				return null;
+			}
+		}
+
+		else {
+			return null;
+		}
 
 	}
+	
 
 	// Calculate Average Stock Price and Volume
 	public Calculate averagestock(List<Stock> stocks) {
@@ -551,6 +582,7 @@ public class CompanyService  {
 
 	}
 
+	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -----sab
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// dh
 
@@ -586,6 +618,7 @@ public class CompanyService  {
 			"#AD1457","#D84315","#AD1457","#EF6C00","#6A1B9A","#FF8F00","#4527A0","#F9A825","#283593","#9E9D24",
 			"#1565C0","#558B2F","#0277BD","#2E7D32"};
 			
+
 	public ChartObjectCustom getDataCompany(List<String> tickerList, String startDate, String endDate, String type,
 			String group, String boundaryDate) throws ParseException {
 
@@ -758,7 +791,7 @@ public class CompanyService  {
 
 		Date sDate = formatYMD.parse(startDate);
 		Date eDate = formatYMD.parse(endDate);
-		int i = 50;
+		int i = 120;
 		ChartObjectCustom value = new ChartObjectCustom();
 		List<ChartObject> chart = new ArrayList<>();
 		List<String> monthLabel = new ArrayList<>();
@@ -976,6 +1009,4 @@ public class CompanyService  {
 		}
 
 	}
-
-	
 }

@@ -152,53 +152,49 @@ public class CompanyControllerTest{
 	}
 	
 
-	
 	@Test
-	public void testgetDeviationCompany() throws Exception {
-		Map<String,Double> companyDeviation= new HashMap<>();
-		companyDeviation.put("A", new Double(100)); 
-		companyDeviation.put("B", new Double(200)); 
-		companyDeviation.put("C", new Double(300)); 
-		companyDeviation.put("D", new Double(400)); 
-		when(companyController.getDeviationCompany(anyString(),anyString())).thenReturn(companyDeviation);
-		
-		String URI = "/data/sort/company?boundaryDate=2020-02-09&rank=volume";
-		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI).accept(
-				MediaType.APPLICATION_JSON);
-
-		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-		String expectedJson = this.mapToJsonMap(companyDeviation);
-		String outputInJson = result.getResponse().getContentAsString();
-
-		assertEquals(outputInJson,expectedJson);
-	
-	}
-	
-	@Test
-	public void testgetDeviationSector() throws Exception {
+	public void testgetDeviation() throws Exception {
 		Map<String,Double> SectorDeviation= new HashMap<>();
 		SectorDeviation.put("A", new Double(100)); 
 		SectorDeviation.put("B", new Double(200)); 
 		SectorDeviation.put("C", new Double(300)); 
 		SectorDeviation.put("D", new Double(400)); 
-		when(companyController.getDeviationSector(anyString(),anyString())).thenReturn(SectorDeviation);
+		when(companyController.getDeviation(anyString(),anyString(),anyString())).thenReturn(SectorDeviation);
 		
-		String URI = "/data/sort/sector?boundaryDate=2020-02-09&rank=volume";
-		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI).accept(
+		String URI1 = "/data/sort?value=sector&boundaryDate=2020-02-09&type=volume";
+		RequestBuilder requestBuilder1 = MockMvcRequestBuilders.get(URI1).accept(
 				MediaType.APPLICATION_JSON);
 
-		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-		String expectedJson = this.mapToJsonMap(SectorDeviation);
-		String outputInJson = result.getResponse().getContentAsString();
+		MvcResult result1 = mockMvc.perform(requestBuilder1).andReturn();
+		String expectedJson1 = this.mapToJsonMap(SectorDeviation);
+		String outputInJson1 = result1.getResponse().getContentAsString();
 
 
-		assertEquals(outputInJson,expectedJson);
+		assertEquals(outputInJson1,expectedJson1);
+		
+		Map<String,Double> companyDeviation= new HashMap<>();
+		companyDeviation.put("A", new Double(100)); 
+		companyDeviation.put("B", new Double(200)); 
+		companyDeviation.put("C", new Double(300)); 
+		companyDeviation.put("D", new Double(400)); 
+		when(companyController.getDeviation(anyString(),anyString(),anyString())).thenReturn(companyDeviation);
+		
+		String URI2 = "/data/sort?value=company&boundaryDate=2020-02-09&type=volume";
+		RequestBuilder requestBuilder2 = MockMvcRequestBuilders.get(URI2).accept(
+				MediaType.APPLICATION_JSON);
+
+		MvcResult result2 = mockMvc.perform(requestBuilder2).andReturn();
+		String expectedJson2 = this.mapToJsonMap(companyDeviation);
+		String outputInJson2 = result2.getResponse().getContentAsString();
+
+		assertEquals(outputInJson2,expectedJson2);
+
 	
 	}
 	
 
 	
-		private String mapToJsonMap(Map<String,Double> object) throws JsonProcessingException {
+	private String mapToJsonMap(Map<String,Double> object) throws JsonProcessingException {
 			ObjectMapper objectMapper = new ObjectMapper();
 			return objectMapper.writeValueAsString(object);
 		}
@@ -208,8 +204,5 @@ public class CompanyControllerTest{
 		return objectMapper.writeValueAsString(object);
 	}
 	
-
 	}
-	
-	
 	

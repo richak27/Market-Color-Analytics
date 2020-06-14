@@ -1,20 +1,13 @@
 package com.restapi.market.service;
 
-import static java.util.Map.Entry.comparingByValue;
-import static java.util.stream.Collectors.toMap;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -23,12 +16,9 @@ import static org.mockito.Mockito.when;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.stubbing.OngoingStubbing;
 
-import com.mongodb.client.model.Field;
 import com.restapi.market.model.AverageValues;
 import com.restapi.market.model.Calculate;
-import com.restapi.market.model.ChartObject;
 import com.restapi.market.model.ChartObjectCustom;
 import com.restapi.market.model.Company;
 import com.restapi.market.model.DailyData;
@@ -247,36 +237,7 @@ class CompanyServiceTest {
 
 			
 		}
-		/*
 
-		@Test
-		void testgridSector() throws ParseException {
-			
-			when(companyRepository.findBySector(anyString())).thenReturn(retail);
-			when(companyRepository.findByTicker(company2.getTicker())).thenReturn(company1);
-			when(companyRepository.findByTicker(company2.getTicker())).thenReturn(company2);
-
-			List<List<DailyData>> nestedlist=new ArrayList<>();
-	        ArrayList<DailyData> obj= new ArrayList<>(); 
-
-			DailyData dataobj=new DailyData();
-			dataobj.setTicker("DMT");
-			dataobj.setCompanyName("DMart");
-			dataobj.setDate("2020-02-06");
-			dataobj.setPrice("100");
-			dataobj.setSector("Retail");
-			dataobj.setVolume("50");
-			
-			obj.add(dataobj);
-			nestedlist.add(obj);
-		
-			List<List<DailyData>> result = new ArrayList<>();
-
-			result=companyService.gridSector("Retail", "2020-02-06","2020-02-06");
-			assertEquals(nestedlist.get(0).get(0).getCompanyName(), result.get(0).get(0).getCompanyName());
-			
-		}
-		*/
 		
 
 		@Test
@@ -504,40 +465,7 @@ class CompanyServiceTest {
 		}
 		
 		
-		
-		/*
-		@Test
-		void testgetSectorVolumeDeviation() throws ParseException {
-			
-			when(companyService.getAllSectors()).thenReturn(sectors);
 
-			when(companyRepository.findByTicker("DMT")).thenReturn(company1);
-			when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
-			when(companyRepository.findBySector("Retail")).thenReturn(retail);
-			
-			List<String> tickerlist = new ArrayList<String>();
-			tickerlist.add("DMT");
-			tickerlist.add("BBZ");	
-			
-			List<String> sectorlist = new ArrayList<String>();
-			sectorlist.add("Retail");
-			
-			Map<String,Double> dataMap = new HashMap<>();
-			dataMap=companyService.getSectorVolumeDeviation("2020-02-09");
-
-			
-			 for (Map.Entry<String,Double> entry : dataMap.entrySet())  
-		            System.out.println("Key = " + entry.getKey() + 
-		                             ", Value = " + entry.getValue()); 
-			 
-			 
-			assertEquals(45.0,dataMap.get("DMart").get(0));
-			assertEquals(65.0,dataMap.get("DMart").get(1));
-			
-			
-		}
-		
-	*/
 		@Test
 		void testgetDataByRangeCompany() throws ParseException{
 			 Calculate cal=new Calculate();
@@ -547,7 +475,6 @@ class CompanyServiceTest {
 			assertEquals(110,cal.getPrice());
 		}
 		
-		//12. Avg for selected dates ---- function implemented for summary line
 		@Test
 		void testgetDataByRangeSector() throws ParseException{
 			 Calculate cal=new Calculate();
@@ -585,19 +512,10 @@ class CompanyServiceTest {
 	
 		exp_obj=companyService.getGridData("2020-02-06", "2020-02-11", tickerlist, sectorlist);
 		
-		//assertEquals(obj1.getPrice(),exp_obj.get(0).getPrice());
-		//assertEquals(obj1.getVolume(),exp_obj.get(0).getVolume());
-		//assertEquals(obj1.getDate(),exp_obj.get(0).getDate());
-		//assertEquals(obj1.getTicker(),exp_obj.get(0).getTicker());
-		//assertEquals(obj1.getPrice(),exp_obj.get(0).getPrice());
-		//assertEquals(obj1.getSector(),exp_obj.get(0).getSector());
 		
 	}
 			
 	}
-
-
-
 
 
 
