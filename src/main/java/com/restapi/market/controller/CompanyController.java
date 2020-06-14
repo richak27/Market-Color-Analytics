@@ -32,18 +32,13 @@ public class CompanyController {
 	@Autowired
 	private CompanyService companyService;
 	
-	// Sorted values of Deviation Price or Volume for a company
-	@GetMapping("/sort/company")
-	public Map<String, Double> getDeviationCompany(@RequestParam("rank") String rank,
-			@RequestParam(defaultValue = "2020-02-09") String boundaryDate) throws ParseException {
-		return companyService.getDeviationCompany(rank, boundaryDate);
-	}
 
-	// Sorted values of Deviation Price or Volume for a Sector
-	@GetMapping("/sort/sector")
-	public Map<String, Double> getDeviationSector(@RequestParam("rank") String rank,
+	// Sorted values of Deviation Price or Volume
+	@GetMapping("/sort")
+	public Map<String, Double> getDeviation(@RequestParam("type") String type,
+			@RequestParam("value") String value,
 			@RequestParam(defaultValue = "2020-02-09") String boundaryDate) throws ParseException {
-		return companyService.getDeviationSector(rank, boundaryDate);
+		return companyService.getDeviation(type,value, boundaryDate);
 	}
 
 	// companies and sector for grid
@@ -54,7 +49,6 @@ public class CompanyController {
 		return companyService.getGridData(startDate, endDate, gotTickers, gotSectors);
 
 	}
-
 
 	// companies and sector for chart
 	@GetMapping("/chart/{startDate}/{endDate}")
@@ -70,4 +64,3 @@ public class CompanyController {
 	}
 
 }
-
