@@ -51,7 +51,7 @@ public class CompanyTest {
         final String result = obj.getTicker();
 
         //then
-        assertEquals( "ABT"result);
+        assertEquals( "ABT",result);
     }
     
     @Test
