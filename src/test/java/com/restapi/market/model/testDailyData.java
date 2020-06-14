@@ -185,7 +185,7 @@ public class testDailyData {
 		        //then
 		        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("companyName");
 		        field.setAccessible(true);
-		        assertEquals("APPLE", field.get(obj),);
+		        assertEquals("APPLE", field.get(obj));
 		    }
 
 }
