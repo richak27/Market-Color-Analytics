@@ -25,7 +25,7 @@ public class testDailyData {
 	        final String result = obj.getCompanyName();
 
 	        //then
-	        assertEquals( result, "APPLE");
+	        assertEquals("APPLE", result);
 	    }
 
 	    @Test
@@ -40,7 +40,7 @@ public class testDailyData {
 	        final String result = obj.getTicker();
 
 	        //then
-	        assertEquals( result, "BABA");
+	        assertEquals( "BABA",result);
 	    }
 	    
 	    @Test
@@ -55,7 +55,7 @@ public class testDailyData {
 	        final String result = obj.getVolume();
 
 	        //then
-	        assertEquals( result, "55");
+	        assertEquals( "55",result);
 	    }
 	    
 	    @Test
@@ -70,7 +70,7 @@ public class testDailyData {
 	        final String result = obj.getSector();
 
 	        //then
-	        assertEquals( result, "Technology");
+	        assertEquals( "Technology",result);
 	    }
 	    
 	    @Test
@@ -85,7 +85,7 @@ public class testDailyData {
 	        final String result = obj.getPrice();
 
 	        //then
-	        assertEquals( result, "60");
+	        assertEquals("60", result);
 	    }	  
 	    
 	    @Test
@@ -100,7 +100,7 @@ public class testDailyData {
 	        final String result = obj.getDate();
 
 	        //then
-	        assertEquals( result, "2020-02-02");
+	        assertEquals("2020-02-02", result);
 	    }
 	    
 		
@@ -115,7 +115,7 @@ public class testDailyData {
 		        //then
 		        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("price");
 		        field.setAccessible(true);
-		        assertEquals( field.get(obj), "50");
+		        assertEquals("50", field.get(obj));
 		    }	
 		 
 		 @Test
@@ -129,7 +129,7 @@ public class testDailyData {
 		        //then
 		        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("date");
 		        field.setAccessible(true);
-		        assertEquals( field.get(obj), "2020-02-02");
+		        assertEquals( "2020-02-02", field.get(obj));
 		    }	
 		 
 		 @Test
@@ -143,7 +143,7 @@ public class testDailyData {
 		        //then
 		        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("ticker");
 		        field.setAccessible(true);
-		        assertEquals( field.get(obj), "BABA");
+		        assertEquals("BABA",field.get(obj));
 		    }	
 		 
 		 @Test
@@ -157,7 +157,7 @@ public class testDailyData {
 		        //then
 		        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("sector");
 		        field.setAccessible(true);
-		        assertEquals( field.get(obj), "Technology");
+		        assertEquals("Technology",field.get(obj));
 		    }	
 		 
 		 @Test
@@ -171,7 +171,7 @@ public class testDailyData {
 		        //then
 		        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("volume");
 		        field.setAccessible(true);
-		        assertEquals( field.get(obj), "50");
+		        assertEquals( "50", field.get(obj));
 		    }	
 		 
 		 @Test
@@ -185,7 +185,7 @@ public class testDailyData {
 		        //then
 		        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("companyName");
 		        field.setAccessible(true);
-		        assertEquals( field.get(obj), "APPLE");
+		        assertEquals("APPLE", field.get(obj),);
 		    }
 
 }
