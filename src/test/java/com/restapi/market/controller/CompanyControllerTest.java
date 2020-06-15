@@ -64,7 +64,7 @@ public class CompanyControllerTest{
 		dailydata.setVolume("42");
 		datalist.add(dailydata);
 		
-		when(companyController.getGridData(anyString(),anyString(),Mockito.anyListOf(String.class),Mockito.anyListOf(String.class))).thenReturn(datalist);
+		when(companyController.getGridData(anyString(),anyString(),Mockito.anyList(),Mockito.anyList())).thenReturn(datalist);
 		
 		String URI = "/data/grid/2020-02-02/2020-03-03";
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI).accept(
@@ -78,6 +78,7 @@ public class CompanyControllerTest{
 	
 	}
 	
+
 	@Test
 	public void testGetChart() throws Exception {
 		
@@ -107,17 +108,16 @@ public class CompanyControllerTest{
 		obj.setLabels(label);
 		obj.setDatasets(chartlist);
 		
-		when(companyController.getChart(anyString(),anyString(),Mockito.anyListOf(String.class),Mockito.anyListOf(String.class),anyString(),anyString(),anyString(),anyString())).thenReturn(obj);
+		when(companyController.getChart(anyString(),anyString(),Mockito.anyList(),Mockito.anyList(),anyString(),anyString(),anyString(),anyString())).thenReturn(obj);
 
 
-		String URI = "/data/chart/2020-02-02/2020-05-05?boundaryDate=2020-02-09&group=monthly&option=company&rank=volume";
+		String URI = "/data/chart/2020-02-02/2020-05-05?boundaryDate=2020-02-09&group=monthly&option=company&type=volume";
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI)
 				.accept(MediaType.APPLICATION_JSON);
 
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 		
 		String outputInJson = result.getResponse().getContentAsString();
-
 
 		assertEquals("",outputInJson);
 	

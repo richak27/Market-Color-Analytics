@@ -31,7 +31,7 @@ class CompanyServiceTest {
 	@Mock
 	CompanyRepository companyRepository;
 	
-	Company company1, company2, company3, company4,company5,company6,company7,company8,company9;
+	Company company1, company2, company3, company4, company5, company6, company7, company8;
 	
 	List<Company> tech_sector =new ArrayList<Company>();
 	List<Company> retail = new ArrayList<Company>();
@@ -213,7 +213,8 @@ class CompanyServiceTest {
 			
 			when(companyRepository.findByTicker(anyString())).thenReturn(company1);
 			
-			List<DailyData> obj=new ArrayList<>();
+			List<DailyData> objnew=new ArrayList<>();
+
 			DailyData dataobj=new DailyData();
 			dataobj.setTicker("DMT");
 			dataobj.setCompanyName("DMart");
@@ -221,16 +222,13 @@ class CompanyServiceTest {
 			dataobj.setPrice("100");
 			dataobj.setSector("Retail");
 			dataobj.setVolume("50");
-			
-			obj.add(dataobj);
+					
+			objnew=companyService.gridCompany("DMT", "2020-02-06","2020-02-06");
+			assertEquals(dataobj.getCompanyName(), objnew.get(0).getCompanyName());
+			assertEquals(dataobj.getDate(),objnew.get(0).getDate());
+			assertEquals(dataobj.getVolume(),objnew.get(0).getVolume());
+			assertEquals(dataobj.getPrice(),objnew.get(0).getPrice());
 		
-			obj=companyService.gridCompany("DMT", "2020-02-06","2020-02-06");
-			assertEquals(dataobj.getCompanyName(), obj.get(0).getCompanyName());
-			assertEquals(dataobj.getDate(),obj.get(0).getDate());
-			assertEquals(dataobj.getVolume(),obj.get(0).getVolume());
-			assertEquals(dataobj.getPrice(),obj.get(0).getPrice());
-
-			
 		}
 
 		
@@ -478,6 +476,7 @@ class CompanyServiceTest {
 	@Test
 	void testGetGridData() throws ParseException {
 
+		
 		when(companyRepository.findByTicker("DMT")).thenReturn(company1);
 		when(companyRepository.findByTicker("BBZ")).thenReturn(company2);
 		
@@ -486,22 +485,35 @@ class CompanyServiceTest {
 		tickerlist.add("BBZ");
 		
 		when(companyRepository.findBySector("Retail")).thenReturn(retail);
+		
+
 		List<String> sectorlist = new ArrayList<String>();
 		sectorlist.add("Retail");
+		List<DailyData> objnew=new ArrayList<>();
+
+		DailyData dataobj=new DailyData();
+		dataobj.setTicker("DMT");
+		dataobj.setCompanyName("DMart");
+		dataobj.setDate("06-02-2020");
+		dataobj.setPrice("100");
+		dataobj.setSector("Retail");
+		dataobj.setVolume("50");
 		
-		List<DailyData>exp_obj = new ArrayList<>();
-		DailyData obj1 = new DailyData("DMart", "Retail" , "DMT","100", "50", "2020-06-02");
-		DailyData obj2 = new DailyData("DMart", "Retail" , "DMT","120", "40", "2020-07-02");
-		DailyData obj3 = new DailyData("DMart", "Retail" , "DMT","80", "70", "2020-10-02");
-		DailyData obj4 = new DailyData("DMart", "Retail" , "DMT","100", "60", "2020-11-02");
-		exp_obj.add(obj1);
-		exp_obj.add(obj2);
-		exp_obj.add(obj3);
-		exp_obj.add(obj4);
+
+		DailyData dataobj2=new DailyData();
+		dataobj2.setTicker("BBZ");
+		dataobj2.setCompanyName("Future Grp");
+		dataobj2.setDate("06-02-2020");
+		dataobj2.setPrice("80");
+		dataobj2.setSector("Retail");
+		dataobj2.setVolume("40");
 		
-	
-		exp_obj=companyService.getGridData("2020-02-06", "2020-02-11", tickerlist, sectorlist);
-		
+		objnew=companyService.getGridData("2020-02-06", "2020-02-06", tickerlist, sectorlist);
+
+		assertEquals(dataobj.getCompanyName(), objnew.get(1).getCompanyName());
+	    assertEquals(dataobj.getDate(),objnew.get(1).getDate());
+		assertEquals(dataobj2.getVolume(),objnew.get(0).getVolume());
+		assertEquals(dataobj2.getPrice(),objnew.get(0).getPrice());
 		
 	}
 			
