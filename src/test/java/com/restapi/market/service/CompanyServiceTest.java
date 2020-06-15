@@ -31,7 +31,7 @@ class CompanyServiceTest {
 	@Mock
 	CompanyRepository companyRepository;
 	
-	Company company1, company2, company3, company4,company5,company6,company7,company8,company9;
+	Company company1, company2, company3, company4,company5,company6,company7,company8;
 	
 	List<Company> tech_sector =new ArrayList<Company>();
 	List<Company> retail = new ArrayList<Company>();
