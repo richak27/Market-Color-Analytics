@@ -26,7 +26,7 @@ public class ChartObjectTest {
 	        final String result = obj.getLabel();
 
 	        //then
-	        assertEquals( result,"Abbott Laboratories");
+	        assertEquals( "Abbott Laboratories",result);
 	    }
 
 	    @Test
@@ -40,7 +40,7 @@ public class ChartObjectTest {
 	        final String result = obj.getBackgroundColor();
 
 	        //then
-	        assertEquals( result, "#FF0088");
+	        assertEquals( "#FF0088",result);
 	    }
 	    
 	    @Test
@@ -54,7 +54,7 @@ public class ChartObjectTest {
 	        final String result = obj.getBorderColor();
 
 	        //then
-	        assertEquals( result, "#FF8800");
+	        assertEquals("#FF8800",result);
 	    }
 	    
 	    @Test
@@ -69,7 +69,7 @@ public class ChartObjectTest {
 	        final boolean result = obj.isFill();
 
 	        //then
-	        assertEquals( result, false);
+	        assertEquals( false,result);
 	    }
 	    
 	    
@@ -89,7 +89,7 @@ public class ChartObjectTest {
 	        final List<Double> result = obj.getData();
 
 	        //then
-	        assertEquals( result, val);
+	        assertEquals(val,result);
 	    }
 	    
 	    @Test
@@ -103,7 +103,7 @@ public class ChartObjectTest {
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("fill");
 	        field.setAccessible(true);
-	        assertEquals( field.get(obj), false);
+	        assertEquals(false, field.get(obj));
 	    }
 	    
 }

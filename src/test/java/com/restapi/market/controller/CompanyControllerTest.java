@@ -43,16 +43,6 @@ public class CompanyControllerTest{
 	@Mock
 	CompanyService companyService;
 	
-	ChartObjectCustom obj=new ChartObjectCustom();
-	ChartObjectCustom obj1=new ChartObjectCustom();
-
-	public List<String> label=new ArrayList<>();
-	public List<Double> data=new ArrayList<>();
-	public List<ChartObject> chartlist= new ArrayList<>();
-	public ChartObject chartobj=new ChartObject();
-
-	
-
 	@BeforeEach
 	void setUp() throws Exception {
 		
@@ -63,6 +53,7 @@ public class CompanyControllerTest{
 	
 	@Test
 	public void testGetGridData() throws Exception {
+		
 		List<DailyData> datalist= new ArrayList<>();
 		DailyData dailydata = new DailyData();
 		dailydata.setCompanyName("APPLE");
@@ -83,36 +74,14 @@ public class CompanyControllerTest{
 		String expectedJson = this.mapToJson(datalist);
 		String outputInJson = result.getResponse().getContentAsString();
 
-		assertEquals(outputInJson,expectedJson);
+		assertEquals(expectedJson,outputInJson);
 	
 	}
 	
 	@Test
 	public void testGetChart() throws Exception {
 		
-		label.add("Jan");
-		label.add("Feb");
-		label.add("Mar");
-		
-		data.add((double) 56);
-		data.add((double) 45);
-		data.add((double) 54);
-
-		chartobj.setLabel("Energy");
-		chartobj.setBorderColor("pink");
-		chartobj.setBackgroundColor("white");
-		chartobj.setFill();
-		chartobj.setData(data);
-		
-		chartlist.add(chartobj);
-		
-		obj.setLabels(label);
-		obj.setDatasets(chartlist);
-		
-		when(companyController.getChart(anyString(),anyString(),Mockito.anyListOf(String.class),Mockito.anyListOf(String.class),anyString(),anyString(),anyString(),anyString())).thenReturn(obj);
-
 		ChartObjectCustom obj=new ChartObjectCustom();
-		ChartObjectCustom obj1=new ChartObjectCustom();
 
 		List<String> label=new ArrayList<>();
 		List<Double> data=new ArrayList<>();
@@ -137,7 +106,10 @@ public class CompanyControllerTest{
 		
 		obj.setLabels(label);
 		obj.setDatasets(chartlist);
-				
+		
+		when(companyController.getChart(anyString(),anyString(),Mockito.anyListOf(String.class),Mockito.anyListOf(String.class),anyString(),anyString(),anyString(),anyString())).thenReturn(obj);
+
+
 		String URI = "/data/chart/2020-02-02/2020-05-05?boundaryDate=2020-02-09&group=monthly&option=company&rank=volume";
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(URI)
 				.accept(MediaType.APPLICATION_JSON);
@@ -170,7 +142,7 @@ public class CompanyControllerTest{
 		String outputInJson1 = result1.getResponse().getContentAsString();
 
 
-		assertEquals(outputInJson1,expectedJson1);
+		assertEquals(expectedJson1,outputInJson1);
 		
 		Map<String,Double> companyDeviation= new HashMap<>();
 		companyDeviation.put("A", new Double(100)); 
@@ -187,7 +159,7 @@ public class CompanyControllerTest{
 		String expectedJson2 = this.mapToJsonMap(companyDeviation);
 		String outputInJson2 = result2.getResponse().getContentAsString();
 
-		assertEquals(outputInJson2,expectedJson2);
+		assertEquals(expectedJson2,outputInJson2);
 
 	
 	}
@@ -204,6 +176,5 @@ public class CompanyControllerTest{
 		return objectMapper.writeValueAsString(object);
 	}
 	
-
 	}
 	

@@ -19,7 +19,7 @@ import com.restapi.market.model.DailyData;
 import com.restapi.market.service.CompanyService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-@CrossOrigin(origins = "http://localhost:51535")
+@CrossOrigin
 @RestController
 @RequestMapping("/data")
 public class CompanyController {
@@ -60,7 +60,6 @@ public class CompanyController {
 			@RequestParam(defaultValue = "company")String option,
 			@RequestParam(defaultValue = "2020-02-09") String boundaryDate) throws ParseException {
 		return companyService.getChart(tickerList,sectorList,startDate,endDate,type,group,option,boundaryDate);
-
 	}
 
 }

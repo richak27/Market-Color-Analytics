@@ -20,7 +20,7 @@ public class CompanyTest {
         final String result = obj.getId();
 
         //then
-        assertEquals( result, "1");
+        assertEquals("1", result);
     }
 	 
     
@@ -36,7 +36,7 @@ public class CompanyTest {
         final String result = obj.getName();
 
         //then
-        assertEquals( result,"Abbott Laboratories");
+        assertEquals( "Abbott Laboratories",result);
     }
     
     @Test
@@ -51,7 +51,7 @@ public class CompanyTest {
         final String result = obj.getTicker();
 
         //then
-        assertEquals( result,"ABT");
+        assertEquals( "ABT",result);
     }
     
     @Test
@@ -66,7 +66,7 @@ public class CompanyTest {
         final String result = obj.getSector();
 
         //then
-        assertEquals( result,"Health Care");
+        assertEquals("Health Care",result);
     }
         
 	 @Test
@@ -80,7 +80,7 @@ public class CompanyTest {
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("name");
 	        field.setAccessible(true);
-	        assertEquals( field.get(obj), "APPLE");
+	        assertEquals("APPLE",field.get(obj));
 	    }
 	 
 	 
@@ -95,7 +95,7 @@ public class CompanyTest {
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("sector");
 	        field.setAccessible(true);
-	        assertEquals( field.get(obj), "Technology");
+	        assertEquals("Technology", field.get(obj));
 	    }
 	 
 	 
@@ -110,7 +110,7 @@ public class CompanyTest {
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("ticker");
 	        field.setAccessible(true);
-	        assertEquals( field.get(obj), "BABA");
+	        assertEquals("BABA",field.get(obj));
 	    }
 	 
 	 
@@ -125,7 +125,7 @@ public class CompanyTest {
 	        //then
 	        final java.lang.reflect.Field field = obj.getClass().getDeclaredField("id");
 	        field.setAccessible(true);
-	        assertEquals( field.get(obj), "1");
+	        assertEquals("1",field.get(obj));
 	    }
 	 
 	
