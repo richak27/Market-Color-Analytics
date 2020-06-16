@@ -22,12 +22,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @CrossOrigin
 @RestController
 @RequestMapping("/data")
-public class CompanyController {
-
-	@Bean
-	public RestTemplate getRestTemplate() {
-		return new RestTemplate();
-	}
+public class CompanyController {	
 
 	@Autowired
 	private CompanyService companyService;
