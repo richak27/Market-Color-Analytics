@@ -6,6 +6,7 @@ public class ChartObject {
 	
 	private String label;
 	private List<Double> data;
+	private List<Double> deviation;
 	private String backgroundColor;
 	private String borderColor;
 	private boolean fill;
@@ -14,10 +15,11 @@ public class ChartObject {
 		super();
 	}
 
-	public ChartObject(String label, List<Double> data, String backgroundColor, String borderColor, boolean fill) {
+	public ChartObject(String label, List<Double> data,List<Double> deviation,  String backgroundColor, String borderColor, boolean fill) {
 		super();
 		this.label = label;
 		this.data = data;
+		this.deviation = deviation;
 		this.backgroundColor = backgroundColor;
 		this.borderColor = borderColor;
 		this.fill = fill;
@@ -61,6 +63,14 @@ public class ChartObject {
 
 	public void setFill() {
 		this.fill = false;
+	}
+
+	public List<Double> getDeviation() {
+		return deviation;
+	}
+
+	public void setDeviation(List<Double> deviation) {
+		this.deviation = deviation;
 	}
 	
 	
