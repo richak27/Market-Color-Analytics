@@ -567,34 +567,34 @@ public class CompanyService  {
 
 	private String[] colorArray = {
 			// 5th done
-			"#29B6F6","#EF5350","#1A237E","#AB47BC","#FF7043","#FFA726","#7E57C2","#1B5E20","#AFB42B","#880E4F",
-			"#FFFF00","#0000FF","#FF6600","#D4E157","#26C6DA","#66BB6A","#990000","#EC407A",
-			// 6th
-			"#F44336","#009900","#9C27B0","#FF5722","#FF9800","#E91E63","#FFC107","#673AB7","#FFEB3B","#3F51B5","#BF360C",
-			"#2196F3","#8BC34A","#CDDC39","#03A9F4","#00BCD4","#4CAF50",
-			
-			// 4th
-			"#E57373","#FF8A65","#F06292","#FFB74D","#BA68C8","#FFD54F","#9575CD","#FFF176","#7986CB","#DCE775",
-			"#64B5F6","#AED581","#4DD0E1","#81C784","#4DB6AC",
-			
-			// 8th
-			"#D32F2F","#E64A19","#C2185B","#F57C00","#7B1FA2","#FFA000","#512DA8","#FBC02D","#303F9F","#5C6BC0",
-			"#1976D2","#689F38","#0288D1","#FBC02D","#0097A7",
-			
-			//2nd
-			"#FFCDD2","#B3E5FC","#FFCA28","#FFCCBC","#FF6F00","#D1C4E9","#FFE0B2","#B2DFDB","#E1BEE7","#006064","#C5CAE9",
-			"#F0F4C3","#42A5F5","#FFECB3","#827717","#F48FB1","#01579B",
-			
-			//last
-			"#B71C1C","#B2DFDB","#E65100","#FFF9C4","#4A148C","#F0F4C3","#F57F17","#BBDEFB","#0D47A1","#33691E","#FFCDD2", "#DCEDC8",
-			
-			//3rd
-			"#EF9A9A","#FFCC80","#CE93D8","#FFE082","#B39DDB","#E6EE9C","#311B92","#FFAB91","#90CAF9","#C5E1A5","#9FA8DA",
-			"#80DEEA","#FFF59D","#80CBC4", "#00796B",
-			
-			//9th done
-			"#AD1457","#D84315","#66FF00","#6A1B9A","#EF6C00","#4527A0","#0277BD","#AD1457","#FF8F00","#283593","#9E9D24",
-			"#1565C0","#558B2F","#F9A825","#81D4FA","#FF3399","#2E7D32","#B2EBF2","#9CCC65"};
+						"#29B6F6","#EF5350","#1A237E","#AB47BC","#FF7043","#FFA726","#7E57C2","#1B5E20","#AFB42B","#880E4F",
+						"#FFFF00","#0000FF","#FF6600","#D4E157","#26C6DA","#66BB6A","#990000","#EC407A",
+						// 6th
+						"#F44336","#009900","#9C27B0","#FF5722","#FF9800","#E91E63","#FFC107","#673AB7","#FFEB3B","#3F51B5","#BF360C",
+						"#2196F3","#8BC34A","#CDDC39","#03A9F4","#00BCD4","#4CAF50",
+						
+						// 4th
+						"#E57373","#FF8A65","#F06292","#FFB74D","#BA68C8","#FFD54F","#9575CD","#FFF176","#7986CB","#DCE775",
+						"#64B5F6","#AED581","#4DD0E1","#81C784","#4DB6AC",
+						
+						// 8th
+						"#D32F2F","#E64A19","#C2185B","#F57C00","#7B1FA2","#FFA000","#512DA8","#FBC02D","#303F9F","#5C6BC0",
+						"#1976D2","#689F38","#0288D1","#FBC02D","#0097A7",
+						
+						//2nd
+						"#FFCDD2","#B3E5FC","#FFCA28","#FFCCBC","#FF6F00","#D1C4E9","#FFE0B2","#B2DFDB","#E1BEE7","#006064","#C5CAE9",
+						"#F0F4C3","#42A5F5","#FFECB3","#827717","#F48FB1","#01579B",
+						
+						//last
+						"#B71C1C","#B2DFDB","#E65100","#FFF9C4","#4A148C","#F0F4C3","#F57F17","#BBDEFB","#0D47A1","#33691E","#FFCDD2", "#DCEDC8",
+						
+						//3rd
+						"#EF9A9A","#FFCC80","#CE93D8","#FFE082","#B39DDB","#E6EE9C","#311B92","#FFAB91","#90CAF9","#C5E1A5","#9FA8DA",
+						"#80DEEA","#FFF59D","#80CBC4", "#00796B",
+						
+						//9th done
+						"#AD1457","#D84315","#66FF00","#6A1B9A","#EF6C00","#4527A0","#0277BD","#AD1457","#FF8F00","#283593","#9E9D24",
+						"#1565C0","#558B2F","#F9A825","#81D4FA","#FF3399","#2E7D32","#B2EBF2","#9CCC65"};
 			
 
 	public ChartObjectCustom getDataCompany(List<String> tickerList, String startDate, String endDate, String type,
@@ -614,7 +614,9 @@ public class CompanyService  {
 		ArrayList<Double> valueList = new ArrayList<>();
 		List<Integer> weekLabel = new ArrayList<>();
 		List<Integer> weeklabel = new ArrayList<>();
+		
 		for (String ticker : tickerList) {
+			List<Double>dev = new ArrayList<>();
 
 			Company company = getByTicker(ticker);
 
@@ -645,6 +647,7 @@ public class CompanyService  {
 
 					dayLabel = new ArrayList<>(daily.keySet());
 					valueList = new ArrayList<>(daily.values());
+					
 				}
 
 				else if (type.contentEquals("volume")) {
@@ -654,10 +657,17 @@ public class CompanyService  {
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 					dayLabel = new ArrayList<>(daily.keySet());
 					valueList = new ArrayList<>(daily.values());
+					
+					
 				} else {
 					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
+				dev.add(0.00);				
+				for(int j = 0; j<valueList.size()-1; j++) {										
+					dev.add(valueList.get(j+1)- valueList.get(j));						
+				}
+				obj.setDeviation(dev);
 				chart.add(obj);
 
 			}
@@ -672,6 +682,7 @@ public class CompanyService  {
 
 					weekLabel = new ArrayList<>(weekly.keySet());
 					valueList = new ArrayList<>(weekly.values());
+					
 				}
 
 				else if (type.contentEquals("volume")) {
@@ -681,10 +692,16 @@ public class CompanyService  {
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 					weekLabel = new ArrayList<>(weekly.keySet());
 					valueList = new ArrayList<>(weekly.values());
+					
 				} else {
 					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
+				dev.add(0.00);
+				for(int j = 0; j<valueList.size()-1; j++) {										
+					dev.add(valueList.get(j+1)- valueList.get(j));						
+				}	
+				obj.setDeviation(dev);
 				chart.add(obj);
 
 			}
@@ -700,6 +717,7 @@ public class CompanyService  {
 
 					monthLabel = new ArrayList<>(monthly.keySet());
 					valueList = new ArrayList<>(monthly.values());
+					
 				}
 
 				else if (type.contentEquals("volume")) {
@@ -710,10 +728,19 @@ public class CompanyService  {
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 					monthLabel = new ArrayList<>(monthly.keySet());
 					valueList = new ArrayList<>(monthly.values());
+					
+								
+					
 				} else {
 					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
+
+				dev.add(0.00);
+				for(int j = 0; j<valueList.size()-1; j++) {										
+					dev.add(valueList.get(j+1)- valueList.get(j));						
+				}	
+				obj.setDeviation(dev);
 				chart.add(obj);
 
 			}
@@ -721,6 +748,7 @@ public class CompanyService  {
 			else if (group.contentEquals("covid")) {
 				AverageValues val = companyAverage(ticker, type, boundaryDate);
 				obj.setData(Arrays.asList(val.getPreCovidValue(), val.getPostCovidValue()));
+				obj.setDeviation(Arrays.asList(0.00,val.getDeviation()));
 				chart.add(obj);
 			}
 		}
@@ -781,8 +809,10 @@ public class CompanyService  {
 		ArrayList<Double> valueList = new ArrayList<>();
 		List<Integer> weekLabel = new ArrayList<>();
 		List<Integer> weeklabel = new ArrayList<>();
+		
 
 		for (String sector : sectorList) {
+			List<Double>dev = new ArrayList<>();
 			List<Company> company = getBySector(sector);
 			for (Company comp : company) {
 				List<Stock> stocks = comp.getStocks();
@@ -793,7 +823,7 @@ public class CompanyService  {
 					}
 				}
 			}
-
+			
 			ChartObject obj = new ChartObject();
 			obj.setLabel(sector);
 			obj.setBackgroundColor(colorArray[i]);
@@ -810,6 +840,7 @@ public class CompanyService  {
 
 					dayLabel = new ArrayList<>(daily.keySet());
 					valueList = new ArrayList<>(daily.values());
+					
 				}
 
 				else if (type.contentEquals("volume")) {
@@ -820,10 +851,16 @@ public class CompanyService  {
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 					dayLabel = new ArrayList<>(daily.keySet());
 					valueList = new ArrayList<>(daily.values());
+					
 				} else {
 					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
+				dev.add(0.00);
+				for(int j = 0; j<valueList.size()-1; j++) {										
+					dev.add(valueList.get(j+1)- valueList.get(j));						
+				}
+				obj.setDeviation(dev);
 				chart.add(obj);
 
 			}
@@ -838,7 +875,7 @@ public class CompanyService  {
 
 					weekLabel = new ArrayList<>(weekly.keySet());
 					valueList = new ArrayList<>(weekly.values());
-				}
+									}
 
 				else if (type.contentEquals("volume")) {
 					Map<Integer, Double> weekly = stocknew.stream()
@@ -848,10 +885,16 @@ public class CompanyService  {
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 					weekLabel = new ArrayList<>(weekly.keySet());
 					valueList = new ArrayList<>(weekly.values());
+					
 				} else {
 					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
+				dev.add(0.00);
+				for(int j = 0; j<valueList.size()-1; j++) {										
+					dev.add(valueList.get(j+1)- valueList.get(j));						
+				}
+				obj.setDeviation(dev);
 				chart.add(obj);
 
 			}
@@ -866,7 +909,8 @@ public class CompanyService  {
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 					monthLabel = new ArrayList<>(monthly.keySet());
-					valueList = new ArrayList<>(monthly.values());
+					valueList = new ArrayList<>(monthly.values());	
+					
 				}
 
 				else if (type.contentEquals("volume")) {
@@ -876,10 +920,16 @@ public class CompanyService  {
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 					monthLabel = new ArrayList<>(monthly.keySet());
 					valueList = new ArrayList<>(monthly.values());
+					
 				} else {
 					logger.error("Incorrect parameters entered");
 				}
 				obj.setData(valueList);
+				dev.add(0.00);
+				for(int j = 0; j<valueList.size()-1; j++) {										
+					dev.add(valueList.get(j+1)- valueList.get(j));						
+				}
+				obj.setDeviation(dev);
 				chart.add(obj);
 
 			}
@@ -887,6 +937,7 @@ public class CompanyService  {
 			else if (group.contentEquals("covid")) {
 				AverageValues val = sectorAverage(sector, type, boundaryDate);
 				obj.setData(Arrays.asList(val.getPreCovidValue(), val.getPostCovidValue()));
+				obj.setDeviation(Arrays.asList(0.00,val.getDeviation()));
 				chart.add(obj);
 
 			}
@@ -930,7 +981,7 @@ public class CompanyService  {
 		return value;
 
 	}
-
+	
 	public ChartObjectCustom getChart(List<String> tickerList, List<String> sectorList, String startDate,
 			String endDate, String type, String group, String option, String boundaryDate) throws ParseException {
 
@@ -981,7 +1032,6 @@ public class CompanyService  {
 			return value1;
 
 		}
-
 		else {
 			return null;
 		}
