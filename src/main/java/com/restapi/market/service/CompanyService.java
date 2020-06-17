@@ -562,8 +562,8 @@ public class CompanyService  {
 	}
 
 	
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -----sab
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// dh
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 
 	private String[] colorArray = {
 			// 5th done
@@ -596,7 +596,7 @@ public class CompanyService  {
 						"#AD1457","#D84315","#66FF00","#6A1B9A","#EF6C00","#4527A0","#0277BD","#AD1457","#FF8F00","#283593","#9E9D24",
 						"#1565C0","#558B2F","#F9A825","#81D4FA","#FF3399","#2E7D32","#B2EBF2","#9CCC65"};
 			
-
+	// Return Data for list of Companies
 	public ChartObjectCustom getDataCompany(List<String> tickerList, String startDate, String endDate, String type,
 			String group, String boundaryDate) throws ParseException {
 
@@ -792,6 +792,7 @@ public class CompanyService  {
 
 	}
 
+	// Return Data for list of Sectors
 	public ChartObjectCustom getDataSector(List<String> sectorList, String startDate, String endDate, String type,
 			String group, String boundaryDate) throws ParseException {
 
@@ -985,14 +986,17 @@ public class CompanyService  {
 	public ChartObjectCustom getChart(List<String> tickerList, List<String> sectorList, String startDate,
 			String endDate, String type, String group, String option, String boundaryDate) throws ParseException {
 
+		// If only list of companies is passed
 		if (sectorList.isEmpty()) {
 			return getDataCompany(tickerList, startDate, endDate, type, group, boundaryDate);
 		}
-
+		
+		// If only list of sectors is passed
 		else if (tickerList.isEmpty()) {
 			return getDataSector(sectorList, startDate, endDate, type, group, boundaryDate);
 		}
 
+		// For both companies and sectors passed return only companies from matched company-sector pairs
 		else if (option.contentEquals("company")) {
 			List<String> tickerNew = new ArrayList<>();
 			for (String ticker : tickerList) {
@@ -1007,6 +1011,7 @@ public class CompanyService  {
 
 		}
 
+		// For both companies and sectors passed return companies and sectors from matched company-sector pairs
 		else if (option.contentEquals("both")) {
 
 			List<String> tickerNew = new ArrayList<>();
