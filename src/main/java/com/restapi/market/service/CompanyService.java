@@ -365,7 +365,7 @@ public class CompanyService  {
 		Map<String, Double> values = new HashMap<>();
 		for (String i : tickerList) {
 			AverageValues volumeAverage = calAvgVolumeByCompany(i, boundaryDate);
-			values.put(i, volumeAverage.getDeviation());
+			values.put(getByTicker(i).getName(), volumeAverage.getDeviation());
 		}
 		return values.entrySet().stream().sorted(comparingByValue())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
@@ -378,14 +378,14 @@ public class CompanyService  {
 
 		for (String i : tickerList) {
 			AverageValues priceAverage = calAvgPriceByCompany(i, boundaryDate);
-			values.put(i, priceAverage.getDeviation());
+			values.put(getByTicker(i).getName(), priceAverage.getDeviation());
 		}
 
 		return values.entrySet().stream().sorted(comparingByValue())
 				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 	}
 
-	
+
 	//Sorted Deviation
 	
 	public Map<String, Double> getDeviation(String type, String value, String boundaryDate)
@@ -562,6 +562,7 @@ public class CompanyService  {
 	}
 
 	
+	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 
@@ -611,12 +612,13 @@ public class CompanyService  {
 		List<String> dayLabel = new ArrayList<>();
 		List<String> daylabel = new ArrayList<>();
 		List<Stock> stocknew = new ArrayList<>();
-		ArrayList<Double> valueList = new ArrayList<>();
+		
 		List<Integer> weekLabel = new ArrayList<>();
 		List<Integer> weeklabel = new ArrayList<>();
 		
 		for (String ticker : tickerList) {
 			List<Double>dev = new ArrayList<>();
+			ArrayList<Double> valueList = new ArrayList<>();
 
 			Company company = getByTicker(ticker);
 
@@ -745,12 +747,6 @@ public class CompanyService  {
 
 			}
 
-			else if (group.contentEquals("covid")) {
-				AverageValues val = companyAverage(ticker, type, boundaryDate);
-				obj.setData(Arrays.asList(val.getPreCovidValue(), val.getPostCovidValue()));
-				obj.setDeviation(Arrays.asList(0.00,val.getDeviation()));
-				chart.add(obj);
-			}
 		}
 
 		if (group.contentEquals("weekly")) {
@@ -781,17 +777,13 @@ public class CompanyService  {
 			}
 		}
 
-		else if (group.contentEquals("covid")) {
-			labels.add("Pre-COVID");
-			labels.add("Post-COVID");
-		}
-
 		value.setLabels(labels);
 		value.setDatasets(chart);
 		return value;
 
 	}
 
+	
 	// Return Data for list of Sectors
 	public ChartObjectCustom getDataSector(List<String> sectorList, String startDate, String endDate, String type,
 			String group, String boundaryDate) throws ParseException {
@@ -807,12 +799,13 @@ public class CompanyService  {
 		List<String> dayLabel = new ArrayList<>();
 		List<String> daylabel = new ArrayList<>();
 		List<Stock> stocknew = new ArrayList<>();
-		ArrayList<Double> valueList = new ArrayList<>();
+		
 		List<Integer> weekLabel = new ArrayList<>();
 		List<Integer> weeklabel = new ArrayList<>();
 		
 
 		for (String sector : sectorList) {
+			ArrayList<Double> valueList = new ArrayList<>();
 			List<Double>dev = new ArrayList<>();
 			List<Company> company = getBySector(sector);
 			for (Company comp : company) {
@@ -840,7 +833,9 @@ public class CompanyService  {
 							.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 					dayLabel = new ArrayList<>(daily.keySet());
+					System.out.println(dayLabel);
 					valueList = new ArrayList<>(daily.values());
+					System.out.println(valueList);
 					
 				}
 
@@ -935,13 +930,6 @@ public class CompanyService  {
 
 			}
 
-			else if (group.contentEquals("covid")) {
-				AverageValues val = sectorAverage(sector, type, boundaryDate);
-				obj.setData(Arrays.asList(val.getPreCovidValue(), val.getPostCovidValue()));
-				obj.setDeviation(Arrays.asList(0.00,val.getDeviation()));
-				chart.add(obj);
-
-			}
 		}
 
 		if (group.contentEquals("weekly")) {
@@ -972,22 +960,186 @@ public class CompanyService  {
 			}
 		}
 
-		else if (group.contentEquals("covid")) {
-			labels.add("Pre-COVID");
-			labels.add("Post-COVID");
-		}
-
 		value.setLabels(labels);
 		value.setDatasets(chart);
 		return value;
 
 	}
 	
+	
+	
+	
+	public ChartObjectCustom getDataCovidCompany(List<String>tickerList,String type,
+			 String boundaryDate) throws ParseException {
+
+		ChartObjectCustom value = new ChartObjectCustom();
+		List<ChartObject> chart = new ArrayList<>();
+		List<String> labels = new ArrayList<>();
+		
+		ChartObject object1 = new ChartObject();
+		ChartObject object2 = new ChartObject();
+		List<Double>data1 = new ArrayList<>();
+		List<Double>data2 = new ArrayList<>();
+		List<Double>dev1 = new ArrayList<>();
+		List<Double>dev2 = new ArrayList<>();
+
+		for(String ticker: tickerList) {
+			
+			Company company = getByTicker(ticker);	
+			
+			labels.add(company.getName());
+		
+			object1.setLabel("Pre-COVID");
+			object2.setLabel("Post-COVID");
+			
+			object1.setBackgroundColor("7E57C2");
+			object1.setBorderColor("7E57C2");
+			
+			object2.setBackgroundColor("D4E157");
+			object2.setBorderColor("D41757");
+			
+			
+			AverageValues val = companyAverage(ticker, type, boundaryDate);			
+			data1.add(val.getPreCovidValue());			
+			data2.add(val.getPostCovidValue());	
+			dev1.add(0.00);
+			dev2.add(val.getDeviation());
+		}
+		
+		object1.setData(data1);
+		object2.setData(data2);
+		object1.setDeviation(dev1);
+		object2.setDeviation(dev2);
+		value.setLabels(labels);
+		chart.add(object1);
+		chart.add(object2);
+		value.setDatasets(chart);
+		return value;	
+
+	}
+	
+	
+	public ChartObjectCustom getDataCovidSector(List<String>sectorList,String type,
+			 String boundaryDate) throws ParseException {
+
+		ChartObjectCustom value = new ChartObjectCustom();
+		List<ChartObject> chart = new ArrayList<>();
+		List<String> labels = new ArrayList<>();
+		
+		ChartObject object1 = new ChartObject();
+		ChartObject object2 = new ChartObject();
+		List<Double>data1 = new ArrayList<>();
+		List<Double>data2 = new ArrayList<>();
+		List<Double>dev1 = new ArrayList<>();
+		List<Double>dev2 = new ArrayList<>();
+
+		for(String sector: sectorList) {
+				
+			
+			labels.add(sector);
+		
+			object1.setLabel("Pre-COVID");
+			object2.setLabel("Post-COVID");
+			
+			object1.setBackgroundColor("7E57C2");
+			object1.setBorderColor("7E57C2");
+			
+			object2.setBackgroundColor("D4E157");
+			object2.setBorderColor("D41757");
+						
+			AverageValues val = sectorAverage(sector, type, boundaryDate);			
+			data1.add(val.getPreCovidValue());			
+			data2.add(val.getPostCovidValue());	
+			dev1.add(0.00);
+			dev2.add(val.getDeviation());
+		}
+		
+		object1.setData(data1);
+		object2.setData(data2);
+		object1.setDeviation(dev1);
+		object2.setDeviation(dev2);
+		value.setLabels(labels);
+		chart.add(object1);
+		chart.add(object2);
+		value.setDatasets(chart);
+		return value;	
+
+	}
+
+	
+	public ChartObjectCustom getDataCovid (List<String>tickerList, List<String>sectorList, String type,String option, String boundaryDate) throws ParseException {
+			
+		if(tickerList.isEmpty()) {
+			return getDataCovidSector(sectorList,type,boundaryDate);
+		}
+		
+		else if(sectorList.isEmpty()) {
+			return getDataCovidCompany(tickerList,type,boundaryDate);
+		}
+		
+		else if (option.contentEquals("company")) {
+
+			List<String> tickerNew = new ArrayList<>();
+			for (String ticker : tickerList) {
+
+				Company company = getByTicker(ticker);
+				if (sectorList.contains(company.getSector())) {
+					tickerNew.add(ticker);
+				}
+			}
+
+			return getDataCovidCompany(tickerNew, type, boundaryDate);
+
+		}
+		
+		else if (option.contentEquals("both")) {
+
+			List<String> tickerNew = new ArrayList<>();
+			List<String> sectorNew = new ArrayList<>();
+			ChartObjectCustom value1 = new ChartObjectCustom();
+			ChartObjectCustom value2 = new ChartObjectCustom();
+			for (String ticker : tickerList) {
+
+				Company company = getByTicker(ticker);
+				if (sectorList.contains(company.getSector())) {
+					tickerNew.add(ticker);
+					sectorNew.add(company.getSector());
+
+				}
+			}
+			List<String> newSector = new ArrayList<>(new HashSet<String>(sectorNew));
+			value1 = getDataCovidCompany(tickerNew, type,  boundaryDate);
+			value2 = getDataCovidSector(newSector,  type, boundaryDate);
+
+			
+			value1.getLabels().addAll(value2.getLabels());
+
+			value1.getDatasets().get(0).getData().addAll(value2.getDatasets().get(0).getData());
+			value1.getDatasets().get(1).getData().addAll(value2.getDatasets().get(1).getData());
+			value1.getDatasets().get(0).getDeviation().addAll(value2.getDatasets().get(0).getDeviation());
+			value1.getDatasets().get(1).getDeviation().addAll(value2.getDatasets().get(1).getDeviation());
+			return value1;
+		}
+		
+		else {
+			return null;
+			}
+	}
+	
+	
+
+	
 	public ChartObjectCustom getChart(List<String> tickerList, List<String> sectorList, String startDate,
 			String endDate, String type, String group, String option, String boundaryDate) throws ParseException {
 
+		
+		if (group.contentEquals("covid")) {
+			
+			return getDataCovid(tickerList,sectorList,type,option,boundaryDate);
+			
+		}
 		// If only list of companies is passed
-		if (sectorList.isEmpty()) {
+		else if (sectorList.isEmpty()) {
 			return getDataCompany(tickerList, startDate, endDate, type, group, boundaryDate);
 		}
 		
