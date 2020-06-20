@@ -992,12 +992,11 @@ public class CompanyService  {
 			object1.setLabel("Pre-COVID");
 			object2.setLabel("Post-COVID");
 			
-			object1.setBackgroundColor("7E57C2");
-			object1.setBorderColor("7E57C2");
+			object1.setBackgroundColor("#29B6F6");
+			object1.setBorderColor("#29B6F6");
 			
-			object2.setBackgroundColor("D4E157");
-			object2.setBorderColor("D41757");
-			
+			object2.setBackgroundColor("#EF5350");
+			object2.setBorderColor("#EF5350");
 			
 			AverageValues val = companyAverage(ticker, type, boundaryDate);			
 			data1.add(val.getPreCovidValue());			
@@ -1041,11 +1040,11 @@ public class CompanyService  {
 			object1.setLabel("Pre-COVID");
 			object2.setLabel("Post-COVID");
 			
-			object1.setBackgroundColor("7E57C2");
-			object1.setBorderColor("7E57C2");
+			object1.setBackgroundColor("#29B6F6");
+			object1.setBorderColor("#29B6F6");
 			
-			object2.setBackgroundColor("D4E157");
-			object2.setBorderColor("D41757");
+			object2.setBackgroundColor("#EF5350");
+			object2.setBorderColor("#EF5350");
 						
 			AverageValues val = sectorAverage(sector, type, boundaryDate);			
 			data1.add(val.getPreCovidValue());			
